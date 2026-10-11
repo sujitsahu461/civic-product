@@ -1,0 +1,869 @@
+/* ============================================================
+   CivicSetu Super Admin — Municipal SLA & Intelligence Hub
+   Exact Pixel-Perfect Match to Executive Portal UI Specification
+   ============================================================ */
+
+.pageLayout {
+  display: flex;
+  flex-direction: row;
+  min-height: calc(100vh - 64px);
+  width: 100%;
+  background-color: #f8fafc;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #1e293b;
+  box-sizing: border-box;
+}
+
+/* ============================================================
+   MAIN CONTENT AREA (FULL-WIDTH ANALYTICS DASHBOARD)
+   ============================================================ */
+.mainContent {
+  width: 100%;
+  max-width: 1560px;
+  margin: 0 auto;
+  padding: 24px 32px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Header Bar */
+.headerBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.headerTitle {
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.025em;
+  margin: 0 0 3px 0;
+}
+
+.headerSubtitle {
+  font-size: 13.5px;
+  color: #64748b;
+  margin: 0;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dateRangePicker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #334155;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.dateRangePicker:hover {
+  border-color: #cbd5e1;
+}
+
+.btnExportReport {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #1877f2;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 9px 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  box-shadow: 0 2px 8px rgba(24, 119, 242, 0.28);
+}
+
+.btnExportReport:hover {
+  background: #166fe5;
+  transform: translateY(-1px);
+}
+
+/* ============================================================
+   3. TOP 4 KPI CARDS ROW
+   ============================================================ */
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.kpiCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.kpiCard:hover {
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+}
+
+.kpiLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.kpiIconBox {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kpiInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.kpiLabel {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.kpiValueRow {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.kpiValue {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.trendBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #10b981;
+}
+
+.kpiFootnote {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.sparklineWrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* ============================================================
+   4. ROW 2: DUAL MAIN VISUALIZATIONS (52% / 48%)
+   ============================================================ */
+.dualChartsRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+  gap: 16px;
+}
+
+.chartCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px 20px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+  display: flex;
+  flex-direction: column;
+}
+
+.chartCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.cardTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 2px 0;
+}
+
+.cardSubtitle {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}
+
+.toggleButtonGroup {
+  display: flex;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.btnToggle {
+  padding: 4px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748b;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btnToggleActive {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25);
+}
+
+.legendGroup {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* Civic Domain Workload Bar Chart Container */
+.barsContainer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 220px;
+  padding: 10px 10px 0;
+  position: relative;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.gridLines {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.gridLine {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.gridLineText {
+  font-size: 10.5px;
+  color: #94a3b8;
+  width: 28px;
+  text-align: right;
+  padding-right: 8px;
+}
+
+.gridLineDash {
+  flex: 1;
+  height: 1px;
+  background: #f1f5f9;
+}
+
+.barCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+  z-index: 2;
+  position: relative;
+  cursor: pointer;
+}
+
+.barTopVal {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 6px;
+  transition: transform 0.15s ease;
+}
+
+.barPillar {
+  width: 48px;
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+}
+
+.barCol:hover .barPillar {
+  transform: translateY(-4px);
+  filter: brightness(1.06);
+}
+
+.barCol:hover .barTopVal {
+  transform: translateY(-2px);
+  color: #2563eb;
+}
+
+.barPillarIcon {
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.barLabel {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #475569;
+  text-align: center;
+  margin-top: 10px;
+  line-height: 1.25;
+  height: 28px;
+  max-width: 72px;
+}
+
+/* Influx vs Resolution Wave Chart */
+.waveChartContainer {
+  position: relative;
+  height: 220px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.waveSvg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.tooltipBox {
+  position: absolute;
+  top: 15px;
+  left: 65%;
+  transform: translateX(-50%);
+  background: #ffffff;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  padding: 8px 12px;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15);
+  font-size: 11.5px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.tooltipDate {
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.tooltipRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+  color: #334155;
+  font-weight: 600;
+}
+
+.xAxisLabels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 11px;
+  color: #94a3b8;
+  padding: 0 8px;
+}
+
+/* ============================================================
+   5. ROW 3: THREE CARDS (44% / 28% / 28%)
+   ============================================================ */
+.threeCardsRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 0.95fr) minmax(0, 0.95fr);
+  gap: 16px;
+}
+
+/* Card 1: Department Performance Table */
+.deptTableWrapper {
+  overflow-x: auto;
+  margin-top: 8px;
+}
+
+.deptTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.deptTable th {
+  padding: 8px 10px;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+.deptTable td {
+  padding: 9px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  vertical-align: middle;
+}
+
+.deptNumBadge {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.deptNumBadgeGold {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.deptNameCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.deptIcon {
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+.pillSlaGreen {
+  display: inline-flex;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.pillSlaRed {
+  display: inline-flex;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.viewAllLink {
+  font-size: 12px;
+  font-weight: 600;
+  color: #2563eb;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.viewAllLink:hover {
+  text-decoration: underline;
+}
+
+/* Card 2: Complaint Status Donut */
+.donutWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 10px;
+  height: 100%;
+}
+
+.donutSvgWrap {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  flex-shrink: 0;
+}
+
+.donutSvg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.donutCenterText {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.donutCenterNum {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.1;
+}
+
+.donutCenterLabel {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.donutLegendList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.donutLegendRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+}
+
+.donutLegendLeft {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #475569;
+}
+
+.donutLegendVal {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Card 3: Citizen Satisfaction */
+.satisfactionBlock {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.starBadgeBig {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #fffbeb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: #f59e0b;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.15);
+}
+
+.ratingInfoCol {
+  display: flex;
+  flex-direction: column;
+}
+
+.ratingNumRow {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.ratingNum {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.ratingStarsRow {
+  color: #f59e0b;
+  font-size: 14px;
+  margin-top: 1px;
+}
+
+.starBarsList {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.starBarRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.starBarLabel {
+  width: 24px;
+  color: #475569;
+  font-weight: 600;
+}
+
+.starBarTrack {
+  flex: 1;
+  height: 7px;
+  background: #f1f5f9;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.starBarFill {
+  height: 100%;
+  background: #f59e0b;
+  border-radius: 9999px;
+}
+
+.starBarVal {
+  font-size: 10.5px;
+  color: #64748b;
+  width: 48px;
+  text-align: right;
+}
+
+/* ============================================================
+   6. ROW 4: THREE INSIGHT CARDS (34% / 36% / 30%)
+   ============================================================ */
+.bottomCardsRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 16px;
+}
+
+.recurringList {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 8px;
+}
+
+.recurringRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.recurringLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1e293b;
+  width: 175px;
+}
+
+.recurringNum {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.recurringBarTrack {
+  flex: 1;
+  height: 10px;
+  border-radius: 5px;
+  background: #f1f5f9;
+  overflow: hidden;
+}
+
+.recurringBarFill {
+  height: 100%;
+  border-radius: 5px;
+}
+
+.recurringVal {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #0f172a;
+  width: 28px;
+  text-align: right;
+}
+
+/* AI Insights & Predictions Card */
+.aiBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  color: #7c3aed;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 9999px;
+}
+
+.predictionList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.predictionCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  border: 1px solid transparent;
+}
+
+.predictionCardRed {
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #9f1239;
+}
+
+.predictionCardGreen {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #166534;
+}
+
+.predictionCardAmber {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+.predictionIconBox {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.predIconRed {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.predIconGreen {
+  background: #ecfdf5;
+  color: #10b981;
+}
+
+.predIconAmber {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+/* ============================================================
+   7. RESPONSIVE BREAKPOINTS
+   ============================================================ */
+@media (max-width: 1380px) {
+  .dualChartsRow {
+    grid-template-columns: 1fr;
+  }
+
+  .threeCardsRow {
+    grid-template-columns: 1fr;
+  }
+
+  .bottomCardsRow {
+    grid-template-columns: 1fr;
+  }
+
+  .kpiGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    display: none;
+  }
+
+  .mainContent {
+    max-width: 100%;
+    padding: 16px;
+  }
+
+  .kpiGrid {
+    grid-template-columns: 1fr;
+  }
+}

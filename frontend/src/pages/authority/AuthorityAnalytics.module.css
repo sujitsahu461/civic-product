@@ -1,0 +1,1715 @@
+/* ============================================================
+   Power BI Inspired Authority Analytics — Microsoft Power BI Theme
+   Matches Power BI Desktop & Service Canvas Aesthetics with 100% Precision
+   ============================================================ */
+
+.powerBiCanvas {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 4px 0 48px;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+  color: #201f1e;
+  box-sizing: border-box;
+}
+
+/* ============================================================
+   1. POWER BI COMMAND RIBBON & WORKSPACE HEADER
+   ============================================================ */
+.powerBiRibbon {
+  background: #ffffff;
+  border: 1px solid #edebe9;
+  border-radius: 12px;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  box-shadow: 0 1.6px 3.6px 0 rgba(0, 0, 0, 0.132), 0 0.3px 0.9px 0 rgba(0, 0, 0, 0.108);
+}
+
+.ribbonLeft {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Authority Officer Profile Badge */
+.authorityAvatarBadge {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0078d4 0%, #106ebe 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 120, 212, 0.28);
+  flex-shrink: 0;
+}
+
+.authorityImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.authorityInitials {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+}
+
+.onlineBadgeDot {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #107c41;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 1px rgba(16, 124, 65, 0.3);
+}
+
+.authorityTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.authorityDesignationBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  background: #f0f6ff;
+  border: 1px solid #c7e0f4;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #0078d4;
+  box-shadow: 0 1px 2px rgba(0, 120, 212, 0.08);
+}
+
+.workspaceMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.workspaceBreadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: #605e5c;
+  font-weight: 500;
+}
+
+.breadSep {
+  color: #a19f9d;
+}
+
+.activeReportName {
+  color: #0078d4;
+  font-weight: 600;
+}
+
+.reportTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: #201f1e;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+/* Ribbon Right Action Buttons */
+.ribbonRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ribbonToolBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #323130;
+  background: #f3f2f1;
+  border: 1px solid #edebe9;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ribbonToolBtn:hover {
+  background: #edebe9;
+  color: #201f1e;
+  border-color: #c8c6c4;
+}
+
+.toolActive {
+  background: #deecf9;
+  color: #0078d4;
+  border-color: #c7e0f4;
+}
+
+.exportBtn {
+  background: #0078d4;
+  color: #ffffff;
+  border-color: #0078d4;
+}
+
+.exportBtn:hover {
+  background: #106ebe;
+  color: #ffffff;
+}
+
+.refreshIcon {
+  color: inherit;
+}
+
+.spinAnimation {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.livePulseDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.pulseGreen {
+  background: #107c41;
+  box-shadow: 0 0 0 2px rgba(16, 124, 65, 0.25);
+  animation: pulse 1.8s infinite;
+}
+
+.pulseGray {
+  background: #8a8886;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+/* Power BI Period Chiclet Group */
+.periodChicletGroup {
+  display: flex;
+  background: #f3f2f1;
+  border: 1px solid #edebe9;
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.chicletBtn {
+  background: transparent;
+  border: none;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #605e5c;
+  padding: 5px 11px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.chicletBtn:hover {
+  color: #201f1e;
+}
+
+.chicletActive {
+  background: #ffffff;
+  color: #0078d4;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* ============================================================
+   2. POWER BI SLICERS PANEL (CROSS-FILTERING BAR)
+   ============================================================ */
+.slicersPanel {
+  background: #ffffff;
+  border: 1px solid #edebe9;
+  border-radius: 10px;
+  padding: 12px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 1.2px 2px rgba(0, 0, 0, 0.04);
+}
+
+.slicerRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.slicerIconBox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0078d4;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.slicerLabel {
+  color: #323130;
+}
+
+.slicerGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.slicerTitle {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #605e5c;
+}
+
+.slicerSelect {
+  background: #f8fafc;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1f2937;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.slicerSelect:focus {
+  border-color: #0078d4;
+  box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.2);
+}
+
+.activeFilterSummary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.filterCountBadge {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4b5563;
+  background: #f1f5f9;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  border: 1px solid #e2e8f0;
+}
+
+.clearTagBtn {
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  color: #b91c1c;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.clearTagBtn:hover {
+  background: #fecaca;
+}
+
+.slicerSearchWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.slicerSearchInput {
+  background: #f8fafc;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 5px 10px 5px 28px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #1f2937;
+  outline: none;
+  width: 170px;
+  transition: all 0.15s ease;
+}
+
+.slicerSearchInput:focus {
+  border-color: #0078d4;
+  width: 210px;
+  box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.2);
+}
+
+.searchFieldIcon {
+  position: absolute;
+  left: 8px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+/* Report View Switcher Tabs */
+.reportViewTabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 8px;
+  overflow-x: auto;
+}
+
+.viewTabBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.viewTabBtn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.viewTabActive {
+  background: #eff6ff;
+  color: #0078d4;
+  font-weight: 700;
+}
+
+/* ============================================================
+   3. TOP POWER BI SCORECARD KPI CARDS
+   ============================================================ */
+.scorecardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.pbiCard {
+  background: #ffffff;
+  border: 1px solid #edebe9;
+  border-top: 3px solid #0078d4;
+  border-radius: 8px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 1.6px 3.6px 0 rgba(0, 0, 0, 0.08), 0 0.3px 0.9px 0 rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pbiCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 120, 212, 0.12);
+  transform: translateY(-1px);
+}
+
+.pbiCard:nth-child(2) {
+  border-top-color: #107c41;
+}
+
+.pbiCard:nth-child(3) {
+  border-top-color: #f59e0b;
+}
+
+.pbiCard:nth-child(4) {
+  border-top-color: #d97706;
+}
+
+.cardTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cardCalloutLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #605e5c;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cardIconBadge {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardMainMetricRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin: 4px 0 2px;
+}
+
+.cardBigValue {
+  font-size: 30px;
+  font-weight: 800;
+  color: #201f1e;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.cardDeltaWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.deltaPillGreen {
+  font-size: 11px;
+  font-weight: 700;
+  background: #dff6dd;
+  color: #107c41;
+  padding: 1px 7px;
+  border-radius: 4px;
+}
+
+.deltaPillAmber {
+  font-size: 11px;
+  font-weight: 700;
+  background: #fff4ce;
+  color: #b45309;
+  padding: 1px 7px;
+  border-radius: 4px;
+}
+
+.cardSubRow {
+  display: flex;
+  align-items: center;
+}
+
+.subTextMuted {
+  font-size: 11.5px;
+  color: #605e5c;
+}
+
+/* ============================================================
+   4. POWER BI VISUAL TILES (CANVAS LAYOUT)
+   ============================================================ */
+.canvasRowDual {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+@media (max-width: 1080px) {
+  .canvasRowDual {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pbiVisualTile {
+  background: #ffffff;
+  border: 1px solid #edebe9;
+  border-radius: 8px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 1.6px 3.6px 0 rgba(0, 0, 0, 0.08);
+  position: relative;
+}
+
+.visualHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.visualTitle {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #201f1e;
+  margin: 0 0 2px 0;
+}
+
+.visualSubtitle {
+  font-size: 11.5px;
+  color: #605e5c;
+  margin: 0;
+}
+
+.visualTools {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.toolIconBtn {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: #605e5c;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.toolIconBtn:hover {
+  background: #f3f2f1;
+  border-color: #edebe9;
+  color: #201f1e;
+}
+
+/* Legend Row */
+.pbiLegendRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 11.5px;
+  color: #605e5c;
+  font-weight: 600;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendBox {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.legendLine {
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+/* Chart Canvas & Clustered Column Visual */
+.chartCanvasWrap {
+  width: 100%;
+  height: 200px;
+  display: flex;
+  align-items: flex-end;
+  position: relative;
+  border-bottom: 1px solid #edebe9;
+  padding-bottom: 6px;
+}
+
+.columnChartContainer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  gap: 8px;
+}
+
+.barColumnGroup {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  cursor: pointer;
+  position: relative;
+}
+
+.columnTrack {
+  flex: 1;
+  width: 100%;
+  max-width: 32px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  position: relative;
+}
+
+.columnBar {
+  width: 100%;
+  background: linear-gradient(180deg, #118dff 0%, #0078d4 100%);
+  border-radius: 4px 4px 0 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  transition: height 0.3s ease, filter 0.15s ease;
+}
+
+.barColumnGroup:hover .columnBar {
+  filter: brightness(1.15);
+}
+
+.columnBarVal {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #ffffff;
+  padding-top: 3px;
+}
+
+.resolutionMarker {
+  position: absolute;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.resDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #107c41;
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.columnDateLabel {
+  font-size: 10.5px;
+  color: #605e5c;
+  margin-top: 6px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.chartFloatingTooltip {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  background: #201f1e;
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  line-height: 1.4;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ============================================================
+   POWER BI DONUT VISUAL
+   ============================================================ */
+.donutVisualLayout {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.donutSvgWrapper {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  flex-shrink: 0;
+}
+
+.donutSvg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.donutSlice {
+  transition: stroke-width 0.2s ease, filter 0.2s ease;
+  cursor: pointer;
+}
+
+.donutSlice:hover {
+  filter: brightness(1.12);
+}
+
+.donutCenterText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.donutCenterNumber {
+  font-size: 24px;
+  font-weight: 800;
+  color: #201f1e;
+  line-height: 1.1;
+}
+
+.donutCenterLabel {
+  font-size: 11px;
+  color: #605e5c;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.donutLegendCol {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.donutLegendItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.donutLegendItem:hover {
+  background: #f1f5f9;
+}
+
+.legendActive {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.legendLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legendColorSwatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.legendName {
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.legendRight {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legendCount {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.legendPct {
+  font-size: 11px;
+  color: #64748b;
+}
+
+/* ============================================================
+   CATEGORY WORKLOAD 100% STACKED BAR VISUAL
+   ============================================================ */
+.categoryBarList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.catBarItem {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.catBarItem:hover {
+  background: #f8fafc;
+}
+
+.catBarSelected {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+}
+
+.catBarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.catNameGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.catDisplayName {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #201f1e;
+}
+
+.filterPinBadge {
+  font-size: 10px;
+  font-weight: 700;
+  background: #0078d4;
+  color: #ffffff;
+  padding: 1px 6px;
+  border-radius: 9999px;
+}
+
+.catCountsRight {
+  font-size: 11.5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.catResolvedCount {
+  font-weight: 700;
+  color: #107c41;
+}
+
+.catTotalCount {
+  color: #64748b;
+}
+
+.stackedBarTrack {
+  width: 100%;
+  height: 10px;
+  background: #e2e8f0;
+  border-radius: 5px;
+  display: flex;
+  overflow: hidden;
+}
+
+.stackedBarResolved {
+  height: 100%;
+  background: #107c41;
+}
+
+.stackedBarInProg {
+  height: 100%;
+  background: #0078d4;
+}
+
+.stackedBarPending {
+  height: 100%;
+  background: #f2c811;
+}
+
+/* ============================================================
+   WARD GEOGRAPHIC HOTSPOTS
+   ============================================================ */
+.wardList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wardRowItem {
+  display: grid;
+  grid-template-columns: 140px 1fr 100px;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.wardRowItem:hover {
+  background: #f8fafc;
+}
+
+.wardActive {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+}
+
+.wardInfoCol {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wardRankBadge {
+  font-size: 10px;
+  font-weight: 800;
+  color: #605e5c;
+  background: #f1f5f9;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.wardNameText {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wardBarCol {
+  width: 100%;
+}
+
+.wardBarTrack {
+  width: 100%;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.wardBarFill {
+  height: 100%;
+  border-radius: 4px;
+}
+
+.wardMetricsCol {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.wardCountBold {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.rateGreen {
+  font-size: 11px;
+  font-weight: 700;
+  color: #107c41;
+  background: #dff6dd;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.rateAmber {
+  font-size: 11px;
+  font-weight: 700;
+  color: #b45309;
+  background: #fff4ce;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+/* ============================================================
+   5. POWER BI MATRIX GRID VISUAL (DATA TABLE)
+   ============================================================ */
+.matrixSection {
+  width: 100%;
+}
+
+.matrixTitleGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.matrixToolbarActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.matrixSearchBox {
+  display: flex;
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 4px 10px;
+  gap: 6px;
+}
+
+.searchIcon {
+  color: #94a3b8;
+}
+
+.matrixSearchInput {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 12px;
+  color: #1e293b;
+  width: 220px;
+}
+
+.clearSearchBtn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.matrixTableWrapper {
+  overflow-x: auto;
+  border: 1px solid #edebe9;
+  border-radius: 6px;
+}
+
+.matrixTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.matrixTable th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 700;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+
+.matrixTable th:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.matrixRow {
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.matrixRow:hover {
+  background: #f8fafc;
+}
+
+.matrixTable td {
+  padding: 11px 14px;
+  vertical-align: middle;
+}
+
+.codeCell {
+  white-space: nowrap;
+}
+
+.codePill {
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 11.5px;
+  color: #0078d4;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.categoryTag {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.titleCell {
+  max-width: 280px;
+}
+
+.titleText {
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.priorityBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.priorityDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.locationCell {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.dateCell {
+  color: #64748b;
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.viewDetailBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.viewDetailBtn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.emptyCell {
+  text-align: center;
+  padding: 40px !important;
+}
+
+.emptyStateBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #64748b;
+}
+
+.resetInlineBtn {
+  background: #0078d4;
+  color: #ffffff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.matrixPaginationRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.pageInfoText {
+  font-weight: 500;
+}
+
+.paginationButtons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pageBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+}
+
+.pageBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pageIndicator {
+  font-size: 12px;
+}
+
+/* ============================================================
+   6. CITIZEN CSAT SENTIMENT STREAM
+   ============================================================ */
+.csatSection {
+  width: 100%;
+}
+
+.csatOverallHeaderBadge {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  padding: 4px 12px;
+  border-radius: 9999px;
+}
+
+.csatStarGold {
+  color: #f59e0b;
+  font-size: 16px;
+}
+
+.csatScoreLarge {
+  font-size: 18px;
+  font-weight: 800;
+  color: #b45309;
+}
+
+.csatScoreMax {
+  font-size: 11.5px;
+  color: #b45309;
+}
+
+.feedbackCardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.csatCard {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.csatCardHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.csatAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #0078d4;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.csatUserCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.csatUserName {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.csatCode {
+  font-size: 11px;
+  color: #64748b;
+  font-family: monospace;
+}
+
+.csatStars {
+  display: flex;
+  gap: 2px;
+}
+
+.starGold {
+  color: #f59e0b;
+  font-size: 13px;
+}
+
+.starGray {
+  color: #cbd5e1;
+  font-size: 13px;
+}
+
+.csatCommentText {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #334155;
+  margin: 0;
+  font-style: italic;
+}
+
+.csatFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 6px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.csatPillGreen {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #dff6dd;
+  color: #107c41;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.csatTimeText {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.noDataMuted {
+  text-align: center;
+  padding: 32px;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+/* ============================================================
+   7. POWER BI FOCUS MODE & DETAIL MODALS
+   ============================================================ */
+.focusBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.focusModal {
+  background: #ffffff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 960px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  animation: modalIn 0.2s ease-out;
+}
+
+.detailModal {
+  background: #ffffff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  animation: modalIn 0.2s ease-out;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.focusModalHeader, .detailModalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #edebe9;
+  background: #f8fafc;
+}
+
+.powerBiTag {
+  font-size: 11px;
+  font-weight: 700;
+  color: #0078d4;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.focusModalTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #201f1e;
+  margin: 2px 0 0 0;
+}
+
+.detailCodeBadge {
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 12px;
+  color: #0078d4;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.detailModalTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: #201f1e;
+  margin: 6px 0 0 0;
+}
+
+.closeFocusBtn {
+  background: #f3f2f1;
+  border: 1px solid #d1d5db;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.closeFocusBtn:hover {
+  background: #e2e8f0;
+}
+
+.focusModalBody, .detailModalBody {
+  padding: 20px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.focusInfoBanner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #1e40af;
+}
+
+.focusChartWrap {
+  padding: 16px 0;
+}
+
+.focusDonutGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.focusDonutCard {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.focusSegName {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.focusSegCount {
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.focusSegPct {
+  font-size: 12px;
+  color: #107c41;
+  font-weight: 700;
+}
+
+.focusCategoryTableWrap {
+  border: 1px solid #edebe9;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.focusTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.focusTable th {
+  background: #f1f5f9;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+  font-weight: 700;
+  color: #334155;
+}
+
+.focusTable td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.focusWardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.focusWardCard {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.focusWardTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.focusWardTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.focusWardMetrics {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #475569;
+}
+
+/* Detail Modal Specifics */
+.detailMetaGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.detailMetaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detailMetaItem label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.detailSectionLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.detailDescriptionText {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #334155;
+  background: #f8fafc;
+  padding: 12px 14px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  margin: 0;
+}
+
+.locationRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+}

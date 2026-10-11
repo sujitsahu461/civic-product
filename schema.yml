@@ -1,0 +1,4158 @@
+openapi: 3.0.3
+info:
+  title: CivicSetu API
+  version: 1.0.0
+  description: Backend API for the CivicSetu AI-powered civic engagement platform.
+paths:
+  /api/v1/ai/city-insights/:
+    get:
+      operationId: api_v1_ai_city_insights_retrieve
+      description: Retrieve city-wide predictive insights, hazard alerts, and category
+        distributions.
+      summary: Get city-wide AI civic insights
+      tags:
+      - AI Predictions
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AICityInsights'
+          description: ''
+  /api/v1/ai/classify/:
+    post:
+      operationId: api_v1_ai_classify_create
+      description: Classify grievance text and predict urgency, priority, and hazard
+        tags.
+      summary: AI automated complaint triage & classification
+      tags:
+      - AI Predictions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AITriageRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AITriageRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AITriageRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AITriageResponse'
+          description: ''
+        '400':
+          description: Invalid request payload
+  /api/v1/ai/complaint/{complaint_public_id}/prediction/:
+    get:
+      operationId: api_v1_ai_complaint_prediction_retrieve
+      description: Retrieve or generate AI predictions for a specific complaint.
+      summary: Get AI analysis for a complaint
+      parameters:
+      - in: path
+        name: complaint_public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - AI Predictions
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AITriageResponse'
+          description: ''
+        '404':
+          description: Complaint not found
+  /api/v1/ai/detect-duplicates/:
+    post:
+      operationId: api_v1_ai_detect_duplicates_create
+      description: Scan open complaints to identify duplicate grievances using geospatial
+        proximity and NLP.
+      summary: AI duplicate complaint detection
+      tags:
+      - AI Predictions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AIDuplicateCheckRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AIDuplicateCheckRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AIDuplicateCheckRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AIDuplicateMatch'
+          description: ''
+        '400':
+          description: Validation error
+  /api/v1/audit-logs/:
+    get:
+      operationId: api_v1_audit_logs_list
+      description: List system audit logs with filtering and pagination (Super Admin
+        only).
+      summary: List and filter audit logs
+      parameters:
+      - in: query
+        name: action
+        schema:
+          enum:
+          - AUTH_LOGIN
+          - AUTH_LOGOUT
+          - AUTH_REGISTER
+          - PASSWORD_CHANGE
+          - PROFILE_UPDATE
+          - COMPLAINT_CREATED
+          - COMPLAINT_STATUS_UPDATE
+          - COMPLAINT_PRIORITY_UPDATE
+          - COMPLAINT_ASSIGNED
+          - DEPARTMENT_CREATED
+          - DEPARTMENT_UPDATED
+          - AUTHORITY_ASSIGNED
+          - FEEDBACK_SUBMITTED
+          - AI_TRIAGE_RUN
+          - SYSTEM_EVENT
+          type: string
+          minLength: 1
+        description: |-
+          * `AUTH_LOGIN` - User Login
+          * `AUTH_LOGOUT` - User Logout
+          * `AUTH_REGISTER` - User Registration
+          * `PASSWORD_CHANGE` - Password Changed
+          * `PROFILE_UPDATE` - Profile Updated
+          * `COMPLAINT_CREATED` - Complaint Created
+          * `COMPLAINT_STATUS_UPDATE` - Complaint Status Updated
+          * `COMPLAINT_PRIORITY_UPDATE` - Complaint Priority Updated
+          * `COMPLAINT_ASSIGNED` - Authority Assigned to Complaint
+          * `DEPARTMENT_CREATED` - Department Created
+          * `DEPARTMENT_UPDATED` - Department Updated
+          * `AUTHORITY_ASSIGNED` - Authority Assigned to Department
+          * `FEEDBACK_SUBMITTED` - Feedback Submitted
+          * `AI_TRIAGE_RUN` - AI Triage Executed
+          * `SYSTEM_EVENT` - System Event
+      - in: query
+        name: actor_email
+        schema:
+          type: string
+          minLength: 1
+      - in: query
+        name: end_date
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: entity_type
+        schema:
+          type: string
+          minLength: 1
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+          minLength: 1
+      - in: query
+        name: start_date
+        schema:
+          type: string
+          format: date-time
+      tags:
+      - Audit Logs
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAuditLogList'
+          description: ''
+  /api/v1/audit-logs/{public_id}/:
+    get:
+      operationId: api_v1_audit_logs_retrieve
+      description: Retrieve specific audit log entry by public UUID (Super Admin only).
+      summary: Get audit log details
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Audit Logs
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLog'
+          description: ''
+        '404':
+          description: Audit log entry not found
+  /api/v1/audit-logs/summary/:
+    get:
+      operationId: api_v1_audit_logs_summary_retrieve
+      description: Retrieve aggregate security and activity summary metrics (Super
+        Admin only).
+      summary: Get audit log activity summary
+      tags:
+      - Audit Logs
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLogSummary'
+          description: ''
+  /api/v1/auth/forgot-password/:
+    post:
+      operationId: api_v1_auth_forgot_password_create
+      summary: Request a password reset email
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          description: Password reset email queued if the account exists.
+  /api/v1/auth/login/:
+    post:
+      operationId: api_v1_auth_login_create
+      summary: Login with email and password
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+          description: ''
+  /api/v1/auth/logout/:
+    post:
+      operationId: api_v1_auth_logout_create
+      summary: Logout by blacklisting the refresh token
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '205':
+          description: Refresh token blacklisted.
+  /api/v1/auth/me/:
+    get:
+      operationId: api_v1_auth_me_retrieve
+      summary: Get the authenticated user profile
+      tags:
+      - Authentication
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/v1/auth/refresh/:
+    post:
+      operationId: api_v1_auth_refresh_create
+      summary: Refresh JWT access token
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+          description: ''
+  /api/v1/auth/register/:
+    post:
+      operationId: api_v1_auth_register_create
+      summary: Register a citizen or authority account
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+          description: ''
+  /api/v1/auth/reset-password/:
+    post:
+      operationId: api_v1_auth_reset_password_create
+      summary: Confirm password reset with uid and token
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          description: Password reset completed.
+  /api/v1/auth/verify/:
+    post:
+      operationId: api_v1_auth_verify_create
+      description: |-
+        Takes a token and indicates if it is valid.  This view provides no
+        information about a token's fitness for a particular use.
+      summary: Verify a JWT token
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenVerifyRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenVerifyRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenVerifyRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/authority/analytics/department/:
+    get:
+      operationId: api_v1_authority_analytics_department_list
+      description: Returns per-category complaint breakdown with resolution rates.
+      summary: Category performance
+      tags:
+      - Authority - Analytics
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategoryPerformanceItem'
+          description: ''
+  /api/v1/authority/analytics/priority/:
+    get:
+      operationId: api_v1_authority_analytics_priority_retrieve
+      description: Returns complaint count and percentage by priority level for the
+        authority's scope.
+      summary: Priority breakdown
+      tags:
+      - Authority - Analytics
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriorityBreakdown'
+          description: ''
+  /api/v1/authority/analytics/stats/:
+    get:
+      operationId: api_v1_authority_analytics_stats_retrieve
+      description: Returns status breakdown, average resolution time, and daily trend
+        for the authority's scope.
+      summary: Complaint statistics
+      parameters:
+      - in: query
+        name: days
+        schema:
+          type: integer
+        description: Period in days (default 30)
+      tags:
+      - Authority - Analytics
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintStats'
+          description: ''
+  /api/v1/authority/complaints/:
+    get:
+      operationId: api_v1_authority_complaints_list
+      description: Paginated list of complaints in the authority's department(s) or
+        assigned directly, with search and filters.
+      summary: List authority complaints
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: priority
+        schema:
+          type: string
+          enum:
+          - HIGH
+          - LOW
+          - MEDIUM
+          - URGENT
+        description: Filter by priority
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search query
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - CLOSED
+          - IN_PROGRESS
+          - PENDING
+          - REJECTED
+          - RESOLVED
+        description: Filter by status
+      tags:
+      - Authority - Complaints
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedComplaintListList'
+          description: ''
+  /api/v1/authority/complaints/{public_id}/:
+    get:
+      operationId: api_v1_authority_complaints_retrieve
+      description: Retrieve full details, images, and latest history for a complaint.
+      summary: Complaint details
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Authority - Complaints
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintDetail'
+          description: ''
+  /api/v1/authority/complaints/{public_id}/notes/:
+    post:
+      operationId: api_v1_authority_complaints_notes_create
+      description: Add or update resolution notes. Triggers a notification to the
+        citizen.
+      summary: Add resolution notes
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Authority - Complaints
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolutionNotesRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResolutionNotesRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResolutionNotesRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintDetail'
+          description: ''
+    patch:
+      operationId: api_v1_authority_complaints_notes_partial_update
+      description: Add or update resolution notes. Triggers a notification to the
+        citizen.
+      summary: Add resolution notes
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Authority - Complaints
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedResolutionNotesRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedResolutionNotesRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedResolutionNotesRequest'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintDetail'
+          description: ''
+  /api/v1/authority/complaints/{public_id}/priority/:
+    post:
+      operationId: api_v1_authority_complaints_priority_create
+      description: Change complaint priority level and optionally add remarks.
+      summary: Update complaint priority
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Authority - Complaints
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PriorityUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PriorityUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PriorityUpdateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintDetail'
+          description: ''
+    patch:
+      operationId: api_v1_authority_complaints_priority_partial_update
+      description: Change complaint priority level and optionally add remarks.
+      summary: Update complaint priority
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Authority - Complaints
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPriorityUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPriorityUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPriorityUpdateRequest'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintDetail'
+          description: ''
+  /api/v1/authority/complaints/{public_id}/resolution-image/:
+    post:
+      operationId: api_v1_authority_complaints_resolution_image_create
+      description: Upload a resolution evidence image (JPEG/PNG/WebP, max 5MB) attached
+        to the complaint.
+      summary: Upload resolution image
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Authority - Complaints
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolutionImageUploadRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResolutionImageUploadRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResolutionImageUploadRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintImage'
+          description: ''
+  /api/v1/authority/complaints/{public_id}/status/:
+    post:
+      operationId: api_v1_authority_complaints_status_create
+      description: Change complaint status and optionally add resolution remarks.
+        Triggers a notification to the citizen.
+      summary: Update complaint status
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Authority - Complaints
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthorityStatusUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AuthorityStatusUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AuthorityStatusUpdateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintDetail'
+          description: ''
+    patch:
+      operationId: api_v1_authority_complaints_status_partial_update
+      description: Change complaint status and optionally add resolution remarks.
+        Triggers a notification to the citizen.
+      summary: Update complaint status
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Authority - Complaints
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAuthorityStatusUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAuthorityStatusUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAuthorityStatusUpdateRequest'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintDetail'
+          description: ''
+  /api/v1/authority/dashboard/recent/:
+    get:
+      operationId: api_v1_authority_dashboard_recent_list
+      description: Returns the 5 most recently created complaints in the authority's
+        scope.
+      summary: Recent complaints
+      tags:
+      - Authority - Dashboard
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ComplaintList'
+          description: ''
+  /api/v1/authority/dashboard/summary/:
+    get:
+      operationId: api_v1_authority_dashboard_summary_retrieve
+      description: Returns complaint counts by status, urgent count, today's new,
+        and total assigned for the authority's scope.
+      summary: Dashboard summary
+      tags:
+      - Authority - Dashboard
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSummary'
+          description: ''
+  /api/v1/authority/notifications/:
+    get:
+      operationId: api_v1_authority_notifications_list
+      description: Returns paginated notifications for the user, optionally filtered
+        by read/unread status.
+      summary: List notifications
+      parameters:
+      - in: query
+        name: is_read
+        schema:
+          type: boolean
+        description: 'Filter: true/false'
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Notifications
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedNotificationList'
+          description: ''
+  /api/v1/authority/notifications/mark-all-read/:
+    post:
+      operationId: api_v1_authority_notifications_mark_all_read_create
+      description: Mark all unread notifications as read for the authenticated user.
+      summary: Mark all notifications as read
+      tags:
+      - Notifications
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/authority/notifications/mark-read/:
+    post:
+      operationId: api_v1_authority_notifications_mark_read_create
+      description: Mark one or more specific notifications as read by their UUIDs.
+      summary: Mark notifications as read
+      tags:
+      - Notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarkReadRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MarkReadRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MarkReadRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/authority/notifications/unread-count/:
+    get:
+      operationId: api_v1_authority_notifications_unread_count_retrieve
+      description: Returns the number of unread notifications for the authenticated
+        user.
+      summary: Unread notification count
+      tags:
+      - Notifications
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnreadCount'
+          description: ''
+  /api/v1/complaints/:
+    get:
+      operationId: api_v1_complaints_list
+      description: Returns paginated complaints scoped to the user's role (Citizens
+        see their own, Authorities/Admins see all).
+      summary: List complaints
+      parameters:
+      - in: query
+        name: assigned_authority
+        schema:
+          type: string
+        description: Filter by authority UUID
+      - in: query
+        name: category
+        schema:
+          type: string
+          enum:
+          - DRAINAGE
+          - ELECTRICITY
+          - GARBAGE
+          - NOISE
+          - OTHER
+          - PARKS
+          - ROAD
+          - SANITATION
+          - STREET_LIGHT
+          - WATER
+        description: Filter by category
+      - in: query
+        name: citizen
+        schema:
+          type: string
+        description: Filter by citizen UUID (Admin/Authority)
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: priority
+        schema:
+          type: string
+          enum:
+          - HIGH
+          - LOW
+          - MEDIUM
+          - URGENT
+        description: Filter by priority
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search by title, description, code, address
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - CLOSED
+          - IN_PROGRESS
+          - PENDING
+          - REJECTED
+          - RESOLVED
+        description: Filter by status
+      tags:
+      - Complaints
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedComplaintListList'
+          description: ''
+  /api/v1/complaints/{public_id}/:
+    get:
+      operationId: api_v1_complaints_retrieve
+      description: Retrieve full details, image attachments, and latest status history
+        for a complaint.
+      summary: Get complaint details
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Complaints
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintDetail'
+          description: ''
+  /api/v1/complaints/{public_id}/assign/:
+    patch:
+      operationId: api_v1_complaints_assign_partial_update
+      description: Assign a specific authority user to handle this complaint.
+      summary: Assign authority to complaint
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Complaints
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedComplaintAssignRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedComplaintAssignRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedComplaintAssignRequest'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintDetail'
+          description: ''
+  /api/v1/complaints/{public_id}/images/:
+    post:
+      operationId: api_v1_complaints_images_create
+      description: Upload an additional image file (JPEG/PNG/WebP, max 5MB) attached
+        to a complaint.
+      summary: Upload complaint image
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Complaints
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComplaintImageUploadRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ComplaintImageUploadRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ComplaintImageUploadRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintImage'
+          description: ''
+  /api/v1/complaints/{public_id}/status/:
+    patch:
+      operationId: api_v1_complaints_status_partial_update
+      description: Change complaint status (e.g., PENDING -> IN_PROGRESS -> RESOLVED)
+        and record resolution notes.
+      summary: Update complaint status
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Complaints
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedComplaintStatusUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedComplaintStatusUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedComplaintStatusUpdateRequest'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintDetail'
+          description: ''
+  /api/v1/complaints/{public_id}/timeline/:
+    get:
+      operationId: api_v1_complaints_timeline_list
+      description: Returns the full chronological audit history of status updates,
+        assignments, and events for a complaint.
+      summary: Get complaint timeline
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Complaints
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ComplaintHistory'
+          description: ''
+  /api/v1/complaints/create/:
+    post:
+      operationId: api_v1_complaints_create_create
+      description: Submit a civic complaint with details, location coordinates, department
+        selection, and optional image files.
+      summary: Create a new complaint
+      tags:
+      - Complaints
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComplaintCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ComplaintCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ComplaintCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintDetail'
+          description: ''
+  /api/v1/complaints/track/{tracking_code}/:
+    get:
+      operationId: api_v1_complaints_track_retrieve
+      description: Retrieve public complaint status by human-readable tracking code
+        (e.g. CMP-20260722-XXXX) or public UUID.
+      summary: Public complaint status tracking
+      parameters:
+      - in: path
+        name: tracking_code
+        schema:
+          type: string
+        required: true
+      tags:
+      - Complaints
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintTracking'
+          description: ''
+  /api/v1/departments/:
+    get:
+      operationId: api_v1_departments_list
+      description: Returns all active departments. Available to any authenticated
+        user.
+      summary: List departments
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Departments
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDepartmentListList'
+          description: ''
+  /api/v1/departments/{public_id}/:
+    get:
+      operationId: api_v1_departments_retrieve
+      description: Retrieve full department details by public UUID.
+      summary: Get department detail
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Departments
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Department'
+          description: ''
+  /api/v1/departments/{public_id}/authorities/:
+    get:
+      operationId: api_v1_departments_authorities_list
+      description: List all authority users assigned to a department.
+      summary: List department authorities
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Departments
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDepartmentAuthorityList'
+          description: ''
+  /api/v1/departments/{public_id}/authorities/{user_public_id}/:
+    delete:
+      operationId: api_v1_departments_authorities_destroy
+      description: Remove an authority user from a department. SuperAdmin only.
+      summary: Remove authority from department
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: user_public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Departments
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Authority removed from department.
+  /api/v1/departments/{public_id}/authorities/{user_public_id}/update/:
+    patch:
+      operationId: api_v1_departments_authorities_update_partial_update
+      description: Update designation or head status for an authority in a department.
+        SuperAdmin only.
+      summary: Update authority assignment
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: user_public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Departments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateAuthorityRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateAuthorityRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateAuthorityRequest'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentAuthority'
+          description: ''
+  /api/v1/departments/{public_id}/authorities/assign/:
+    post:
+      operationId: api_v1_departments_authorities_assign_create
+      description: Assign an authority user to a department with optional designation.
+        SuperAdmin only.
+      summary: Assign authority to department
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Departments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignAuthorityRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AssignAuthorityRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AssignAuthorityRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentAuthority'
+          description: ''
+  /api/v1/departments/{public_id}/deactivate/:
+    post:
+      operationId: api_v1_departments_deactivate_create
+      description: Soft-delete a department by setting its status to INACTIVE. SuperAdmin
+        only.
+      summary: Deactivate department
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Departments
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Department deactivated.
+  /api/v1/departments/{public_id}/statistics/:
+    get:
+      operationId: api_v1_departments_statistics_retrieve
+      description: Returns aggregate statistics for a department including authority
+        counts.
+      summary: Department statistics
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Departments
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentStatistics'
+          description: ''
+  /api/v1/departments/{public_id}/update/:
+    put:
+      operationId: api_v1_departments_update_update
+      description: Update department details. SuperAdmin only.
+      summary: Update department
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Departments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartmentUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DepartmentUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DepartmentUpdateRequest'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Department'
+          description: ''
+    patch:
+      operationId: api_v1_departments_update_partial_update
+      description: Partially update department details. SuperAdmin only.
+      summary: Partially update department
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Departments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDepartmentUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDepartmentUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDepartmentUpdateRequest'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Department'
+          description: ''
+  /api/v1/departments/create/:
+    post:
+      operationId: api_v1_departments_create_create
+      description: Create a new civic department. SuperAdmin only.
+      summary: Create department
+      tags:
+      - Departments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartmentCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DepartmentCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DepartmentCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Department'
+          description: ''
+  /api/v1/feedback/authority/stats/:
+    get:
+      operationId: api_v1_feedback_authority_stats_retrieve
+      description: Retrieve feedback metrics for the calling municipal authority.
+      summary: Get feedback metrics for the authenticated authority
+      tags:
+      - Feedback
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorityFeedbackStats'
+          description: ''
+  /api/v1/feedback/complaint/{complaint_public_id}/:
+    get:
+      operationId: api_v1_feedback_complaint_retrieve
+      description: Retrieve feedback for a specific complaint.
+      summary: Get feedback for a specific complaint
+      parameters:
+      - in: path
+        name: complaint_public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Feedback
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackDetail'
+          description: ''
+        '403':
+          description: Permission denied
+        '404':
+          description: Feedback or complaint not found
+  /api/v1/feedback/department/{category}/stats/:
+    get:
+      operationId: api_v1_feedback_department_stats_retrieve
+      description: Retrieve feedback metrics for a department or category.
+      summary: Get feedback metrics for a department category
+      parameters:
+      - in: path
+        name: category
+        schema:
+          type: string
+        required: true
+      tags:
+      - Feedback
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentFeedbackStats'
+          description: ''
+  /api/v1/feedback/my-feedbacks/:
+    get:
+      operationId: api_v1_feedback_my_feedbacks_list
+      description: List all feedbacks submitted by the authenticated citizen.
+      summary: List feedbacks submitted by current citizen
+      tags:
+      - Feedback
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FeedbackDetail'
+          description: ''
+  /api/v1/feedback/submit/:
+    post:
+      operationId: api_v1_feedback_submit_create
+      description: Submit rating and feedback for a resolved complaint.
+      summary: Submit complaint resolution feedback
+      tags:
+      - Feedback
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeedbackCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FeedbackCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FeedbackCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackDetail'
+          description: ''
+        '400':
+          description: Validation error or invalid status
+        '403':
+          description: Citizen does not own complaint
+        '404':
+          description: Complaint not found
+  /api/v1/notifications/:
+    get:
+      operationId: api_v1_notifications_list
+      summary: List user notifications
+      tags:
+      - Notifications
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+          description: ''
+  /api/v1/notifications/{public_id}/mark-read/:
+    post:
+      operationId: api_v1_notifications_mark_read_create
+      summary: Mark notification as read
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Notifications
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/notifications/mark-all-read/:
+    post:
+      operationId: api_v1_notifications_mark_all_read_create
+      summary: Mark all notifications as read
+      tags:
+      - Notifications
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/users/{public_id}/:
+    get:
+      operationId: api_v1_users_retrieve
+      description: Retrieve any user's profile by their public UUID. Accessible by
+        authorities and admins.
+      summary: Get user by public ID
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - User Management
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProfile'
+          description: ''
+  /api/v1/users/change-password/:
+    post:
+      operationId: api_v1_users_change_password_create
+      description: Change the authenticated user's password by providing the current
+        password and a new one.
+      summary: Change password
+      tags:
+      - User Management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Password changed successfully.
+        '400':
+          description: Validation error.
+  /api/v1/users/profile/admin/:
+    get:
+      operationId: api_v1_users_profile_admin_retrieve
+      description: Returns the full profile of the authenticated super-admin.
+      summary: Get admin profile
+      tags:
+      - User Management
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProfile'
+          description: ''
+  /api/v1/users/profile/authority/:
+    get:
+      operationId: api_v1_users_profile_authority_retrieve
+      description: Returns the authenticated authority's own profile, including department
+        and designation.
+      summary: Get authority profile
+      tags:
+      - User Management
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorityProfile'
+          description: ''
+  /api/v1/users/profile/citizen/:
+    get:
+      operationId: api_v1_users_profile_citizen_retrieve
+      description: Returns the authenticated citizen's own profile.
+      summary: Get citizen profile
+      tags:
+      - User Management
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CitizenProfile'
+          description: ''
+  /api/v1/users/profile/update/:
+    put:
+      operationId: api_v1_users_profile_update_update
+      description: Update profile fields. Citizens can update name, phone, bio, address.
+        Authorities can additionally update department and designation.
+      summary: Update own profile
+      tags:
+      - User Management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProfile'
+          description: ''
+    patch:
+      operationId: api_v1_users_profile_update_partial_update
+      description: Partially update profile fields.
+      summary: Partially update own profile
+      tags:
+      - User Management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateProfileRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateProfileRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateProfileRequest'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProfile'
+          description: ''
+  /api/v1/users/profile/upload-image/:
+    post:
+      operationId: api_v1_users_profile_upload_image_create
+      description: Upload or replace the authenticated user's profile image. Max 5
+        MB, JPEG/PNG/WebP.
+      summary: Upload profile image
+      tags:
+      - User Management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileImageRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProfileImageRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProfileImageRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProfile'
+          description: ''
+        '400':
+          description: Invalid image file.
+  /api/v1/users/search/:
+    get:
+      operationId: api_v1_users_search_list
+      description: Search and filter all platform users. Supports free-text query
+        across email, name, and phone, plus role and status filters.
+      summary: Search users (admin only)
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search by email, name, or phone
+      - in: query
+        name: role
+        schema:
+          type: string
+          enum:
+          - AUTHORITY
+          - CITIZEN
+          - SUPER_ADMIN
+        description: Filter by role
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - ACTIVE
+          - INACTIVE
+          - SUSPENDED
+        description: Filter by status
+      tags:
+      - User Management
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserSearchList'
+          description: ''
+components:
+  schemas:
+    AICityInsights:
+      type: object
+      description: City-wide predictive civic analytics metrics.
+      properties:
+        total_ai_scans:
+          type: integer
+        average_urgency_index:
+          type: number
+          format: double
+        high_hazard_alerts_count:
+          type: integer
+        top_predicted_categories:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+        category_distribution:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+        system_readiness_status:
+          type: string
+        model_version:
+          type: string
+        last_updated:
+          type: string
+      required:
+      - average_urgency_index
+      - category_distribution
+      - high_hazard_alerts_count
+      - last_updated
+      - model_version
+      - system_readiness_status
+      - top_predicted_categories
+      - total_ai_scans
+    AIDuplicateCheckRequestRequest:
+      type: object
+      description: Input payload for checking potential duplicate complaints.
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          minLength: 1
+        category:
+          $ref: '#/components/schemas/CategoryEnum'
+        latitude:
+          type: number
+          format: double
+          nullable: true
+        longitude:
+          type: number
+          format: double
+          nullable: true
+        radius_km:
+          type: number
+          format: double
+          maximum: 25.0
+          minimum: 0.1
+          default: 1.5
+      required:
+      - category
+      - description
+      - title
+    AIDuplicateMatch:
+      type: object
+      description: Individual match candidate in duplicate analysis.
+      properties:
+        complaint_public_id:
+          type: string
+          format: uuid
+        tracking_code:
+          type: string
+        title:
+          type: string
+        status:
+          type: string
+        location_address:
+          type: string
+        distance_km:
+          type: number
+          format: double
+          nullable: true
+        similarity_score:
+          type: number
+          format: double
+        match_confidence:
+          type: string
+        matched_tokens:
+          type: array
+          items:
+            type: string
+      required:
+      - complaint_public_id
+      - distance_km
+      - location_address
+      - match_confidence
+      - matched_tokens
+      - similarity_score
+      - status
+      - title
+      - tracking_code
+    AITriageRequestRequest:
+      type: object
+      description: Input payload for classifying grievance text.
+      properties:
+        title:
+          type: string
+          minLength: 1
+          description: Title or subject of the complaint
+          maxLength: 200
+        description:
+          type: string
+          minLength: 1
+          description: Detailed description of the civic issue
+        location_address:
+          type: string
+          default: ''
+          description: Optional address or landmark for context
+      required:
+      - description
+      - title
+    AITriageResponse:
+      type: object
+      description: Output predictions including category, priority, and hazard assessment.
+      properties:
+        predicted_category:
+          $ref: '#/components/schemas/PredictedCategoryEnum'
+        confidence_score:
+          type: number
+          format: double
+        urgency_score:
+          type: integer
+        predicted_priority:
+          $ref: '#/components/schemas/PredictedPriorityEnum'
+        detected_keywords:
+          type: array
+          items:
+            type: string
+        hazard_tags:
+          type: array
+          items:
+            type: string
+        sentiment:
+          type: string
+        estimated_resolution_hours:
+          type: integer
+      required:
+      - confidence_score
+      - detected_keywords
+      - estimated_resolution_hours
+      - hazard_tags
+      - predicted_category
+      - predicted_priority
+      - sentiment
+      - urgency_score
+    AdminProfile:
+      type: object
+      description: Full read-only profile for super-admin users — includes all fields.
+      properties:
+        public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        full_name:
+          type: string
+          readOnly: true
+        phone:
+          type: string
+          readOnly: true
+          nullable: true
+        role:
+          allOf:
+          - $ref: '#/components/schemas/Role027Enum'
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusF08Enum'
+          readOnly: true
+        bio:
+          type: string
+          readOnly: true
+        address:
+          type: string
+          readOnly: true
+        departments:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserDepartmentAssignment'
+          readOnly: true
+        profile_image:
+          type: string
+          format: uri
+          readOnly: true
+          nullable: true
+        is_active:
+          type: boolean
+          readOnly: true
+          title: Active
+          description: Designates whether this user should be treated as active. Unselect
+            this instead of deleting accounts.
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - address
+      - bio
+      - created_at
+      - departments
+      - email
+      - full_name
+      - is_active
+      - phone
+      - profile_image
+      - public_id
+      - role
+      - status
+      - updated_at
+    AssignAuthorityRequest:
+      type: object
+      description: Validates input for assigning an authority to a department.
+      properties:
+        user_public_id:
+          type: string
+          format: uuid
+        designation:
+          type: string
+          default: ''
+          maxLength: 100
+        is_head:
+          type: boolean
+          default: false
+      required:
+      - user_public_id
+    AuditLog:
+      type: object
+      description: Serializer for AuditLog entries.
+      properties:
+        public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        actor_email:
+          type: string
+          readOnly: true
+        actor_role:
+          type: string
+          readOnly: true
+        action:
+          allOf:
+          - $ref: '#/components/schemas/AuditLogActionEnum'
+          readOnly: true
+        entity_type:
+          type: string
+          readOnly: true
+          description: Type of entity affected (e.g. Complaint, User, Department,
+            Feedback)
+        entity_id:
+          type: string
+          readOnly: true
+          description: Identifier or tracking code of affected entity
+        ip_address:
+          type: string
+          readOnly: true
+          nullable: true
+        user_agent:
+          type: string
+          readOnly: true
+        metadata:
+          readOnly: true
+          description: Additional context, diffs, or payload attributes
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - action
+      - actor_email
+      - actor_role
+      - created_at
+      - entity_id
+      - entity_type
+      - ip_address
+      - metadata
+      - public_id
+      - user_agent
+    AuditLogActionEnum:
+      enum:
+      - AUTH_LOGIN
+      - AUTH_LOGOUT
+      - AUTH_REGISTER
+      - PASSWORD_CHANGE
+      - PROFILE_UPDATE
+      - COMPLAINT_CREATED
+      - COMPLAINT_STATUS_UPDATE
+      - COMPLAINT_PRIORITY_UPDATE
+      - COMPLAINT_ASSIGNED
+      - DEPARTMENT_CREATED
+      - DEPARTMENT_UPDATED
+      - AUTHORITY_ASSIGNED
+      - FEEDBACK_SUBMITTED
+      - AI_TRIAGE_RUN
+      - SYSTEM_EVENT
+      type: string
+      description: |-
+        * `AUTH_LOGIN` - User Login
+        * `AUTH_LOGOUT` - User Logout
+        * `AUTH_REGISTER` - User Registration
+        * `PASSWORD_CHANGE` - Password Changed
+        * `PROFILE_UPDATE` - Profile Updated
+        * `COMPLAINT_CREATED` - Complaint Created
+        * `COMPLAINT_STATUS_UPDATE` - Complaint Status Updated
+        * `COMPLAINT_PRIORITY_UPDATE` - Complaint Priority Updated
+        * `COMPLAINT_ASSIGNED` - Authority Assigned to Complaint
+        * `DEPARTMENT_CREATED` - Department Created
+        * `DEPARTMENT_UPDATED` - Department Updated
+        * `AUTHORITY_ASSIGNED` - Authority Assigned to Department
+        * `FEEDBACK_SUBMITTED` - Feedback Submitted
+        * `AI_TRIAGE_RUN` - AI Triage Executed
+        * `SYSTEM_EVENT` - System Event
+    AuditLogSummary:
+      type: object
+      description: Summary metrics of audit log activity.
+      properties:
+        total_audit_events:
+          type: integer
+        security_events_count:
+          type: integer
+        top_actions:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+        actions_by_role:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+        last_active:
+          type: string
+      required:
+      - actions_by_role
+      - last_active
+      - security_events_count
+      - top_actions
+      - total_audit_events
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        tokens:
+          $ref: '#/components/schemas/TokenPair'
+      required:
+      - tokens
+      - user
+    AuthorityFeedbackStats:
+      type: object
+      description: Serializer for authority-level feedback metrics.
+      properties:
+        authority_email:
+          type: string
+          format: email
+        total_feedbacks:
+          type: integer
+        average_rating:
+          type: number
+          format: double
+        satisfaction_rate_percent:
+          type: number
+          format: double
+        rating_distribution:
+          type: object
+          additionalProperties:
+            type: integer
+      required:
+      - authority_email
+      - average_rating
+      - rating_distribution
+      - satisfaction_rate_percent
+      - total_feedbacks
+    AuthorityProfile:
+      type: object
+      description: Read-only profile tailored for authority users — includes department
+        assignments.
+      properties:
+        public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        full_name:
+          type: string
+          readOnly: true
+        phone:
+          type: string
+          readOnly: true
+          nullable: true
+        bio:
+          type: string
+          readOnly: true
+        address:
+          type: string
+          readOnly: true
+        departments:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserDepartmentAssignment'
+          readOnly: true
+        profile_image:
+          type: string
+          format: uri
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - address
+      - bio
+      - created_at
+      - departments
+      - email
+      - full_name
+      - phone
+      - profile_image
+      - public_id
+    AuthorityStatusUpdateRequest:
+      type: object
+      description: Authority status update with resolution remarks.
+      properties:
+        status:
+          $ref: '#/components/schemas/Status76eEnum'
+        remarks:
+          type: string
+          default: ''
+      required:
+      - status
+    AuthorityUserInline:
+      type: object
+      description: Minimal user info embedded inside authority assignment responses.
+      properties:
+        public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        full_name:
+          type: string
+          readOnly: true
+        phone:
+          type: string
+          readOnly: true
+          nullable: true
+      required:
+      - email
+      - full_name
+      - phone
+      - public_id
+    CategoryEnum:
+      enum:
+      - ROAD
+      - WATER
+      - ELECTRICITY
+      - GARBAGE
+      - DRAINAGE
+      - SANITATION
+      - STREET_LIGHT
+      - PARKS
+      - NOISE
+      - OTHER
+      type: string
+      description: |-
+        * `ROAD` - Road & Infrastructure
+        * `WATER` - Water Supply
+        * `ELECTRICITY` - Electricity
+        * `GARBAGE` - Garbage & Waste
+        * `DRAINAGE` - Drainage & Sewage
+        * `SANITATION` - Sanitation & Hygiene
+        * `STREET_LIGHT` - Street Light
+        * `PARKS` - Parks & Public Spaces
+        * `NOISE` - Noise Pollution
+        * `OTHER` - Other
+    CategoryPerformanceItem:
+      type: object
+      description: Per-category complaint breakdown.
+      properties:
+        category:
+          type: string
+        category_display:
+          type: string
+        total:
+          type: integer
+        resolved:
+          type: integer
+        pending:
+          type: integer
+        in_progress:
+          type: integer
+        resolution_rate:
+          type: number
+          format: double
+      required:
+      - category
+      - category_display
+      - in_progress
+      - pending
+      - resolution_rate
+      - resolved
+      - total
+    ChangePasswordRequest:
+      type: object
+      description: Validates old password, then sets the new one.
+      properties:
+        old_password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        new_password:
+          type: string
+          writeOnly: true
+          minLength: 8
+        confirm_password:
+          type: string
+          writeOnly: true
+          minLength: 8
+      required:
+      - confirm_password
+      - new_password
+      - old_password
+    CitizenProfile:
+      type: object
+      description: Read-only profile tailored for citizen users.
+      properties:
+        public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        full_name:
+          type: string
+          readOnly: true
+        phone:
+          type: string
+          readOnly: true
+          nullable: true
+        bio:
+          type: string
+          readOnly: true
+        address:
+          type: string
+          readOnly: true
+        profile_image:
+          type: string
+          format: uri
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - address
+      - bio
+      - created_at
+      - email
+      - full_name
+      - phone
+      - profile_image
+      - public_id
+    ComplaintCreateRequest:
+      type: object
+      description: Validates data for filing a new complaint.
+      properties:
+        category:
+          allOf:
+          - $ref: '#/components/schemas/CategoryEnum'
+          default: ROAD
+        department_public_id:
+          type: string
+          nullable: true
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          minLength: 1
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/PriorityEnum'
+          default: MEDIUM
+        location_address:
+          type: string
+          minLength: 1
+          maxLength: 255
+        latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+          nullable: true
+        longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+          nullable: true
+        images:
+          type: array
+          items:
+            type: string
+            format: binary
+      required:
+      - description
+      - location_address
+      - title
+    ComplaintDetail:
+      type: object
+      description: Detailed read-only complaint representation with nested images
+        and history.
+      properties:
+        public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        tracking_code:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status76eEnum'
+          readOnly: true
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/PriorityEnum'
+          readOnly: true
+        category:
+          allOf:
+          - $ref: '#/components/schemas/CategoryEnum'
+          readOnly: true
+        category_display:
+          type: string
+          readOnly: true
+        citizen:
+          allOf:
+          - $ref: '#/components/schemas/ComplaintUserInline'
+          readOnly: true
+        assigned_authority:
+          allOf:
+          - $ref: '#/components/schemas/ComplaintUserInline'
+          readOnly: true
+        location_address:
+          type: string
+          readOnly: true
+        latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+          readOnly: true
+          nullable: true
+        longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+          readOnly: true
+          nullable: true
+        resolution_notes:
+          type: string
+          readOnly: true
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComplaintImage'
+          readOnly: true
+        latest_history:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        resolved_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - assigned_authority
+      - category
+      - category_display
+      - citizen
+      - created_at
+      - description
+      - images
+      - latest_history
+      - latitude
+      - location_address
+      - longitude
+      - priority
+      - public_id
+      - resolution_notes
+      - resolved_at
+      - status
+      - title
+      - tracking_code
+      - updated_at
+    ComplaintHistory:
+      type: object
+      description: Read-only audit history timeline entry.
+      properties:
+        public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        actor:
+          allOf:
+          - $ref: '#/components/schemas/ComplaintUserInline'
+          readOnly: true
+        action:
+          allOf:
+          - $ref: '#/components/schemas/ComplaintHistoryActionEnum'
+          readOnly: true
+        old_status:
+          type: string
+          readOnly: true
+        new_status:
+          type: string
+          readOnly: true
+        remarks:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - action
+      - actor
+      - created_at
+      - new_status
+      - old_status
+      - public_id
+      - remarks
+    ComplaintHistoryActionEnum:
+      enum:
+      - CREATED
+      - ASSIGNED
+      - STATUS_CHANGED
+      - IMAGE_ADDED
+      - REOPENED
+      - RESOLVED
+      - REJECTED
+      - NOTE_ADDED
+      type: string
+      description: |-
+        * `CREATED` - Complaint Created
+        * `ASSIGNED` - Authority Assigned
+        * `STATUS_CHANGED` - Status Changed
+        * `IMAGE_ADDED` - Image Added
+        * `REOPENED` - Complaint Reopened
+        * `RESOLVED` - Complaint Resolved
+        * `REJECTED` - Complaint Rejected
+        * `NOTE_ADDED` - Note Added
+    ComplaintImage:
+      type: object
+      description: Read-only image attachment representation.
+      properties:
+        public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        image:
+          type: string
+          format: uri
+          readOnly: true
+        caption:
+          type: string
+          readOnly: true
+        uploaded_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - caption
+      - image
+      - public_id
+      - uploaded_at
+    ComplaintImageUploadRequest:
+      type: object
+      description: Validates image upload request.
+      properties:
+        image:
+          type: string
+          format: binary
+        caption:
+          type: string
+          default: ''
+          maxLength: 255
+      required:
+      - image
+    ComplaintList:
+      type: object
+      description: Lightweight summary serializer for complaints list view.
+      properties:
+        public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        tracking_code:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status76eEnum'
+          readOnly: true
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/PriorityEnum'
+          readOnly: true
+        category:
+          allOf:
+          - $ref: '#/components/schemas/CategoryEnum'
+          readOnly: true
+        category_display:
+          type: string
+          readOnly: true
+        citizen_name:
+          type: string
+          readOnly: true
+        assigned_authority_name:
+          type: string
+          readOnly: true
+        location_address:
+          type: string
+          readOnly: true
+        latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+          readOnly: true
+          nullable: true
+        longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+          readOnly: true
+          nullable: true
+        image_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - assigned_authority_name
+      - category
+      - category_display
+      - citizen_name
+      - created_at
+      - description
+      - image_count
+      - latitude
+      - location_address
+      - longitude
+      - priority
+      - public_id
+      - status
+      - title
+      - tracking_code
+      - updated_at
+    ComplaintStats:
+      type: object
+      description: Complaint statistics with status breakdown and trend data.
+      properties:
+        period_days:
+          type: integer
+        total_complaints:
+          type: integer
+        status_breakdown:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/StatusBreakdownItem'
+        avg_resolution_hours:
+          type: number
+          format: double
+          nullable: true
+        daily_trend:
+          type: array
+          items:
+            $ref: '#/components/schemas/DailyTrendItem'
+      required:
+      - avg_resolution_hours
+      - daily_trend
+      - period_days
+      - status_breakdown
+      - total_complaints
+    ComplaintTracking:
+      type: object
+      description: Public read-only tracking serializer.
+      properties:
+        public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        tracking_code:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status76eEnum'
+          readOnly: true
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/PriorityEnum'
+          readOnly: true
+        category:
+          allOf:
+          - $ref: '#/components/schemas/CategoryEnum'
+          readOnly: true
+        category_display:
+          type: string
+          readOnly: true
+        location_address:
+          type: string
+          readOnly: true
+        resolution_notes:
+          type: string
+          readOnly: true
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComplaintImage'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        resolved_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - category
+      - category_display
+      - created_at
+      - description
+      - images
+      - location_address
+      - priority
+      - public_id
+      - resolution_notes
+      - resolved_at
+      - status
+      - title
+      - tracking_code
+      - updated_at
+    ComplaintUserInline:
+      type: object
+      description: Minimal representation of user inside complaint payloads.
+      properties:
+        public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        full_name:
+          type: string
+          readOnly: true
+        phone:
+          type: string
+          readOnly: true
+          nullable: true
+        role:
+          allOf:
+          - $ref: '#/components/schemas/Role027Enum'
+          readOnly: true
+      required:
+      - email
+      - full_name
+      - phone
+      - public_id
+      - role
+    DailyTrendItem:
+      type: object
+      properties:
+        date:
+          type: string
+        count:
+          type: integer
+      required:
+      - count
+      - date
+    DashboardSummary:
+      type: object
+      description: Read-only aggregate dashboard data.
+      properties:
+        total_complaints:
+          type: integer
+        directly_assigned:
+          type: integer
+        today_new:
+          type: integer
+        urgent_active:
+          type: integer
+        pending:
+          type: integer
+        in_progress:
+          type: integer
+        resolved:
+          type: integer
+        rejected:
+          type: integer
+        closed:
+          type: integer
+      required:
+      - closed
+      - directly_assigned
+      - in_progress
+      - pending
+      - rejected
+      - resolved
+      - today_new
+      - total_complaints
+      - urgent_active
+    Department:
+      type: object
+      description: Full read-only serializer for department detail.
+      properties:
+        public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        description:
+          type: string
+          readOnly: true
+        contact_email:
+          type: string
+          format: email
+          readOnly: true
+        contact_phone:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status372Enum'
+          readOnly: true
+        authority_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - authority_count
+      - contact_email
+      - contact_phone
+      - created_at
+      - description
+      - name
+      - public_id
+      - slug
+      - status
+      - updated_at
+    DepartmentAuthority:
+      type: object
+      description: Read-only serializer for a department authority assignment.
+      properties:
+        user:
+          allOf:
+          - $ref: '#/components/schemas/AuthorityUserInline'
+          readOnly: true
+        designation:
+          type: string
+          readOnly: true
+        is_head:
+          type: boolean
+          readOnly: true
+        assigned_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - assigned_at
+      - designation
+      - is_head
+      - user
+    DepartmentCreateRequest:
+      type: object
+      description: Validates input for creating a new department.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+          default: ''
+        contact_email:
+          type: string
+          format: email
+          default: ''
+        contact_phone:
+          type: string
+          default: ''
+          maxLength: 20
+      required:
+      - name
+    DepartmentFeedbackStats:
+      type: object
+      description: Serializer for department feedback aggregation metrics.
+      properties:
+        department:
+          type: string
+        total_feedbacks:
+          type: integer
+        average_rating:
+          type: number
+          format: double
+        satisfaction_rate_percent:
+          type: number
+          format: double
+        resolution_confirmed_percent:
+          type: number
+          format: double
+        rating_distribution:
+          type: object
+          additionalProperties:
+            type: integer
+      required:
+      - average_rating
+      - department
+      - rating_distribution
+      - resolution_confirmed_percent
+      - satisfaction_rate_percent
+      - total_feedbacks
+    DepartmentList:
+      type: object
+      description: Lightweight serializer for department list views.
+      properties:
+        public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status372Enum'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - name
+      - public_id
+      - slug
+      - status
+    DepartmentStatistics:
+      type: object
+      description: Read-only output serializer for department statistics.
+      properties:
+        department:
+          type: string
+        public_id:
+          type: string
+        status:
+          type: string
+        total_authorities:
+          type: integer
+        department_heads:
+          type: integer
+      required:
+      - department
+      - department_heads
+      - public_id
+      - status
+      - total_authorities
+    DepartmentUpdateRequest:
+      type: object
+      description: Validates input for updating a department.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+        contact_email:
+          type: string
+          format: email
+        contact_phone:
+          type: string
+          maxLength: 20
+    FeedbackCreateRequest:
+      type: object
+      description: Serializer for submitting citizen feedback on a resolved complaint.
+      properties:
+        complaint_public_id:
+          type: string
+          format: uuid
+          description: Public UUID of the resolved complaint
+        rating:
+          type: integer
+          maximum: 5
+          minimum: 1
+          description: Rating score from 1 (lowest) to 5 (highest)
+        satisfaction_level:
+          allOf:
+          - $ref: '#/components/schemas/SatisfactionLevelEnum'
+          default: SATISFIED
+        resolution_quality:
+          allOf:
+          - $ref: '#/components/schemas/ResolutionQualityEnum'
+          default: GOOD
+        timeliness:
+          allOf:
+          - $ref: '#/components/schemas/TimelinessEnum'
+          default: ON_TIME
+        comments:
+          type: string
+          default: ''
+          maxLength: 2000
+        is_issue_resolved:
+          type: boolean
+          default: true
+          description: Whether the citizen confirms the grievance has been solved
+      required:
+      - complaint_public_id
+      - rating
+    FeedbackDetail:
+      type: object
+      description: Detailed serializer for Feedback instances.
+      properties:
+        public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        complaint_public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        complaint_tracking_code:
+          type: string
+          readOnly: true
+        complaint_title:
+          type: string
+          readOnly: true
+        complaint_category:
+          type: string
+          readOnly: true
+        citizen_email:
+          type: string
+          format: email
+          readOnly: true
+        citizen_name:
+          type: string
+          readOnly: true
+        rating:
+          type: integer
+          readOnly: true
+          description: Rating score between 1 (worst) and 5 (best)
+        satisfaction_level:
+          allOf:
+          - $ref: '#/components/schemas/SatisfactionLevelEnum'
+          readOnly: true
+        resolution_quality:
+          allOf:
+          - $ref: '#/components/schemas/ResolutionQualityEnum'
+          readOnly: true
+        timeliness:
+          allOf:
+          - $ref: '#/components/schemas/TimelinessEnum'
+          readOnly: true
+        comments:
+          type: string
+          readOnly: true
+        is_issue_resolved:
+          type: boolean
+          readOnly: true
+          description: Citizen confirmation whether the civic issue was actually resolved
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - citizen_email
+      - citizen_name
+      - comments
+      - complaint_category
+      - complaint_public_id
+      - complaint_title
+      - complaint_tracking_code
+      - created_at
+      - is_issue_resolved
+      - public_id
+      - rating
+      - resolution_quality
+      - satisfaction_level
+      - timeliness
+      - updated_at
+    ForgotPasswordRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+      required:
+      - email
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - email
+      - password
+    LogoutRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    MarkReadRequest:
+      type: object
+      description: Mark specific notifications as read.
+      properties:
+        notification_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          minItems: 1
+      required:
+      - notification_ids
+    Notification:
+      type: object
+      description: Read-only notification representation.
+      properties:
+        public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+        message:
+          type: string
+          readOnly: true
+        notification_type:
+          allOf:
+          - $ref: '#/components/schemas/NotificationTypeEnum'
+          readOnly: true
+        complaint_tracking_code:
+          type: string
+          readOnly: true
+        complaint_public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        is_read:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - complaint_public_id
+      - complaint_tracking_code
+      - created_at
+      - is_read
+      - message
+      - notification_type
+      - public_id
+      - title
+    NotificationTypeEnum:
+      enum:
+      - COMPLAINT_ASSIGNED
+      - STATUS_CHANGED
+      - NEW_COMPLAINT
+      - RESOLUTION_UPDATE
+      - PRIORITY_CHANGED
+      - SYSTEM
+      type: string
+      description: |-
+        * `COMPLAINT_ASSIGNED` - Complaint Assigned
+        * `STATUS_CHANGED` - Status Changed
+        * `NEW_COMPLAINT` - New Complaint
+        * `RESOLUTION_UPDATE` - Resolution Update
+        * `PRIORITY_CHANGED` - Priority Changed
+        * `SYSTEM` - System Notification
+    PaginatedAuditLogList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditLog'
+    PaginatedComplaintListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComplaintList'
+    PaginatedDepartmentAuthorityList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DepartmentAuthority'
+    PaginatedDepartmentListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DepartmentList'
+    PaginatedNotificationList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Notification'
+    PaginatedUserSearchList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserSearch'
+    PatchedAuthorityStatusUpdateRequest:
+      type: object
+      description: Authority status update with resolution remarks.
+      properties:
+        status:
+          $ref: '#/components/schemas/Status76eEnum'
+        remarks:
+          type: string
+          default: ''
+    PatchedComplaintAssignRequest:
+      type: object
+      description: Validates assigning an authority to handle the complaint.
+      properties:
+        authority_public_id:
+          type: string
+          format: uuid
+        remarks:
+          type: string
+          default: ''
+    PatchedComplaintStatusUpdateRequest:
+      type: object
+      description: Validates status transition updates.
+      properties:
+        status:
+          $ref: '#/components/schemas/Status76eEnum'
+        remarks:
+          type: string
+          default: ''
+    PatchedDepartmentUpdateRequest:
+      type: object
+      description: Validates input for updating a department.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+        contact_email:
+          type: string
+          format: email
+        contact_phone:
+          type: string
+          maxLength: 20
+    PatchedPriorityUpdateRequest:
+      type: object
+      description: Update complaint priority.
+      properties:
+        priority:
+          $ref: '#/components/schemas/PriorityEnum'
+        remarks:
+          type: string
+          default: ''
+    PatchedResolutionNotesRequest:
+      type: object
+      description: Add/update resolution notes on a complaint.
+      properties:
+        notes:
+          type: string
+          minLength: 1
+    PatchedUpdateAuthorityRequest:
+      type: object
+      description: Validates input for updating an authority assignment.
+      properties:
+        designation:
+          type: string
+          maxLength: 100
+        is_head:
+          type: boolean
+    PatchedUpdateProfileRequest:
+      type: object
+      description: |-
+        Writable serializer for self-service profile updates.
+
+        Citizens and authorities may update: full_name, phone, bio, address.
+        Department/designation assignment is managed via the departments module.
+      properties:
+        full_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        phone:
+          type: string
+          nullable: true
+          maxLength: 20
+        bio:
+          type: string
+        address:
+          type: string
+          maxLength: 255
+    PredictedCategoryEnum:
+      enum:
+      - ROAD
+      - WATER
+      - ELECTRICITY
+      - GARBAGE
+      - DRAINAGE
+      - SANITATION
+      - STREET_LIGHT
+      - PARKS
+      - NOISE
+      - OTHER
+      type: string
+      description: |-
+        * `ROAD` - Road & Infrastructure
+        * `WATER` - Water Supply
+        * `ELECTRICITY` - Electricity
+        * `GARBAGE` - Garbage & Waste
+        * `DRAINAGE` - Drainage & Sewage
+        * `SANITATION` - Sanitation & Hygiene
+        * `STREET_LIGHT` - Street Light
+        * `PARKS` - Parks & Public Spaces
+        * `NOISE` - Noise Pollution
+        * `OTHER` - Other
+    PredictedPriorityEnum:
+      enum:
+      - LOW
+      - MEDIUM
+      - HIGH
+      - URGENT
+      type: string
+      description: |-
+        * `LOW` - Low
+        * `MEDIUM` - Medium
+        * `HIGH` - High
+        * `URGENT` - Urgent
+    PriorityBreakdown:
+      type: object
+      properties:
+        total:
+          type: integer
+        breakdown:
+          type: array
+          items:
+            $ref: '#/components/schemas/PriorityBreakdownItem'
+      required:
+      - breakdown
+      - total
+    PriorityBreakdownItem:
+      type: object
+      properties:
+        priority:
+          type: string
+        label:
+          type: string
+        count:
+          type: integer
+        percentage:
+          type: number
+          format: double
+      required:
+      - count
+      - label
+      - percentage
+      - priority
+    PriorityEnum:
+      enum:
+      - LOW
+      - MEDIUM
+      - HIGH
+      - URGENT
+      type: string
+      description: |-
+        * `LOW` - Low
+        * `MEDIUM` - Medium
+        * `HIGH` - High
+        * `URGENT` - Urgent
+    PriorityUpdateRequest:
+      type: object
+      description: Update complaint priority.
+      properties:
+        priority:
+          $ref: '#/components/schemas/PriorityEnum'
+        remarks:
+          type: string
+          default: ''
+      required:
+      - priority
+    ProfileImageRequest:
+      type: object
+      description: Accepts a profile image file with size and type validation.
+      properties:
+        profile_image:
+          type: string
+          format: binary
+      required:
+      - profile_image
+    RefreshTokenRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+        full_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        phone:
+          type: string
+          maxLength: 20
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RegisterRoleEnum'
+          default: CITIZEN
+      required:
+      - email
+      - full_name
+      - password
+    RegisterRoleEnum:
+      enum:
+      - CITIZEN
+      - AUTHORITY
+      type: string
+      description: |-
+        * `CITIZEN` - CITIZEN
+        * `AUTHORITY` - AUTHORITY
+    ResetPasswordRequest:
+      type: object
+      properties:
+        uid:
+          type: string
+          minLength: 1
+        token:
+          type: string
+          minLength: 1
+        new_password:
+          type: string
+          writeOnly: true
+          minLength: 8
+      required:
+      - new_password
+      - token
+      - uid
+    ResolutionImageUploadRequest:
+      type: object
+      description: Upload a resolution image.
+      properties:
+        image:
+          type: string
+          format: binary
+        caption:
+          type: string
+          default: ''
+          maxLength: 255
+      required:
+      - image
+    ResolutionNotesRequest:
+      type: object
+      description: Add/update resolution notes on a complaint.
+      properties:
+        notes:
+          type: string
+          minLength: 1
+      required:
+      - notes
+    ResolutionQualityEnum:
+      enum:
+      - POOR
+      - FAIR
+      - GOOD
+      - EXCELLENT
+      type: string
+      description: |-
+        * `POOR` - Poor
+        * `FAIR` - Fair
+        * `GOOD` - Good
+        * `EXCELLENT` - Excellent
+    Role027Enum:
+      enum:
+      - CITIZEN
+      - AUTHORITY
+      - SUPER_ADMIN
+      type: string
+      description: |-
+        * `CITIZEN` - Citizen
+        * `AUTHORITY` - Authority
+        * `SUPER_ADMIN` - Super Admin
+    SatisfactionLevelEnum:
+      enum:
+      - VERY_UNSATISFIED
+      - UNSATISFIED
+      - NEUTRAL
+      - SATISFIED
+      - VERY_SATISFIED
+      type: string
+      description: |-
+        * `VERY_UNSATISFIED` - Very Unsatisfied
+        * `UNSATISFIED` - Unsatisfied
+        * `NEUTRAL` - Neutral
+        * `SATISFIED` - Satisfied
+        * `VERY_SATISFIED` - Very Satisfied
+    Status372Enum:
+      enum:
+      - ACTIVE
+      - INACTIVE
+      type: string
+      description: |-
+        * `ACTIVE` - Active
+        * `INACTIVE` - Inactive
+    Status76eEnum:
+      enum:
+      - PENDING
+      - IN_PROGRESS
+      - RESOLVED
+      - REJECTED
+      - CLOSED
+      type: string
+      description: |-
+        * `PENDING` - Pending
+        * `IN_PROGRESS` - In Progress
+        * `RESOLVED` - Resolved
+        * `REJECTED` - Rejected
+        * `CLOSED` - Closed
+    StatusBreakdownItem:
+      type: object
+      properties:
+        count:
+          type: integer
+        percentage:
+          type: number
+          format: double
+      required:
+      - count
+      - percentage
+    StatusF08Enum:
+      enum:
+      - ACTIVE
+      - INACTIVE
+      - SUSPENDED
+      type: string
+      description: |-
+        * `ACTIVE` - Active
+        * `INACTIVE` - Inactive
+        * `SUSPENDED` - Suspended
+    TimelinessEnum:
+      enum:
+      - DELAYED
+      - ON_TIME
+      - QUICK
+      type: string
+      description: |-
+        * `DELAYED` - Delayed
+        * `ON_TIME` - On Time
+        * `QUICK` - Faster than expected
+    TokenPair:
+      type: object
+      properties:
+        access:
+          type: string
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    TokenVerifyRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - token
+    UnreadCount:
+      type: object
+      description: Unread notification count response.
+      properties:
+        unread_count:
+          type: integer
+      required:
+      - unread_count
+    UpdateProfileRequest:
+      type: object
+      description: |-
+        Writable serializer for self-service profile updates.
+
+        Citizens and authorities may update: full_name, phone, bio, address.
+        Department/designation assignment is managed via the departments module.
+      properties:
+        full_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        phone:
+          type: string
+          nullable: true
+          maxLength: 20
+        bio:
+          type: string
+        address:
+          type: string
+          maxLength: 255
+      required:
+      - full_name
+    User:
+      type: object
+      properties:
+        public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        full_name:
+          type: string
+          readOnly: true
+        phone:
+          type: string
+          readOnly: true
+          nullable: true
+        role:
+          allOf:
+          - $ref: '#/components/schemas/Role027Enum'
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusF08Enum'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - email
+      - full_name
+      - phone
+      - public_id
+      - role
+      - status
+    UserDepartmentAssignment:
+      type: object
+      description: Shows a user's department assignment — used inside user profile
+        serializers.
+      properties:
+        department_public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        department_name:
+          type: string
+          readOnly: true
+        designation:
+          type: string
+          readOnly: true
+        is_head:
+          type: boolean
+          readOnly: true
+        assigned_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - assigned_at
+      - department_name
+      - department_public_id
+      - designation
+      - is_head
+    UserSearch:
+      type: object
+      description: Output serializer for admin user search results.
+      properties:
+        public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        full_name:
+          type: string
+          readOnly: true
+        phone:
+          type: string
+          readOnly: true
+          nullable: true
+        role:
+          allOf:
+          - $ref: '#/components/schemas/Role027Enum'
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusF08Enum'
+          readOnly: true
+        departments:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserDepartmentAssignment'
+          readOnly: true
+        profile_image:
+          type: string
+          format: uri
+          readOnly: true
+          nullable: true
+        is_active:
+          type: boolean
+          readOnly: true
+          title: Active
+          description: Designates whether this user should be treated as active. Unselect
+            this instead of deleting accounts.
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - departments
+      - email
+      - full_name
+      - is_active
+      - phone
+      - profile_image
+      - public_id
+      - role
+      - status
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

@@ -1,0 +1,12 @@
+{
+  "model_type": "Naive Bayes (MultinomialNB)",
+  "supported_priority_classes": [
+    "Medium",
+    "High"
+  ],
+  "unsupported_classes": [
+    "Low"
+  ],
+  "limitation_note": "Trained on a dataset with ZERO 'Low' priority examples. Structurally incapable of predicting 'Low' -- predict_proba() only ever returns Medium/High. Real Low-priority complaints will be misclassified until retrained on genuine examples.",
+  "known_weakness": "On complaints using vocabulary outside the ~29-word training vocabulary, predictions become substantially less reliable. See Steps 14-15."
+}

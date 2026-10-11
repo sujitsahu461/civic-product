@@ -1,0 +1,230 @@
+/* ============================================================
+   CivicSetu Design System — Unified Light Theme
+   Clean white/slate-50 background, rich typography,
+   crisp borders, and high-contrast accessible text.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import './citizenTheme.css';
+
+/* ---- Color Tokens ---- */
+:root {
+  --background:                #f8fafc;
+  --surface-dim:               #f1f5f9;
+  --surface:                   #ffffff;
+  --surface-container-lowest:  #ffffff;
+  --surface-container-low:     #f8fafc;
+  --surface-container:         #ffffff;
+  --surface-container-high:    #f1f5f9;
+  --surface-container-highest: #e2e8f0;
+  --surface-variant:           #e2e8f0;
+  --surface-bright:            #ffffff;
+
+  --primary:            #2563eb;
+  --on-primary:         #ffffff;
+  --primary-container:  #eff6ff;
+  --on-primary-container:#1d4ed8;
+  --primary-fixed:      #dbeafe;
+  --primary-fixed-dim:  #bfdbfe;
+
+  --secondary:           #16a34a;
+  --on-secondary:        #ffffff;
+  --secondary-container: #dcfce7;
+  --on-secondary-container:#15803d;
+  --secondary-fixed:     #bbf7d0;
+  --secondary-fixed-dim: #86efac;
+
+  --tertiary:           #d97706;
+  --on-tertiary:        #ffffff;
+  --tertiary-container: #fef3c7;
+  --tertiary-fixed:     #fde68a;
+  --tertiary-fixed-dim: #fcd34d;
+
+  --error:           #dc2626;
+  --on-error:        #ffffff;
+  --error-container: #fee2e2;
+
+  --on-background:     #0f172a;
+  --on-surface:        #0f172a;
+  --on-surface-variant:#475569;
+
+  --outline:         #cbd5e1;
+  --outline-variant: #e2e8f0;
+
+  --inverse-surface:   #0f172a;
+  --inverse-on-surface:#ffffff;
+  --inverse-primary:   #93c5fd;
+  --surface-tint:      #2563eb;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-margin: 24px;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+}
+
+/* ---- Reset ---- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  min-height: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #f8fafc;
+  color: #0f172a;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100%;
+  position: relative;
+  background-color: transparent;
+}
+
+/* ---- Material Symbols ---- */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined' !important;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: 'liga';
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  user-select: none;
+}
+.icon-fill { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ---- Glass Panel ---- */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #e2e8f0;
+}
+
+/* ---- App Root Layout ---- */
+.app-root {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background-color: #f8fafc;
+}
+
+.main-with-sidebar {
+  flex: 1;
+  margin-left: 260px;
+  min-width: 0;
+  width: calc(100% - 260px);
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* Government portal: left sidebar + main */
+.gov-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background-color: #f8fafc;
+}
+.gov-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.gov-main {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+/* Public / Citizen: top navbar + full-width */
+.citizen-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+.citizen-main {
+  flex: 1;
+  background-color: #f8fafc;
+}
+
+/* Auth / full pages (login, signup) */
+.auth-layout {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+/* ---- Typography Scale ---- */
+.text-display    { font-size: 36px; line-height: 44px; letter-spacing: -0.02em; font-weight: 700; color: #0f172a; }
+.text-headline-lg{ font-size: 24px; line-height: 32px; letter-spacing: -0.01em; font-weight: 600; color: #0f172a; }
+.text-headline-md{ font-size: 20px; line-height: 28px; font-weight: 600; color: #0f172a; }
+.text-body-lg    { font-size: 16px; line-height: 24px; font-weight: 400; color: #334155; }
+.text-body-md    { font-size: 14px; line-height: 20px; font-weight: 400; color: #475569; }
+.text-body-sm    { font-size: 13px; line-height: 18px; font-weight: 400; color: #64748b; }
+.text-label-md   { font-size: 12px; line-height: 16px; letter-spacing: 0.05em; font-weight: 600; color: #64748b; }
+.text-code       { font-size: 13px; line-height: 20px; font-weight: 500; }
+
+/* ---- Linear Glow ---- */
+.linear-glow { box-shadow: 0 0 20px rgba(37, 99, 235, 0.15); }
+
+/* ---- Animations ---- */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}
+@keyframes ping {
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.animate-float   { animation: float 6s ease-in-out infinite; }
+.animate-ping    { animation: ping 1.5s cubic-bezier(0,0,0.2,1) infinite; }
+.animate-pulse   { animation: pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; }
+.animate-fade-up { animation: fadeInUp 0.5s ease-out both; }

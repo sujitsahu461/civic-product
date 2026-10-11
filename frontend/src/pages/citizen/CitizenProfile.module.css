@@ -1,0 +1,240 @@
+/* ============================================================
+   Citizen Profile — Light Orange + Light Blue Theme
+   ============================================================ */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.pageHeader {
+  margin-bottom: 4px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--cz-secondary-text, #64748b);
+  margin: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+/* Left: Summary Card */
+.summaryCard {
+  background: #ffffff;
+  border: 1px solid var(--cz-border, #e2e8f0);
+  border-radius: var(--cz-radius-xl, 16px);
+  padding: 30px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+}
+
+.avatarWrapper {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--cz-secondary-light-orange, #fff0e2);
+  border: 2px solid var(--cz-primary-orange, #f8cfa8);
+  color: var(--cz-accent-orange-dark, #b86b2f);
+  font-size: 32px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(232, 154, 91, 0.2);
+}
+
+.verifiedIcon {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: var(--cz-accent-blue, #5b9fcb);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.userName {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.userEmail {
+  font-size: 13px;
+  color: var(--cz-secondary-text, #64748b);
+  margin: 0 0 16px 0;
+  word-break: break-all;
+}
+
+.badgeRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.citizenBadge {
+  background: var(--cz-secondary-light-blue, #eaf6fc);
+  border: 1px solid var(--cz-primary-light-blue, #dceffd);
+  color: var(--cz-accent-blue-dark, #2c6e97);
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.statsSection {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding-top: 18px;
+  border-top: 1px solid var(--cz-border-subtle, #edf2f7);
+}
+
+.statSmallCard {
+  background: var(--cz-main-bg, #f8fafc);
+  border: 1px solid var(--cz-border-subtle, #edf2f7);
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.statSmallVal {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.statSmallLabel {
+  font-size: 11px;
+  color: var(--cz-secondary-text, #64748b);
+  font-weight: 600;
+}
+
+/* Right: Form Cards */
+.formCardsCol {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid var(--cz-border, #e2e8f0);
+  border-radius: var(--cz-radius-xl, 16px);
+  padding: 26px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+}
+
+.cardTitle {
+  font-size: 17px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 18px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--cz-border-subtle, #edf2f7);
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: var(--cz-radius-md, 10px);
+  border: 1px solid var(--cz-border, #e2e8f0);
+  background: #ffffff;
+  color: var(--cz-primary-text, #1e293b);
+  font-size: 13.5px;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  border-color: var(--cz-accent-blue, #5b9fcb);
+  box-shadow: 0 0 0 3px rgba(91, 159, 203, 0.15);
+}
+
+.btnSave {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 22px;
+  border-radius: var(--cz-radius-md, 10px);
+  background: var(--cz-accent-orange, #e89a5b);
+  border: 1px solid var(--cz-primary-orange, #f8cfa8);
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(232, 154, 91, 0.25);
+  margin-top: 16px;
+  transition: all 0.2s ease;
+}
+
+.btnSave:hover {
+  background: var(--cz-accent-orange-dark, #b86b2f);
+}
+
+@media (max-width: 850px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}

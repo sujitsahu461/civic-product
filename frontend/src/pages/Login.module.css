@@ -1,0 +1,698 @@
+/* ============================================================
+   CIVICSETU AUTHENTICATION STYLING (LOGIN + SIGNUP)
+   Design Language: Environmental Soul + Modern Civic Technology
+   Palette: Forest Green, Sage, Warm Off-White, Civic Blue, White
+   ============================================================ */
+
+/* 1. Page Background & Canvas */
+.container {
+  min-height: 100vh;
+  width: 100%;
+  background-color: rgba(247, 248, 242, 0.75); /* Warm Off-White Translucent */
+  background-image: 
+    radial-gradient(circle at 12% 18%, rgba(79, 143, 74, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 88% 82%, rgba(37, 99, 235, 0.04) 0%, transparent 45%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 36px 24px;
+  font-family: var(--font-sans, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  color: #0F172A;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+}
+
+/* 2. Main Two-Column Card Architecture */
+.authCard {
+  width: 100%;
+  max-width: 1220px;
+  min-height: 680px;
+  background: #FFFFFF;
+  border-radius: 28px;
+  border: 1px solid #DCE8D5; /* Subtle Sage Border */
+  box-shadow: 
+    0 4px 6px -1px rgba(24, 56, 23, 0.02),
+    0 20px 40px -15px rgba(24, 56, 23, 0.08);
+  display: flex;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 3. Left Panel: Environmental Civic Identity */
+.leftPanel {
+  flex: 1.15;
+  background: #D8DED3; /* Sage matching artwork background */
+  background: linear-gradient(165deg, #EAF3E7 0%, #D8DED3 55%, #CFD8CA 100%);
+  padding: 44px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  border-right: 1px solid rgba(36, 69, 31, 0.1);
+  overflow: hidden;
+}
+
+/* Subtle organic background foliage glow */
+.leftGlow {
+  position: absolute;
+  top: -120px;
+  left: -120px;
+  width: 380px;
+  height: 380px;
+  background: radial-gradient(circle, rgba(79, 143, 74, 0.14) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.visualTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 2;
+}
+
+.brandHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brandLogo {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #FFFFFF;
+  border: 1px solid #D5E2D1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  box-shadow: 0 2px 8px rgba(36, 69, 31, 0.08);
+  flex-shrink: 0;
+}
+
+.brandLogoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.brandMeta {
+  display: flex;
+  flex-direction: column;
+}
+
+.brandName {
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #183817; /* Deep Forest Green */
+  line-height: 1.2;
+}
+
+.brandBadge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #24451F;
+  opacity: 0.8;
+}
+
+/* Circular Seal Stamp Badge */
+.sealWrapper {
+  width: 82px;
+  height: 82px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.circularSeal {
+  width: 100%;
+  height: 100%;
+  animation: rotateSlow 50s linear infinite;
+  user-select: none;
+}
+
+@keyframes rotateSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Center Content & Editorial Composition */
+.visualBody {
+  margin: 20px 0;
+  z-index: 2;
+}
+
+.visualTagline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(36, 69, 31, 0.08);
+  border: 1px solid rgba(36, 69, 31, 0.18);
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #183817;
+  margin-bottom: 18px;
+}
+
+.taglineDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4F8F4A;
+  box-shadow: 0 0 0 2px rgba(79, 143, 74, 0.2);
+}
+
+.editorialHeading {
+  font-size: 38px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: #183817; /* Dark Forest Green */
+  margin: 0 0 14px 0;
+}
+
+.editorialSubheading {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #24451F;
+  opacity: 0.88;
+  max-width: 490px;
+  margin: 0 0 22px 0;
+}
+
+/* Hands Artwork Container */
+.handsVisualContainer {
+  width: 100%;
+  max-width: 520px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #D8DED3;
+  box-shadow: 0 8px 24px -6px rgba(24, 56, 23, 0.12);
+  border: 1px solid rgba(36, 69, 31, 0.12);
+  margin-bottom: 22px;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+.handsVisualContainer:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -6px rgba(24, 56, 23, 0.16);
+}
+
+.handsVisualImg {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+/* Civic Pillars Pill Tags */
+.civicPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.civicPill {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(36, 69, 31, 0.15);
+  color: #183817;
+  backdrop-filter: blur(4px);
+  transition: background 0.15s ease;
+}
+
+.civicPill:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.visualFooter {
+  font-size: 12px;
+  color: #24451F;
+  opacity: 0.75;
+  z-index: 2;
+}
+
+/* 4. Right Panel: Clean Authentication Surface */
+.rightPanel {
+  flex: 1;
+  background: #FFFFFF;
+  padding: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.formWrapper {
+  width: 100%;
+  max-width: 440px;
+}
+
+.signupFormWrapper {
+  max-width: 480px;
+}
+
+.mobileBrandHeader {
+  display: none;
+}
+
+.formHeader {
+  margin-bottom: 22px;
+}
+
+.badgeRow {
+  margin-bottom: 10px;
+}
+
+.portalBadge {
+  display: inline-block;
+  padding: 4px 10px;
+  background: #EAF5FF;
+  color: #2563EB;
+  border: 1px solid #BFDBFE;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #0F172A;
+  margin: 0 0 8px 0;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #64748B;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Quick 1-Click Demo Buttons */
+.quickDemoBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin-bottom: 18px;
+}
+
+.quickDemoLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.quickDemoButtons {
+  display: flex;
+  gap: 6px;
+}
+
+.quickBtn {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #DCE3EA;
+  background: #FFFFFF;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.quickBtn:hover {
+  border-color: #2563EB;
+  color: #2563EB;
+  background: #EFF6FF;
+}
+
+.quickBtnActive {
+  background: #2563EB;
+  color: #FFFFFF;
+  border-color: #2563EB;
+}
+
+/* Account Type Switcher (Signup) */
+.accountTypeToggle {
+  display: flex;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+
+.typeBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.typeBtnActive {
+  background: #FFFFFF;
+  color: #0F172A;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Error Banner */
+.errorBanner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  color: #B91C1C;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+/* Form Layout */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.iconToggleBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94A3B8;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.iconToggleBtn:hover {
+  color: #334155;
+}
+
+/* Security Captcha */
+.captchaGroup {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.captchaHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.captchaLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #183817;
+}
+
+.captchaTag {
+  font-size: 10px;
+  font-weight: 600;
+  color: #16A34A;
+  background: #DCFCE7;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.captchaRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.captchaBox {
+  flex: 1;
+  overflow: hidden;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0F172A;
+  min-height: 48px;
+}
+
+.captchaActions {
+  display: flex;
+  gap: 6px;
+}
+
+.captchaActionBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid #DCE3EA;
+  background: #FFFFFF;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.captchaActionBtn:hover {
+  border-color: #2563EB;
+  color: #2563EB;
+  background: #EFF6FF;
+}
+
+.captchaSpin {
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.captchaInputWrapper :global(input) {
+  letter-spacing: 0.15em;
+  font-family: monospace, monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* Form Utilities */
+.formUtils {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.rememberLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #475569;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: #2563EB;
+  cursor: pointer;
+}
+
+.forgotBtn {
+  color: #2563EB;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.forgotBtn:hover {
+  color: #1D4ED8;
+  text-decoration: underline;
+}
+
+/* Submit Button: Civic Blue */
+.submitBtn {
+  height: 50px !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  background-color: #2563EB !important;
+  color: #FFFFFF !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.22) !important;
+  transition: all 0.2s ease !important;
+}
+
+.submitBtn:hover {
+  background-color: #1D4ED8 !important;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.32) !important;
+  transform: translateY(-1px);
+}
+
+.submitBtn:active {
+  transform: translateY(0);
+}
+
+/* Password Strength Meter */
+.strengthMeter {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.strengthBar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.strengthSegment {
+  height: 4px;
+  border-radius: 2px;
+  transition: background 0.25s ease;
+}
+
+.strengthText {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Terms Checkbox */
+.termsCheckbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: #475569;
+  cursor: pointer;
+  line-height: 1.45;
+}
+
+.termsCheckbox input {
+  margin-top: 2px;
+}
+
+/* Footer Link */
+.footerText {
+  margin-top: 22px;
+  text-align: center;
+  font-size: 14px;
+  color: #64748B;
+}
+
+.signupLink {
+  color: #2563EB;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.signupLink:hover {
+  text-decoration: underline;
+  color: #1D4ED8;
+}
+
+/* 5. Mobile & Responsive Behavior (< 960px) */
+@media (max-width: 960px) {
+  .container {
+    padding: 16px;
+    align-items: flex-start;
+  }
+
+  .authCard {
+    flex-direction: column;
+    border-radius: 20px;
+  }
+
+  .leftPanel {
+    padding: 24px 20px 20px 20px;
+    border-right: none;
+    border-bottom: 1px solid rgba(36, 69, 31, 0.1);
+  }
+
+  .visualTopRow {
+    margin-bottom: 14px;
+  }
+
+  .sealWrapper {
+    width: 60px;
+    height: 60px;
+  }
+
+  .editorialHeading {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+
+  .editorialSubheading {
+    font-size: 13px;
+    margin-bottom: 14px;
+  }
+
+  .handsVisualContainer {
+    max-height: 130px;
+    margin-bottom: 14px;
+  }
+
+  .civicPills {
+    display: none;
+  }
+
+  .visualFooter {
+    display: none;
+  }
+
+  .rightPanel {
+    padding: 28px 20px 36px 20px;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+}

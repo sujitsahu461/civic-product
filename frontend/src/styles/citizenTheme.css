@@ -1,0 +1,95 @@
+/* ============================================================
+   CivicSetu Citizen Portal Design System — Light Orange + Light Blue Theme
+   Strictly adheres to Master Prompt tokens & guidelines
+   ============================================================ */
+
+:root {
+  /* Master Color Tokens */
+  --cz-primary-light-blue:       #DCEFFD;
+  --cz-secondary-light-blue:     #EAF6FC;
+  --cz-primary-orange:           #F8CFA8;
+  --cz-secondary-light-orange:   #FFF0E2;
+  --cz-accent-blue:              #5B9FCB;
+  --cz-accent-blue-dark:         #2C6E97;
+  --cz-accent-orange:            #E89A5B;
+  --cz-accent-orange-dark:       #B86B2F;
+  --cz-main-bg:                  #F8FAFC;
+  --cz-card-bg:                  #FFFFFF;
+  --cz-primary-text:             #1E293B;
+  --cz-secondary-text:           #64748B;
+  --cz-muted-text:               #94A3B8;
+  --cz-border:                   #E2E8F0;
+  --cz-border-subtle:            #EDF2F7;
+
+  /* Semantic Feedback Tokens */
+  --cz-success:                  #4CAF7D;
+  --cz-success-bg:               #EBF8F1;
+  --cz-success-border:           #C2EDD5;
+  --cz-success-text:             #236B43;
+
+  --cz-warning:                  #E8A64A;
+  --cz-warning-bg:               #FEF6EB;
+  --cz-warning-border:           #FCE4BE;
+  --cz-warning-text:             #9C6315;
+
+  --cz-danger:                   #D96B6B;
+  --cz-danger-bg:                #FDEEEE;
+  --cz-danger-border:            #FACCCC;
+  --cz-danger-text:              #9C3232;
+
+  /* Priority Badges */
+  --cz-priority-high-bg:         #FDEEEE;
+  --cz-priority-high-text:       #B91C1C;
+  --cz-priority-high-border:     #F8CFA8;
+
+  --cz-priority-med-bg:          #FFF0E2;
+  --cz-priority-med-text:        #C25E00;
+  --cz-priority-med-border:      #F8CFA8;
+
+  --cz-priority-low-bg:          #EAF6FC;
+  --cz-priority-low-text:        #1E6F9F;
+  --cz-priority-low-border:      #DCEFFD;
+
+  /* Typography & Radius */
+  --cz-font:                     'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --cz-radius-sm:                6px;
+  --cz-radius-md:                10px;
+  --cz-radius-lg:                14px;
+  --cz-radius-xl:                16px;
+  --cz-radius-2xl:               20px;
+  --cz-radius-pill:              9999px;
+
+  /* Subtle Professional Shadows */
+  --cz-shadow-sm:                0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02);
+  --cz-shadow-md:                0 4px 16px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(15, 23, 42, 0.03);
+  --cz-shadow-lg:                0 8px 24px rgba(15, 23, 42, 0.06), 0 2px 6px rgba(15, 23, 42, 0.04);
+  --cz-shadow-orange:            0 4px 14px rgba(232, 154, 91, 0.22);
+  --cz-shadow-blue:              0 4px 14px rgba(91, 159, 203, 0.22);
+}
+
+/* Scoped Citizen Portal Root Container */
+.citizenPortalScope {
+  font-family: var(--cz-font);
+  background-color: var(--cz-main-bg);
+  color: var(--cz-primary-text);
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Override dark global resets for citizen portal form inputs & select elements */
+.citizenPortalScope input,
+.citizenPortalScope textarea,
+.citizenPortalScope select {
+  font-family: var(--cz-font);
+  color: var(--cz-primary-text);
+  background-color: #FFFFFF;
+}
+
+.citizenPortalScope input::placeholder,
+.citizenPortalScope textarea::placeholder {
+  color: var(--cz-muted-text);
+}

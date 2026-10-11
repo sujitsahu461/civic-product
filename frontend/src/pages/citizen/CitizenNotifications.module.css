@@ -1,0 +1,184 @@
+/* ============================================================
+   Citizen Notifications — Light Orange + Light Blue Theme
+   ============================================================ */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--cz-secondary-text, #64748b);
+  margin: 0;
+}
+
+.markAllBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--cz-radius-md, 10px);
+  background: var(--cz-secondary-light-blue, #eaf6fc);
+  border: 1px solid var(--cz-primary-light-blue, #dceffd);
+  color: var(--cz-accent-blue-dark, #2c6e97);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.markAllBtn:hover {
+  background: var(--cz-primary-light-blue, #dceffd);
+}
+
+.notificationsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.notifItem {
+  background: #ffffff;
+  border: 1px solid var(--cz-border, #e2e8f0);
+  border-radius: var(--cz-radius-xl, 16px);
+  padding: 18px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.notifItem:hover {
+  border-color: var(--cz-primary-light-blue, #dceffd);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+}
+
+.unread {
+  background: var(--cz-secondary-light-blue, #eaf6fc);
+  border-left: 4px solid var(--cz-accent-orange, #e89a5b);
+}
+
+.read {
+  opacity: 0.9;
+}
+
+.notifIconWrapper {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid var(--cz-border, #e2e8f0);
+  color: var(--cz-accent-blue-dark, #2c6e97);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.unread .notifIconWrapper {
+  background: var(--cz-secondary-light-orange, #fff0e2);
+  border-color: var(--cz-primary-orange, #f8cfa8);
+  color: var(--cz-accent-orange-dark, #b86b2f);
+}
+
+.notifBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.notifTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.notifTitle {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.notifTime {
+  font-size: 11.5px;
+  color: var(--cz-muted-text, #94a3b8);
+  white-space: nowrap;
+}
+
+.notifMsg {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--cz-secondary-text, #64748b);
+  margin: 0;
+}
+
+.notifFooter {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.trackLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--cz-accent-blue-dark, #2c6e97);
+  text-decoration: none;
+}
+
+.trackLink:hover {
+  text-decoration: underline;
+}
+
+.emptyBox {
+  background: #ffffff;
+  border: 1px solid var(--cz-border, #e2e8f0);
+  border-radius: var(--cz-radius-xl, 16px);
+  padding: 60px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.emptyIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--cz-secondary-light-blue, #eaf6fc);
+  color: var(--cz-accent-blue, #5b9fcb);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+}
