@@ -35,6 +35,39 @@ const CATEGORIES: ComplaintCategory[] = [
 
 const PRIORITIES: ComplaintPriority[] = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'];
 
+const CATEGORY_METADATA: Record<ComplaintCategory, {
+  icon: string;
+  deptKey: string;
+  defaultSla: string;
+  color: string;
+  bgLight: string;
+  borderColor: string;
+}> = {
+  ROAD: { icon: 'add_road', deptKey: 'categories.ROAD', defaultSla: '24-48h', color: '#b45309', bgLight: '#fef3c7', borderColor: '#fde68a' },
+  WATER: { icon: 'water_drop', deptKey: 'categories.WATER', defaultSla: '12-24h', color: '#0369a1', bgLight: '#e0f2fe', borderColor: '#bae6fd' },
+  ELECTRICITY: { icon: 'electric_bolt', deptKey: 'categories.ELECTRICITY', defaultSla: '6-12h', color: '#b91c1c', bgLight: '#fee2e2', borderColor: '#fecaca' },
+  DRAINAGE: { icon: 'waves', deptKey: 'categories.DRAINAGE', defaultSla: '18-36h', color: '#0f766e', bgLight: '#ccfbf1', borderColor: '#99f6e4' },
+  SANITATION: { icon: 'delete_sweep', deptKey: 'categories.SANITATION', defaultSla: '12-24h', color: '#15803d', bgLight: '#dcfce7', borderColor: '#bbf7d0' },
+  PARKS: { icon: 'park', deptKey: 'categories.PARKS', defaultSla: '48-72h', color: '#047857', bgLight: '#d1fae5', borderColor: '#a7f3d0' },
+  NOISE: { icon: 'volume_up', deptKey: 'categories.NOISE', defaultSla: '12-24h', color: '#6d28d9', bgLight: '#ede9fe', borderColor: '#ddd6fe' },
+  OTHER: { icon: 'domain', deptKey: 'categories.OTHER', defaultSla: '48h', color: '#475569', bgLight: '#f1f5f9', borderColor: '#e2e8f0' },
+};
+
+const PRIORITY_METADATA: Record<ComplaintPriority, {
+  labelKey: string;
+  sla: string;
+  desc: string;
+  icon: string;
+  color: string;
+  bgActive: string;
+  borderActive: string;
+}> = {
+  LOW: { labelKey: 'priorities.LOW', sla: '72h', desc: 'Routine civic defect', icon: 'check_circle', color: '#16a34a', bgActive: '#f0fdf4', borderActive: '#86efac' },
+  MEDIUM: { labelKey: 'priorities.MEDIUM', sla: '24-48h', desc: 'Standard neighborhood issue', icon: 'schedule', color: '#d97706', bgActive: '#fffbeb', borderActive: '#fde68a' },
+  HIGH: { labelKey: 'priorities.HIGH', sla: '12-24h', desc: 'Active supply or traffic disruption', icon: 'warning', color: '#ea580c', bgActive: '#fff7ed', borderActive: '#fdba74' },
+  URGENT: { labelKey: 'priorities.URGENT', sla: '6-12h', desc: 'Emergency hazard / safety threat', icon: 'error', color: '#dc2626', bgActive: '#fef2f2', borderActive: '#fca5a5' },
+};
+
 export const SubmitComplaint: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -64,6 +97,22 @@ export const SubmitComplaint: React.FC = () => {
   const [geoLoading, setGeoLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
+
+  // Live Filing Readiness Score
+  const readiness = useMemo(() => {
+    let score = 0;
+    const checks = {
+      category: !!selectedCategory,
+      details: !!(title.trim().length >= 5 && description.trim().length >= 10),
+      location: !!(address.trim() || (latitude && longitude)),
+      media: selectedFiles.length > 0 || !!audioFile || !!videoFile,
+    };
+    if (checks.category) score += 30;
+    if (checks.details) score += 30;
+    if (checks.location) score += 25;
+    if (checks.media) score += 15;
+    return { score: Math.min(score, 100), checks };
+  }, [selectedCategory, title, description, address, latitude, longitude, selectedFiles.length, audioFile, videoFile]);
 
   // Success Modal State
   const [submittedData, setSubmittedData] = useState<{
@@ -293,43 +342,90 @@ export const SubmitComplaint: React.FC = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
+                {/* Interactive Category Selector Grid */}
+                <div>
+                  <div className={s.categorySectionHeader}>
                     <label className={s.inputLabel}>
                       {t('submit.categoryLabel')} <span className={s.req}>*</span>
                     </label>
-                    <select
-                      className={s.selectInput}
-                      value={selectedCategory}
-                      onChange={(e) => setSelectedCategory(e.target.value as ComplaintCategory)}
-                      required
-                    >
-                      {CATEGORIES.map((cat) => (
-                        <option key={cat} value={cat}>
-                          {t(`categories.${cat}`)}
-                        </option>
-                      ))}
-                    </select>
-                    <p className={s.helpText}>{t('submit.categoryHelp')}</p>
+                    <span className="text-xs text-gray-500 font-medium">
+                      {t('submit.assignedDept')}: <strong className="text-blue-600 font-bold">{t(currentDept.nameKey)}</strong> ({currentDept.defaultSla})
+                    </span>
                   </div>
+                  <div className={s.categoryGrid}>
+                    {CATEGORIES.map((cat) => {
+                      const meta = CATEGORY_METADATA[cat];
+                      const isSelected = selectedCategory === cat;
+                      return (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => setSelectedCategory(cat)}
+                          className={`${s.categoryCard} ${isSelected ? s.categoryCardActive : ''}`}
+                          aria-pressed={isSelected}
+                        >
+                          <div className={s.categoryCardTop}>
+                            <div
+                              className={s.categoryIconWrap}
+                              style={{
+                                backgroundColor: isSelected ? meta.bgLight : '#f8fafc',
+                                color: isSelected ? meta.color : '#64748b',
+                              }}
+                            >
+                              <Icon name={meta.icon} size={20} />
+                            </div>
+                            {isSelected && (
+                              <span className={s.categoryCheck}>
+                                <Icon name="check_circle" size={18} />
+                              </span>
+                            )}
+                          </div>
+                          <div>
+                            <div className={s.categoryTitle}>{t(`categories.${cat}`)}</div>
+                          </div>
+                          <div className={s.categoryCardFooter}>
+                            <span className={s.categorySlaBadge}>
+                              {meta.defaultSla} SLA
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
 
-                  <div>
-                    <label className={s.inputLabel}>
-                      {t('submit.priorityLabel')} <span className={s.req}>*</span>
-                    </label>
-                    <select
-                      className={s.selectInput}
-                      value={selectedPriority}
-                      onChange={(e) => setSelectedPriority(e.target.value as ComplaintPriority)}
-                      required
-                    >
-                      {PRIORITIES.map((p) => (
-                        <option key={p} value={p}>
-                          {t(`priorities.${p}`)}
-                        </option>
-                      ))}
-                    </select>
-                    <p className={s.helpText}>{t('submit.priorityHelp')}</p>
+                {/* Interactive Priority Selector Pills */}
+                <div>
+                  <label className={s.inputLabel}>
+                    {t('submit.priorityLabel')} <span className={s.req}>*</span>
+                  </label>
+                  <div className={s.priorityGrid}>
+                    {PRIORITIES.map((p) => {
+                      const meta = PRIORITY_METADATA[p];
+                      const isSelected = selectedPriority === p;
+                      return (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={() => setSelectedPriority(p)}
+                          className={`${s.priorityCard} ${isSelected ? s.priorityCardActive : ''}`}
+                          style={{
+                            backgroundColor: isSelected ? meta.bgActive : '#ffffff',
+                            borderColor: isSelected ? meta.borderActive : undefined,
+                          }}
+                          aria-pressed={isSelected}
+                        >
+                          <div className={s.priorityCardHeader}>
+                            <span className={s.priorityCardTitle} style={{ color: meta.color }}>
+                              <Icon name={meta.icon} size={16} />
+                              <span>{t(meta.labelKey)}</span>
+                            </span>
+                            <span className={s.priorityCardSla}>{meta.sla}</span>
+                          </div>
+                          <span className={s.priorityCardDesc}>{meta.desc}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -551,61 +647,217 @@ export const SubmitComplaint: React.FC = () => {
           </form>
         </div>
 
-        {/* Right Column: Municipal Jurisdiction & Guidelines */}
+        {/* Right Column: Interactive Live Grievance Dossier & Helplines */}
         <div className={s.sidebarCol}>
-          <div className={s.triageCard}>
-            <div className={s.triageHeader}>
-              <div className={s.triageTitleGroup}>
-                <h4 className={s.triageTitle}>
-                  <Icon name="account_balance" size={20} style={{ color: 'var(--cz-accent-blue, #5b9fcb)' }} />
-                  <span>Municipal Jurisdiction</span>
+          {/* Interactive Live Grievance Ticket Preview Card */}
+          <div className={s.previewCard}>
+            <div className={s.previewHeader}>
+              <div className={s.previewTitleGroup}>
+                <h4 className={s.previewTitle}>
+                  <Icon name="assignment" size={20} style={{ color: 'var(--cz-accent-blue, #5b9fcb)' }} />
+                  <span>{t('submit.livePreviewTitle')}</span>
                 </h4>
-                <p className={s.triageSubtitle}>
-                  Transparent, deterministic routing to jurisdictional field engineers.
-                </p>
+              </div>
+              <span
+                className={`${s.previewStatusBadge} ${
+                  readiness.score >= 85 ? s.statusReady : s.statusDraft
+                }`}
+              >
+                <Icon name={readiness.score >= 85 ? 'task_alt' : 'edit_note'} size={14} />
+                <span>
+                  {readiness.score >= 85
+                    ? t('submit.readyToSubmit')
+                    : t('submit.drafting')}
+                </span>
+              </span>
+            </div>
+
+            {/* Readiness Progress Meter */}
+            <div className={s.readinessBox}>
+              <div className={s.readinessRow}>
+                <span>{t('submit.readinessLabel')}</span>
+                <span className={s.readinessPercent}>{readiness.score}%</span>
+              </div>
+              <div className={s.readinessTrack}>
+                <div
+                  className={s.readinessFill}
+                  style={{
+                    width: `${readiness.score}%`,
+                    backgroundColor:
+                      readiness.score >= 85
+                        ? '#16a34a'
+                        : readiness.score >= 50
+                        ? '#d97706'
+                        : '#3b82f6',
+                  }}
+                />
               </div>
             </div>
 
-            <div className={s.aiResultBox}>
-              <div className={s.aiBadgeRow}>
-                <span className={s.aiBadgeLabel}>{t('common.category')}</span>
-                <span className={s.aiBadgeValue}>
-                  {t(`categories.${selectedCategory}`)}
+            {/* Interactive Step Completion Checklist */}
+            <div className={s.checklistGrid}>
+              <div
+                className={`${s.checklistItem} ${
+                  readiness.checks.category ? s.checklistItemCompleted : ''
+                }`}
+              >
+                <Icon
+                  name={readiness.checks.category ? 'check_circle' : 'radio_button_unchecked'}
+                  size={14}
+                />
+                <span>Category</span>
+              </div>
+              <div
+                className={`${s.checklistItem} ${
+                  readiness.checks.details ? s.checklistItemCompleted : ''
+                }`}
+              >
+                <Icon
+                  name={readiness.checks.details ? 'check_circle' : 'radio_button_unchecked'}
+                  size={14}
+                />
+                <span>Details</span>
+              </div>
+              <div
+                className={`${s.checklistItem} ${
+                  readiness.checks.location ? s.checklistItemCompleted : ''
+                }`}
+              >
+                <Icon
+                  name={readiness.checks.location ? 'check_circle' : 'radio_button_unchecked'}
+                  size={14}
+                />
+                <span>Location</span>
+              </div>
+              <div
+                className={`${s.checklistItem} ${
+                  readiness.checks.media ? s.checklistItemCompleted : ''
+                }`}
+              >
+                <Icon
+                  name={readiness.checks.media ? 'check_circle' : 'radio_button_unchecked'}
+                  size={14}
+                />
+                <span>Evidence ({selectedFiles.length + (audioFile ? 1 : 0) + (videoFile ? 1 : 0)})</span>
+              </div>
+            </div>
+
+            {/* Live Interactive Ticket Frame */}
+            <div className={s.liveTicketBox}>
+              <div className={s.ticketTopRow}>
+                <span
+                  className={s.ticketCategoryPill}
+                  style={{
+                    backgroundColor: CATEGORY_METADATA[selectedCategory].bgLight,
+                    color: CATEGORY_METADATA[selectedCategory].color,
+                  }}
+                >
+                  <Icon name={CATEGORY_METADATA[selectedCategory].icon} size={14} />
+                  <span>{t(`categories.${selectedCategory}`)}</span>
+                </span>
+                <span
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    color: PRIORITY_METADATA[selectedPriority].color,
+                  }}
+                >
+                  {t(PRIORITY_METADATA[selectedPriority].labelKey)}
                 </span>
               </div>
 
-              <div className={s.aiBadgeRow}>
-                <span className={s.aiBadgeLabel}>{t('submit.assignedDept')}</span>
-                <span className={s.aiBadgeValue} style={{ color: 'var(--cz-accent-blue-dark, #2c6e97)' }}>
-                  {t(currentDept.nameKey)}
-                </span>
+              <div>
+                <h5 className={`${s.ticketTitle} ${!title.trim() ? s.ticketTitlePlaceholder : ''}`}>
+                  {title.trim() || t('submit.previewPlaceholder')}
+                </h5>
+                {description.trim() && (
+                  <p className={s.ticketDesc}>
+                    {description.slice(0, 110)}
+                    {description.length > 110 ? '...' : ''}
+                  </p>
+                )}
               </div>
 
-              <div className={s.aiBadgeRow}>
-                <span className={s.aiBadgeLabel}>{t('common.priority')}</span>
-                <div>
-                  <span
-                    className={
-                      selectedPriority === 'URGENT' || selectedPriority === 'HIGH'
-                        ? s.badgePriorityHigh
-                        : selectedPriority === 'LOW'
-                        ? s.badgePriorityLow
-                        : s.badgePriorityMedium
-                    }
-                  >
-                    {t(`priorities.${selectedPriority}`)}
+              <div className={s.ticketMetaRow}>
+                <div className={s.ticketMetaItem}>
+                  <Icon name="location_on" size={14} style={{ color: '#2563eb' }} />
+                  <span>
+                    {address.trim()
+                      ? address.length > 36
+                        ? address.slice(0, 34) + '...'
+                        : address
+                      : t('submit.previewLocationPending')}
                   </span>
                 </div>
-              </div>
+                <div className={s.ticketMetaItem}>
+                  <Icon name="business" size={14} style={{ color: '#475569' }} />
+                  <span>
+                    {t(currentDept.nameKey)} • {currentDept.defaultSla} SLA
+                  </span>
+                </div>
 
-              <div className={s.aiBadgeRow}>
-                <span className={s.aiBadgeLabel}>Estimated SLA</span>
-                <span className={s.aiBadgeValue} style={{ fontSize: 12.5, color: 'var(--cz-secondary-text, #64748b)' }}>
-                  {currentDept.defaultSla}
-                </span>
+                {/* Evidence Badges */}
+                <div className={s.evidenceChips}>
+                  {audioFile && (
+                    <span className={s.evidenceChip}>
+                      <Icon name="mic" size={12} />
+                      <span>{audioDuration ? `${audioDuration}s Voice` : 'Voice Note'}</span>
+                    </span>
+                  )}
+                  {selectedFiles.length > 0 && (
+                    <span className={s.evidenceChip}>
+                      <Icon name="photo_camera" size={12} />
+                      <span>{selectedFiles.length} Photo{selectedFiles.length > 1 ? 's' : ''}</span>
+                    </span>
+                  )}
+                  {videoFile && (
+                    <span className={s.evidenceChip}>
+                      <Icon name="videocam" size={12} />
+                      <span>1 Video</span>
+                    </span>
+                  )}
+                  {!audioFile && selectedFiles.length === 0 && !videoFile && (
+                    <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+                      No media evidence attached yet
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
+
+          {/* Interactive Municipal Helplines Card */}
+          <div className={s.helplineCard}>
+            <h4 className={s.helplineTitle}>
+              <Icon name="phone_in_talk" size={18} style={{ color: '#2563eb' }} />
+              <span>{t('submit.emergencyHelplines')}</span>
+            </h4>
+            <div className={s.helplineList}>
+              <div className={s.helplineRow}>
+                <span className={s.helplineLabel}>
+                  <Icon name="support_agent" size={16} />
+                  <span>{t('submit.controlRoom')}</span>
+                </span>
+                <a href="tel:18003457788" className={s.helplineNumber}>1800-345-7788</a>
+              </div>
+              <div className={s.helplineRow}>
+                <span className={s.helplineLabel}>
+                  <Icon name="bolt" size={16} />
+                  <span>{t('submit.electricityHelpline')}</span>
+                </span>
+                <a href="tel:1912" className={s.helplineNumber}>1912</a>
+              </div>
+              <div className={s.helplineRow}>
+                <span className={s.helplineLabel}>
+                  <Icon name="water" size={16} />
+                  <span>{t('submit.waterHelpline')}</span>
+                </span>
+                <a href="tel:06632400123" className={s.helplineNumber}>0663-2400123</a>
+              </div>
+            </div>
+          </div>
+
+          {/* Filing Guidelines Card */}
 
           {/* Filing Guidelines Card */}
           <div className={s.guidelinesCard}>

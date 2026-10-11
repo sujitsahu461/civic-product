@@ -109,7 +109,17 @@
     "successModalSubtitle": "Your complaint has been logged in the municipal system.",
     "assignedDept": "Jurisdictional Department",
     "trackNowBtn": "Track Grievance Status",
-    "fileAnotherBtn": "File Another Issue"
+    "fileAnotherBtn": "File Another Issue",
+    "livePreviewTitle": "Live Grievance Preview",
+    "readinessLabel": "Filing Readiness",
+    "readyToSubmit": "Ready to Lodge",
+    "drafting": "Drafting Grievance",
+    "previewPlaceholder": "Enter issue title in the form to preview ticket...",
+    "previewLocationPending": "Ground location pending selection",
+    "emergencyHelplines": "Municipal Helplines",
+    "controlRoom": "Central Control Room",
+    "electricityHelpline": "Electricity Faults",
+    "waterHelpline": "Water Supply Desk"
   },
   "track": {
     "title": "Grievance Redressal Tracker",

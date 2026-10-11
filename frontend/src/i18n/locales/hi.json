@@ -109,7 +109,17 @@
     "successModalSubtitle": "आपकी शिकायत नगरपालिका प्रणाली में पंजीकृत कर ली गई है।",
     "assignedDept": "संबंधित विभाग",
     "trackNowBtn": "शिकायत की स्थिति ट्रैक करें",
-    "fileAnotherBtn": "अन्य समस्या दर्ज करें"
+    "fileAnotherBtn": "अन्य समस्या दर्ज करें",
+    "livePreviewTitle": "शिकायत लाइव पूर्वावलोकन",
+    "readinessLabel": "दर्ज करने की तैयारी",
+    "readyToSubmit": "दर्ज करने हेतु तैयार",
+    "drafting": "शिकायत प्रारूप",
+    "previewPlaceholder": "टिकट पूर्वावलोकन हेतु फ़ॉर्म में शीर्षक लिखें...",
+    "previewLocationPending": "स्थान चयन बाकी है",
+    "emergencyHelplines": "नगर पालिका आपातकालीन हेल्पलाइन",
+    "controlRoom": "केंद्रीय नियंत्रण कक्ष",
+    "electricityHelpline": "विद्युत खराबी हेल्पलाइन",
+    "waterHelpline": "जल आपूर्ति डेस्क"
   },
   "track": {
     "title": "शिकायत निवारण ट्रैकर",

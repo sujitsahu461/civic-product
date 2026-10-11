@@ -109,7 +109,17 @@
     "successModalSubtitle": "ଆପଣଙ୍କର ଅଭିଯୋଗ ପୌର ପ୍ରଶାସନ ନିକଟରେ ଦାଖଲ ହୋଇଛି।",
     "assignedDept": "ଦାୟିତ୍ୱପ୍ରାପ୍ତ ପୌର ବିଭାଗ",
     "trackNowBtn": "ଅଭିଯୋଗ ସ୍ଥିତି ଯାଞ୍ଚ କରନ୍ତୁ",
-    "fileAnotherBtn": "ଅନ୍ୟ ଏକ ଅଭିଯୋଗ ଦାଖଲ କରନ୍ତୁ"
+    "fileAnotherBtn": "ଅନ୍ୟ ଏକ ଅଭିଯୋଗ ଦାଖଲ କରନ୍ତୁ",
+    "livePreviewTitle": "ଅଭିଯୋଗ ଲାଇଭ୍ ପ୍ରିଭ୍ୟୁ",
+    "readinessLabel": "ଦାଖଲ ପ୍ରସ୍ତୁତି",
+    "readyToSubmit": "ଦାଖଲ ପାଇଁ ପ୍ରସ୍ତୁତ",
+    "drafting": "ଅଭିଯୋଗ ଖସଡ଼ା",
+    "previewPlaceholder": "ଟିକେଟ୍ ଦେଖିବା ପାଇଁ ଫର୍ମରେ ଶୀର୍ଷକ ଲେଖନ୍ତୁ...",
+    "previewLocationPending": "ସ୍ଥାନ ଚୟନ ବାକି ଅଛି",
+    "emergencyHelplines": "ପୌର ଜରୁରୀକାଳୀନ ହେଲ୍ପଲାଇନ୍",
+    "controlRoom": "କେନ୍ଦ୍ରୀୟ ନିୟନ୍ତ୍ରଣ କକ୍ଷ",
+    "electricityHelpline": "ବିଦ୍ୟୁତ୍ ସମସ୍ୟା ହେଲ୍ପଲାଇନ୍",
+    "waterHelpline": "ଜଳ ଯୋଗାଣ ଡେସ୍କ"
   },
   "track": {
     "title": "ଅଭିଯୋଗ ସ୍ଥିତି ଅନୁସରଣ (ଟ୍ରାକର୍)",
