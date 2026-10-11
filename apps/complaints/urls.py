@@ -2,6 +2,7 @@ from django.urls import path
 
 from apps.complaints.views import (
     ComplaintAssignView,
+    ComplaintAttachmentUploadView,
     ComplaintCreateView,
     ComplaintDetailView,
     ComplaintImageUploadView,
@@ -20,5 +21,6 @@ urlpatterns = [
     path("<uuid:public_id>/status/", ComplaintStatusUpdateView.as_view(), name="complaint-status-update"),
     path("<uuid:public_id>/assign/", ComplaintAssignView.as_view(), name="complaint-assign"),
     path("<uuid:public_id>/images/", ComplaintImageUploadView.as_view(), name="complaint-image-upload"),
+    path("<uuid:public_id>/attachments/", ComplaintAttachmentUploadView.as_view(), name="complaint-attachment-upload"),
     path("<uuid:public_id>/timeline/", ComplaintTimelineView.as_view(), name="complaint-timeline"),
 ]

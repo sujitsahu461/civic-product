@@ -44,7 +44,37 @@ export const complaintService = {
       });
     }
 
+    if (payload.audio) {
+      formData.append('audio', payload.audio);
+    }
+
+    if (payload.video) {
+      formData.append('video', payload.video);
+    }
+
+    if (payload.audio_duration != null) {
+      formData.append('audio_duration', String(payload.audio_duration));
+    }
+
     const res = await api.post<Complaint>('/complaints/create/', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data;
+  },
+
+  async uploadAttachment(
+    publicId: string,
+    file: File | Blob,
+    attachmentType: 'IMAGE' | 'AUDIO' | 'VIDEO',
+    durationSeconds?: number
+  ): Promise<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('attachment_type', attachmentType);
+    if (durationSeconds != null) {
+      formData.append('duration_seconds', String(durationSeconds));
+    }
+    const res = await api.post(`/complaints/${publicId}/attachments/`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
     return res.data;

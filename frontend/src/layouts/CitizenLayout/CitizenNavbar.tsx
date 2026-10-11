@@ -1,11 +1,14 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import useAuthStore from '../../store/authStore';
 import useComplaintStore from '../../store/complaintStore';
 import Icon from '../../components/ui/Icon';
 import PortalSwitcher from '../../components/ui/PortalSwitcher';
+import LanguageSelector from '../../components/ui/LanguageSelector';
 
 export const CitizenNavbar: React.FC = () => {
+  const { t } = useTranslation();
   const { user, isAuthenticated, logout } = useAuthStore();
   const { unreadNotificationsCount } = useComplaintStore();
   const navigate = useNavigate();
@@ -17,25 +20,22 @@ export const CitizenNavbar: React.FC = () => {
         <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
-            National Civic Grievance Portal
+            {t('common.appName')} • {t('dashboard.welcome')}
           </span>
         </div>
-        <span className="hidden md:inline text-xs text-gray-500">|</span>
-        <span className="hidden md:inline text-xs text-gray-400">
-          Ward Location: <span className="text-gray-200 font-semibold">{user?.address || 'Central District'}</span>
-        </span>
       </div>
 
-      {/* Right: Quick Actions, Portal Switcher, Notifications, User Profile */}
+      {/* Right: Quick Actions, Language, Portal Switcher, Notifications, User Profile */}
       <div className="flex items-center gap-3.5">
         <Link
           to="/citizen/complaints/new"
           className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-all shadow-md shadow-emerald-600/20 active:scale-95"
         >
           <Icon name="add" size={16} />
-          <span>New Grievance</span>
+          <span>{t('nav.reportIssue')}</span>
         </Link>
 
+        <LanguageSelector />
         <PortalSwitcher />
 
         {isAuthenticated && (

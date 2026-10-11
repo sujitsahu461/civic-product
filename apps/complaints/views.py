@@ -11,6 +11,8 @@ from apps.complaints.models import Complaint, ComplaintCategory, ComplaintPriori
 from apps.complaints.permissions import CanManageComplaintStatus, IsComplaintOwnerOrAuthorityOrAdmin
 from apps.complaints.serializers import (
     ComplaintAssignSerializer,
+    ComplaintAttachmentSerializer,
+    ComplaintAttachmentUploadSerializer,
     ComplaintCreateSerializer,
     ComplaintDetailSerializer,
     ComplaintFilterSerializer,
@@ -99,6 +101,9 @@ class ComplaintCreateView(APIView):
         data = serializer.validated_data
 
         images = request.FILES.getlist("images") or data.get("images", [])
+        audio = request.FILES.get("audio") or data.get("audio")
+        video = request.FILES.get("video") or data.get("video")
+        audio_duration = data.get("audio_duration")
 
         citizen = request.user if request.user and request.user.is_authenticated else None
         if not citizen:
@@ -124,6 +129,9 @@ class ComplaintCreateView(APIView):
                 longitude=data.get("longitude"),
                 priority=data.get("priority"),
                 images=images,
+                audio=audio,
+                video=video,
+                audio_duration=audio_duration,
             )
         except ValueError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
@@ -265,6 +273,48 @@ class ComplaintImageUploadView(APIView):
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(ComplaintImageSerializer(img).data, status=status.HTTP_201_CREATED)
+
+
+class ComplaintAttachmentUploadView(APIView):
+    """Upload multimodal attachment (image, audio, video) to a complaint."""
+
+    permission_classes = [IsAuthenticated, IsActiveUser, IsComplaintOwnerOrAuthorityOrAdmin]
+
+    @extend_schema(
+        tags=["Complaints"],
+        request=ComplaintAttachmentUploadSerializer,
+        responses={201: ComplaintAttachmentSerializer},
+        summary="Upload complaint attachment",
+        description="Upload an additional multimodal evidence file (Image <= 5MB, Audio <= 10MB, Video <= 25MB).",
+    )
+    def post(self, request, public_id):
+        complaint = _get_complaint_or_404(public_id)
+        if complaint is None:
+            return _complaint_not_found()
+
+        self.check_object_permissions(request, complaint)
+
+        serializer = ComplaintAttachmentUploadSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        file_obj = serializer.validated_data["file"]
+        attachment_type = serializer.validated_data.get("attachment_type", "IMAGE")
+        caption = serializer.validated_data.get("caption", "")
+        duration_seconds = serializer.validated_data.get("duration_seconds")
+
+        try:
+            attachment = ComplaintService.add_attachment(
+                complaint=complaint,
+                actor=request.user,
+                file_obj=file_obj,
+                attachment_type=attachment_type,
+                caption=caption,
+                duration_seconds=duration_seconds,
+            )
+        except ValueError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(ComplaintAttachmentSerializer(attachment).data, status=status.HTTP_201_CREATED)
 
 
 # ---------------------------------------------------------------------------

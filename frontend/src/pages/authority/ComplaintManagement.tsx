@@ -519,25 +519,69 @@ export const ComplaintManagement: React.FC = () => {
               <p className={s.descBox}>{selectedComplaint.description}</p>
             </div>
 
-            {/* Evidence Photos */}
-            {selectedComplaint.images && selectedComplaint.images.length > 0 && (
-              <div className={s.modalSection}>
-                <h4 className={s.sectionTitle}>Attached Photos ({selectedComplaint.images.length})</h4>
-                <div className={s.photosGrid}>
-                  {selectedComplaint.images.map((img, i) => (
-                    <a
-                      key={img.public_id || i}
-                      href={img.image}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={s.photoLink}
-                    >
-                      <img src={img.image} alt={`Evidence ${i + 1}`} className={s.modalThumb} />
-                    </a>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Multimedia Evidence: Photos, Voice, and Video */}
+            {(() => {
+              const photoList = [
+                ...(selectedComplaint.attachments?.filter((a) => a.attachment_type === 'IMAGE').map(a => a.attachment_url) || []),
+                ...(selectedComplaint.images?.map(img => img.image) || []),
+              ];
+              const audioList = selectedComplaint.attachments?.filter((a) => a.attachment_type === 'AUDIO') || [];
+              const videoList = selectedComplaint.attachments?.filter((a) => a.attachment_type === 'VIDEO') || [];
+
+              return (
+                <>
+                  {photoList.length > 0 && (
+                    <div className={s.modalSection}>
+                      <h4 className={s.sectionTitle}>Attached Photos ({photoList.length})</h4>
+                      <div className={s.photosGrid}>
+                        {photoList.map((url, i) => (
+                          <a
+                            key={url + i}
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={s.photoLink}
+                          >
+                            <img src={url} alt={`Evidence ${i + 1}`} className={s.modalThumb} />
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {audioList.length > 0 && (
+                    <div className={s.modalSection}>
+                      <h4 className={s.sectionTitle}>Citizen Voice Recording ({audioList.length})</h4>
+                      {audioList.map((aud, i) => (
+                        <div key={aud.public_id || i} className={s.audioBlock}>
+                          <div className={s.audioHeader}>
+                            <Icon name="mic" size={16} />
+                            <span>{aud.file_name || 'Citizen audio recording'}</span>
+                            {aud.duration_seconds && (
+                              <span style={{ marginLeft: 'auto', fontSize: 11, color: '#94a3b8' }}>
+                                {aud.duration_seconds}s
+                              </span>
+                            )}
+                          </div>
+                          <audio controls src={aud.attachment_url} className={s.audioPlayer} />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {videoList.length > 0 && (
+                    <div className={s.modalSection}>
+                      <h4 className={s.sectionTitle}>Video Evidence ({videoList.length})</h4>
+                      {videoList.map((vid, i) => (
+                        <div key={vid.public_id || i} className={s.videoBlock}>
+                          <video controls src={vid.attachment_url} className={s.videoPlayer} />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
 
             {/* Resolution Notes if available */}
             {selectedComplaint.resolution_notes && (

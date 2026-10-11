@@ -12,6 +12,16 @@ export type ComplaintCategory =
   | 'NOISE' 
   | 'OTHER';
 
+export interface ComplaintAttachment {
+  public_id: string;
+  attachment_type: 'IMAGE' | 'AUDIO' | 'VIDEO';
+  attachment_url: string;
+  file_name: string;
+  file_size: number;
+  duration_seconds?: number | null;
+  uploaded_at: string;
+}
+
 export interface ComplaintImage {
   public_id?: string;
   id?: number;
@@ -69,6 +79,7 @@ export interface Complaint {
   resolved_at?: string | null;
   image_count?: number;
   images?: ComplaintImage[];
+  attachments?: ComplaintAttachment[];
   feedback_rating?: number | null;
   feedback_comments?: string | null;
   feedback?: {
@@ -98,6 +109,9 @@ export interface SubmitComplaintPayload {
   latitude?: number | null;
   longitude?: number | null;
   images?: File[];
+  audio?: File | Blob;
+  video?: File;
+  audio_duration?: number;
 }
 
 export interface ComplaintFilterParams {

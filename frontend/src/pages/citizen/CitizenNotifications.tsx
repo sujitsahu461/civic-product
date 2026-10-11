@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import useComplaintStore from '../../store/complaintStore';
 import Icon from '../../components/ui/Icon';
 import { formatTimeAgo } from '../../utils/formatters';
 import s from './CitizenNotifications.module.css';
 
 export const CitizenNotifications: React.FC = () => {
+  const { t } = useTranslation();
   const {
     notifications,
     unreadNotificationsCount,
@@ -43,7 +45,7 @@ export const CitizenNotifications: React.FC = () => {
     <div className={s.container}>
       <div className={s.header}>
         <div>
-          <h1 className={s.title}>Grievance Notifications</h1>
+          <h1 className={s.title}>{t('nav.notifications')}</h1>
           <p className={s.subtitle}>
             Real-time status alerts, department assignments, and resolution updates.
           </p>
@@ -103,7 +105,7 @@ export const CitizenNotifications: React.FC = () => {
                       onClick={(e) => e.stopPropagation()}
                     >
                       <Icon name="search" size={14} />
-                      <span>Track Grievance ({notif.complaint_tracking_code})</span>
+                      <span>{t('nav.trackComplaint')} ({notif.complaint_tracking_code})</span>
                     </Link>
                   </div>
                 )}

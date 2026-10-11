@@ -1,11 +1,14 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import useAuthStore from '../../store/authStore';
 import useComplaintStore from '../../store/complaintStore';
 import Icon from '../../components/ui/Icon';
 import PortalSwitcher from '../../components/ui/PortalSwitcher';
+import LanguageSelector from '../../components/ui/LanguageSelector';
 
 export const CitizenHeader: React.FC = () => {
+  const { t } = useTranslation();
   const { user, isAuthenticated, logout } = useAuthStore();
   const { unreadNotificationsCount, fetchNotifications } = useComplaintStore();
   const location = useLocation();
@@ -24,12 +27,12 @@ export const CitizenHeader: React.FC = () => {
   }, [isAuthenticated]);
 
   const navItems = [
-    { label: 'Dashboard', path: '/citizen/dashboard', icon: 'space_dashboard' },
-    { label: 'My Grievances', path: '/citizen/complaints', icon: 'list_alt' },
-    { label: 'File Grievance', path: '/citizen/complaints/new', icon: 'add_circle' },
-    { label: 'Track Status', path: '/citizen/tracking', icon: 'find_in_page' },
-    { label: 'GIS Radar Map', path: '/map', icon: 'explore' },
-    { label: 'Profile', path: '/citizen/profile', icon: 'person' },
+    { label: t('nav.dashboard'), path: '/citizen/dashboard', icon: 'space_dashboard' },
+    { label: t('nav.myComplaints'), path: '/citizen/complaints', icon: 'list_alt' },
+    { label: t('nav.reportIssue'), path: '/citizen/complaints/new', icon: 'add_circle' },
+    { label: t('nav.trackComplaint'), path: '/citizen/tracking', icon: 'find_in_page' },
+    { label: t('nav.mapView'), path: '/map', icon: 'explore' },
+    { label: t('nav.profile'), path: '/citizen/profile', icon: 'person' },
   ];
 
   return (
@@ -38,7 +41,7 @@ export const CitizenHeader: React.FC = () => {
         <div className="w-8 h-8 rounded-lg bg-white/95 flex items-center justify-center p-1 shadow-md">
           <img src="/logo-mark.png" alt="CivicSetu Logo" className="w-full h-full object-contain" />
         </div>
-        <span className="text-gray-100 font-extrabold">CivicSetu</span>
+        <span className="text-gray-100 font-extrabold">{t('common.appName')}</span>
       </Link>
 
       <nav className="hidden md:flex items-center gap-1">
@@ -62,6 +65,7 @@ export const CitizenHeader: React.FC = () => {
       </nav>
 
       <div className="flex items-center gap-3">
+        <LanguageSelector />
         <PortalSwitcher />
         {isAuthenticated ? (
           <div className="flex items-center gap-3">
@@ -86,7 +90,7 @@ export const CitizenHeader: React.FC = () => {
               }}
               className="px-3 py-1.5 text-xs font-semibold bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 rounded-lg transition-colors"
             >
-              Logout
+              {t('nav.logout')}
             </button>
           </div>
         ) : (
@@ -95,13 +99,13 @@ export const CitizenHeader: React.FC = () => {
               to="/login/citizen"
               className="px-3.5 py-1.5 text-xs font-semibold text-gray-300 hover:text-white transition-colors"
             >
-              Sign In
+              {t('nav.login')}
             </Link>
             <Link
               to="/signup/citizen"
               className="px-3.5 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
             >
-              Register
+              {t('nav.signup')}
             </Link>
           </div>
         )}

@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import useAuthStore from '../store/authStore';
 import { useToast } from '../components/ui/Toast';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Icon from '../components/ui/Icon';
+import LanguageSelector from '../components/ui/LanguageSelector';
 import s from './Login.module.css';
 
 export const CitizenSignup: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { register } = useAuthStore();
   const { success, error: toastError } = useToast();
@@ -98,8 +101,11 @@ export const CitizenSignup: React.FC = () => {
               </div>
             </Link>
 
-            <div className={s.sealWrapper}>
-              <span style={{ fontSize: '28px' }}>🌱</span>
+            <div className="flex items-center gap-2">
+              <LanguageSelector />
+              <div className={s.sealWrapper}>
+                <span style={{ fontSize: '24px' }}>🌱</span>
+              </div>
             </div>
           </div>
 
@@ -121,13 +127,13 @@ export const CitizenSignup: React.FC = () => {
 
             <div style={{ marginTop: '20px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <span style={{ background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#166534' }}>
-                ✓ Direct photo uploads
+                ✓ Multilingual Citizen Portal
               </span>
               <span style={{ background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#166534' }}>
-                ✓ SMS & in-app alerts
+                ✓ Voice, Photo & Video Evidence
               </span>
               <span style={{ background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#166534' }}>
-                ✓ Redressal validation
+                ✓ Redressal Verification
               </span>
             </div>
           </div>
@@ -145,11 +151,11 @@ export const CitizenSignup: React.FC = () => {
             <div className={s.headerContent}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#dcfce7', color: '#166534', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '8px' }}>
                 <Icon name="person_add" size={14} />
-                <span>New Resident Registration</span>
+                <span>{t('auth.citizenSignupTitle')}</span>
               </div>
-              <h2 className={s.formTitle}>Create Citizen Account</h2>
+              <h2 className={s.formTitle}>{t('auth.citizenSignupTitle')}</h2>
               <p className={s.formSubtitle}>
-                Register in less than 30 seconds to start reporting and tracking civic issues.
+                {t('auth.citizenSignupSubtitle')}
               </p>
             </div>
 
@@ -163,9 +169,9 @@ export const CitizenSignup: React.FC = () => {
             <form className={s.form} onSubmit={handleSubmit}>
               <div className={s.fieldGroup}>
                 <Input
-                  label="Full Name"
+                  label={t('auth.fullNameLabel')}
                   type="text"
-                  placeholder="e.g. Aarav Sharma"
+                  placeholder={t('auth.fullNamePlaceholder')}
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   required
@@ -176,9 +182,9 @@ export const CitizenSignup: React.FC = () => {
               <div className={s.formRow}>
                 <div className={s.fieldGroup}>
                   <Input
-                    label="Email Address"
+                    label={t('auth.emailLabel')}
                     type="email"
-                    placeholder="aarav@example.com"
+                    placeholder={t('auth.emailPlaceholder')}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -188,9 +194,9 @@ export const CitizenSignup: React.FC = () => {
 
                 <div className={s.fieldGroup}>
                   <Input
-                    label="Phone Number"
+                    label={t('auth.phoneLabel')}
                     type="tel"
-                    placeholder="e.g. 9876543210"
+                    placeholder={t('auth.phonePlaceholder')}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     leftIcon={<Icon name="call" size={18} />}
@@ -200,9 +206,9 @@ export const CitizenSignup: React.FC = () => {
 
               <div className={s.fieldGroup}>
                 <Input
-                  label="Locality / Residential Ward Address"
+                  label={t('auth.addressLabel')}
                   type="text"
-                  placeholder="e.g. Ward 12, Ring Road West"
+                  placeholder={t('auth.addressPlaceholder')}
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   leftIcon={<Icon name="location_on" size={18} />}
@@ -212,7 +218,7 @@ export const CitizenSignup: React.FC = () => {
               <div className={s.formRow}>
                 <div className={s.fieldGroup}>
                   <Input
-                    label="Create Password"
+                    label={t('auth.passwordLabel')}
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Min 8 characters"
                     value={password}
@@ -263,7 +269,7 @@ export const CitizenSignup: React.FC = () => {
                   required
                 />
                 <span>
-                  I agree to the CivicSetu <a href="#terms" style={{ color: '#16a34a' }}>Terms of Service</a> and <a href="#privacy" style={{ color: '#16a34a' }}>Privacy Policy</a>.
+                  I agree to the CivicSetu <a href="#terms" style={{ color: '#166534' }}>Terms of Service</a> and <a href="#privacy" style={{ color: '#166534' }}>Privacy Policy</a>.
                 </span>
               </label>
 
@@ -276,14 +282,14 @@ export const CitizenSignup: React.FC = () => {
                 className={s.submitBtn}
                 style={{ backgroundColor: '#16a34a' }}
               >
-                Create Citizen Account
+                {t('auth.signupButton')}
               </Button>
             </form>
 
             <div className={s.footerText} style={{ marginTop: '16px' }}>
-              Already registered as a citizen?{' '}
+              {t('auth.alreadyAccount')}{' '}
               <Link to="/login/citizen" className={s.signupLink} style={{ color: '#16a34a' }}>
-                Sign In as Citizen
+                {t('auth.loginLink')}
               </Link>
             </div>
 

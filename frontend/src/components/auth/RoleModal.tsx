@@ -1,6 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Icon from '../ui/Icon';
+import LanguageSelector from '../ui/LanguageSelector';
 import s from './RoleModal.module.css';
 
 interface RoleModalProps {
@@ -14,6 +16,7 @@ export const RoleModal: React.FC<RoleModalProps> = ({
   onClose,
   defaultMode = 'login',
 }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [mode, setMode] = React.useState<'login' | 'signup'>(defaultMode);
 
@@ -31,25 +34,33 @@ export const RoleModal: React.FC<RoleModalProps> = ({
   return (
     <div className={s.backdrop} onClick={onClose} role="dialog" aria-modal="true">
       <div className={s.modal} onClick={(e) => e.stopPropagation()}>
-        <button
-          type="button"
-          className={s.closeButton}
-          onClick={onClose}
-          aria-label="Close dialog"
-        >
-          <Icon name="close" size={20} />
-        </button>
+        <div className={s.topActions}>
+          <LanguageSelector theme="light" />
+          <button
+            type="button"
+            className={s.closeButton}
+            onClick={onClose}
+            aria-label="Close dialog"
+          >
+            <Icon name="close" size={20} />
+          </button>
+        </div>
 
         <div className={s.header}>
           <div className={s.badge}>
             <Icon name="account_balance" size={16} />
-            <span>CIVICSETU GATEWAY</span>
+            <span>{t('roleModal.gatewayBadge', 'CIVICSETU GATEWAY')}</span>
           </div>
           <h2 className={s.title}>
-            {mode === 'login' ? 'Select Your Portal to Sign In' : 'Select Account Type to Register'}
+            {mode === 'login'
+              ? t('roleModal.signInTitle', 'Select Your Portal to Sign In')
+              : t('roleModal.registerTitle', 'Select Account Type to Register')}
           </h2>
           <p className={s.subtitle}>
-            Choose your designated civic workspace for role-specific access and permissions.
+            {t(
+              'roleModal.subtitle',
+              'Choose your designated civic workspace for role-specific access and permissions.'
+            )}
           </p>
 
           <div className={s.modeSwitcher}>
@@ -59,7 +70,7 @@ export const RoleModal: React.FC<RoleModalProps> = ({
               onClick={() => setMode('login')}
             >
               <Icon name="login" size={16} />
-              <span>Sign In</span>
+              <span>{t('roleModal.signInTab', 'Sign In')}</span>
             </button>
             <button
               type="button"
@@ -67,7 +78,7 @@ export const RoleModal: React.FC<RoleModalProps> = ({
               onClick={() => setMode('signup')}
             >
               <Icon name="person_add" size={16} />
-              <span>Create Account</span>
+              <span>{t('roleModal.createAccountTab', 'Create Account')}</span>
             </button>
           </div>
         </div>
@@ -84,27 +95,41 @@ export const RoleModal: React.FC<RoleModalProps> = ({
             </div>
             <div className={s.cardContent}>
               <div className={s.cardHeaderRow}>
-                <h3 className={s.roleTitle}>Citizen Portal</h3>
-                <span className={s.rolePill}>Public Access</span>
+                <h3 className={s.roleTitle}>{t('roleModal.citizen.title', 'Citizen Portal')}</h3>
+                <span className={s.rolePill}>{t('roleModal.citizen.badge', 'Public Access')}</span>
               </div>
               <p className={s.roleDesc}>
-                Lodge civic grievances, track live status via ticket codes, view GIS incident radar, and submit redressal feedback.
+                {t(
+                  'roleModal.citizen.desc',
+                  'Lodge civic grievances, track live status via ticket codes, view GIS incident radar, and submit redressal feedback.'
+                )}
               </p>
               <ul className={s.featuresList}>
-                <li><Icon name="check" size={14} /> Auto AI category triage</li>
-                <li><Icon name="check" size={14} /> Image evidence upload</li>
-                <li><Icon name="check" size={14} /> Real-time SLA notifications</li>
+                <li>
+                  <Icon name="check" size={14} />
+                  <span>{t('roleModal.citizen.feat1', 'Direct jurisdiction dispatch')}</span>
+                </li>
+                <li>
+                  <Icon name="check" size={14} />
+                  <span>{t('roleModal.citizen.feat2', 'Voice, photo & video evidence')}</span>
+                </li>
+                <li>
+                  <Icon name="check" size={14} />
+                  <span>{t('roleModal.citizen.feat3', 'Real-time SLA notifications')}</span>
+                </li>
               </ul>
             </div>
             <div className={s.cardFooter}>
               <span className={s.actionText}>
-                {mode === 'login' ? 'Sign In as Citizen' : 'Register as Citizen'}
+                {mode === 'login'
+                  ? t('roleModal.citizen.actionLogin', 'Sign In as Citizen')
+                  : t('roleModal.citizen.actionSignup', 'Register as Citizen')}
               </span>
               <Icon name="arrow_forward" size={18} />
             </div>
           </div>
 
-          {/* 2. AUTHORITY CARD */}
+          {/* 2. MUNICIPAL AUTHORITY CARD */}
           <div
             className={`${s.roleCard} ${s.authorityCard}`}
             onClick={() => handleSelect('authority')}
@@ -115,21 +140,37 @@ export const RoleModal: React.FC<RoleModalProps> = ({
             </div>
             <div className={s.cardContent}>
               <div className={s.cardHeaderRow}>
-                <h3 className={s.roleTitle}>Municipal Authority</h3>
-                <span className={s.rolePillAuthority}>Nodal Desk</span>
+                <h3 className={s.roleTitle}>{t('roleModal.authority.title', 'Municipal Authority')}</h3>
+                <span className={s.rolePillAuthority}>
+                  {t('roleModal.authority.badge', 'Nodal Desk')}
+                </span>
               </div>
               <p className={s.roleDesc}>
-                Department-scoped dashboard for engineers, nodal officers, and resolution personnel to triage and resolve issues.
+                {t(
+                  'roleModal.authority.desc',
+                  'Department-scoped dashboard for engineers, nodal officers, and resolution personnel to triage and resolve issues.'
+                )}
               </p>
               <ul className={s.featuresList}>
-                <li><Icon name="check" size={14} /> Department-scoped queues</li>
-                <li><Icon name="check" size={14} /> State machine progression</li>
-                <li><Icon name="check" size={14} /> Resolution proof image verification</li>
+                <li>
+                  <Icon name="check" size={14} />
+                  <span>{t('roleModal.authority.feat1', 'Department-scoped queues')}</span>
+                </li>
+                <li>
+                  <Icon name="check" size={14} />
+                  <span>{t('roleModal.authority.feat2', 'State machine progression')}</span>
+                </li>
+                <li>
+                  <Icon name="check" size={14} />
+                  <span>{t('roleModal.authority.feat3', 'Resolution proof image verification')}</span>
+                </li>
               </ul>
             </div>
             <div className={s.cardFooter}>
               <span className={s.actionText}>
-                {mode === 'login' ? 'Officer Sign In' : 'Authority Registration'}
+                {mode === 'login'
+                  ? t('roleModal.authority.actionLogin', 'Officer Sign In')
+                  : t('roleModal.authority.actionSignup', 'Authority Registration')}
               </span>
               <Icon name="arrow_forward" size={18} />
             </div>
@@ -146,21 +187,35 @@ export const RoleModal: React.FC<RoleModalProps> = ({
             </div>
             <div className={s.cardContent}>
               <div className={s.cardHeaderRow}>
-                <h3 className={s.roleTitle}>Super Admin</h3>
-                <span className={s.rolePillAdmin}>Command HQ</span>
+                <h3 className={s.roleTitle}>{t('roleModal.admin.title', 'Super Admin')}</h3>
+                <span className={s.rolePillAdmin}>{t('roleModal.admin.badge', 'Command HQ')}</span>
               </div>
               <p className={s.roleDesc}>
-                Executive municipal oversight: manage departments, authority credentials, citywide analytics, and immutable security audit logs.
+                {t(
+                  'roleModal.admin.desc',
+                  'Executive municipal oversight: manage departments, authority credentials, citywide analytics, and immutable security audit logs.'
+                )}
               </p>
               <ul className={s.featuresList}>
-                <li><Icon name="check" size={14} /> Complete system telemetry</li>
-                <li><Icon name="check" size={14} /> Officer & department provisioning</li>
-                <li><Icon name="check" size={14} /> Comprehensive security audit trail</li>
+                <li>
+                  <Icon name="check" size={14} />
+                  <span>{t('roleModal.admin.feat1', 'Complete system telemetry')}</span>
+                </li>
+                <li>
+                  <Icon name="check" size={14} />
+                  <span>{t('roleModal.admin.feat2', 'Officer & department provisioning')}</span>
+                </li>
+                <li>
+                  <Icon name="check" size={14} />
+                  <span>{t('roleModal.admin.feat3', 'Comprehensive security audit trail')}</span>
+                </li>
               </ul>
             </div>
             <div className={s.cardFooter}>
               <span className={s.actionText}>
-                {mode === 'login' ? 'Admin Access Terminal' : 'Admin Security Setup'}
+                {mode === 'login'
+                  ? t('roleModal.admin.actionLogin', 'Admin Access Terminal')
+                  : t('roleModal.admin.actionSignup', 'Admin Security Setup')}
               </span>
               <Icon name="arrow_forward" size={18} />
             </div>
@@ -170,7 +225,12 @@ export const RoleModal: React.FC<RoleModalProps> = ({
         <div className={s.modalBottom}>
           <div className={s.securityNotice}>
             <Icon name="lock" size={14} />
-            <span>Secured with cryptographic arithmetic challenge & JWT session encryption</span>
+            <span>
+              {t(
+                'roleModal.securityNotice',
+                'Secured with cryptographic arithmetic challenge & JWT session encryption'
+              )}
+            </span>
           </div>
         </div>
       </div>
@@ -179,3 +239,4 @@ export const RoleModal: React.FC<RoleModalProps> = ({
 };
 
 export default RoleModal;
+

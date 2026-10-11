@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import RoleModal from '../components/auth/RoleModal';
+import LanguageSelector from '../components/ui/LanguageSelector';
 import s from './Landing.module.css';
 
 export default function Landing() {
@@ -145,6 +146,7 @@ export default function Landing() {
           </nav>
 
           <div className={s.navRight}>
+            <LanguageSelector />
             <button
               type="button"
               className={s.navBtnGhost}

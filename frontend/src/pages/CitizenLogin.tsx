@@ -1,14 +1,17 @@
 import React, { useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import useAuthStore from '../store/authStore';
 import { useToast } from '../components/ui/Toast';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Icon from '../components/ui/Icon';
 import ArithmeticCaptcha from '../components/auth/ArithmeticCaptcha';
+import LanguageSelector from '../components/ui/LanguageSelector';
 import s from './Login.module.css';
 
 export const CitizenLogin: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { login } = useAuthStore();
   const { success, error: toastError } = useToast();
@@ -47,7 +50,7 @@ export const CitizenLogin: React.FC = () => {
     }
 
     if (!isCaptchaValid) {
-      setFormError('Please solve the arithmetic security calculation correctly.');
+      setFormError('Please solve the security calculation correctly.');
       return;
     }
 
@@ -82,7 +85,7 @@ export const CitizenLogin: React.FC = () => {
   return (
     <div className={s.container}>
       <div className={s.authCard}>
-        {/* Left Visual Panel: Citizen Environmental Identity */}
+        {/* Left Visual Panel */}
         <div className={s.leftPanel}>
           <div className={s.leftGlow} />
 
@@ -97,8 +100,11 @@ export const CitizenLogin: React.FC = () => {
               </div>
             </Link>
 
-            <div className={s.sealWrapper}>
-              <span style={{ fontSize: '28px' }}>🌱</span>
+            <div className="flex items-center gap-2">
+              <LanguageSelector />
+              <div className={s.sealWrapper}>
+                <span style={{ fontSize: '24px' }}>🌿</span>
+              </div>
             </div>
           </div>
 
@@ -115,18 +121,18 @@ export const CitizenLogin: React.FC = () => {
             </h1>
 
             <p className={s.editorialSubheading}>
-              Empowering residents with AI triage, direct department routing, and complete lifecycle accountability for municipal civic issues.
+              Direct municipal department routing, multilingual citizen access, and complete lifecycle accountability for civic issues.
             </p>
 
             <div style={{ marginTop: '20px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <span style={{ background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#166534' }}>
-                ✓ AI Auto-Categorization
+                ✓ Multilingual (English · ଓଡ଼ିଆ · हिन्दी)
               </span>
               <span style={{ background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#166534' }}>
-                ✓ Live GIS Radar
+                ✓ Audio & Video Evidence
               </span>
               <span style={{ background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#166534' }}>
-                ✓ Citizen Rating & Review
+                ✓ Live Tracking Code
               </span>
             </div>
           </div>
@@ -144,11 +150,11 @@ export const CitizenLogin: React.FC = () => {
             <div className={s.headerContent}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#dcfce7', color: '#166534', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '8px' }}>
                 <Icon name="person" size={14} />
-                <span>Citizen Sign In</span>
+                <span>{t('auth.citizenLoginTitle')}</span>
               </div>
-              <h2 className={s.formTitle}>Citizen Portal Login</h2>
+              <h2 className={s.formTitle}>{t('auth.citizenLoginTitle')}</h2>
               <p className={s.formSubtitle}>
-                Enter your credentials to view your grievance history and lodge new reports.
+                {t('auth.citizenLoginSubtitle')}
               </p>
             </div>
 
@@ -177,9 +183,9 @@ export const CitizenLogin: React.FC = () => {
             <form className={s.form} onSubmit={handleSubmit}>
               <div className={s.fieldGroup}>
                 <Input
-                  label="Citizen Email Address"
+                  label={t('auth.emailLabel')}
                   type="email"
-                  placeholder="e.g. aarav@example.com"
+                  placeholder={t('auth.emailPlaceholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -189,7 +195,7 @@ export const CitizenLogin: React.FC = () => {
 
               <div className={s.fieldGroup}>
                 <Input
-                  label="Password"
+                  label={t('auth.passwordLabel')}
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••••••"
                   value={password}
@@ -227,7 +233,7 @@ export const CitizenLogin: React.FC = () => {
                   to={email ? `/reset-password?email=${encodeURIComponent(email)}` : '/reset-password'}
                   className={s.forgotBtn}
                 >
-                  Forgot password?
+                  {t('auth.forgotPassword')}
                 </Link>
               </div>
 
@@ -240,14 +246,14 @@ export const CitizenLogin: React.FC = () => {
                 className={s.submitBtn}
                 style={{ backgroundColor: '#16a34a' }}
               >
-                Sign In as Citizen
+                {t('auth.loginButton')}
               </Button>
             </form>
 
             <div className={s.footerText} style={{ marginTop: '16px' }}>
-              Don't have a citizen account?{' '}
+              {t('auth.noAccount')}{' '}
               <Link to="/signup/citizen" className={s.signupLink} style={{ color: '#16a34a' }}>
-                Register as Citizen
+                {t('auth.registerLink')}
               </Link>
             </div>
 
@@ -255,12 +261,12 @@ export const CitizenLogin: React.FC = () => {
             <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '12px' }}>
               <Link to="/login/authority" style={{ color: '#2563eb', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                 <Icon name="badge" size={14} />
-                <span>Authority Login</span>
+                <span>{t('nav.authorityPortal')}</span>
               </Link>
               <span style={{ color: '#cbd5e1' }}>•</span>
               <Link to="/login/superadmin" style={{ color: '#7c3aed', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                 <Icon name="admin_panel_settings" size={14} />
-                <span>Super Admin Login</span>
+                <span>{t('nav.adminPortal')}</span>
               </Link>
             </div>
           </div>

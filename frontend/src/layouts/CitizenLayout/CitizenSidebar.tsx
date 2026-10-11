@@ -1,10 +1,13 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import useAuthStore from '../../store/authStore';
 import useComplaintStore from '../../store/complaintStore';
 import Icon from '../../components/ui/Icon';
 import PortalSwitcher from '../../components/ui/PortalSwitcher';
+
 export const CitizenSidebar: React.FC = () => {
+  const { t } = useTranslation();
   const { user, logout } = useAuthStore();
   const { unreadNotificationsCount, fetchNotifications } = useComplaintStore();
   const location = useLocation();
@@ -21,13 +24,13 @@ export const CitizenSidebar: React.FC = () => {
   }, []);
 
   const menuItems = [
-    { label: 'Dashboard', path: '/citizen/dashboard', icon: 'space_dashboard' },
-    { label: 'My Grievances', path: '/citizen/complaints', icon: 'list_alt' },
-    { label: 'File Grievance', path: '/citizen/complaints/new', icon: 'add_circle', highlight: true },
-    { label: 'Track Status', path: '/citizen/tracking', icon: 'find_in_page' },
-    { label: 'GIS Radar Map', path: '/map', icon: 'explore' },
-    { label: 'Profile', path: '/citizen/profile', icon: 'person' },
-    { label: 'Notifications', path: '/citizen/notifications', icon: 'notifications', badge: unreadNotificationsCount },
+    { label: t('nav.dashboard'), path: '/citizen/dashboard', icon: 'space_dashboard' },
+    { label: t('nav.myComplaints'), path: '/citizen/complaints', icon: 'list_alt' },
+    { label: t('nav.reportIssue'), path: '/citizen/complaints/new', icon: 'add_circle', highlight: true },
+    { label: t('nav.trackComplaint'), path: '/citizen/tracking', icon: 'find_in_page' },
+    { label: t('nav.mapView'), path: '/map', icon: 'explore' },
+    { label: t('nav.profile'), path: '/citizen/profile', icon: 'person' },
+    { label: t('nav.notifications'), path: '/citizen/notifications', icon: 'notifications', badge: unreadNotificationsCount },
   ];
 
   return (
@@ -112,7 +115,7 @@ export const CitizenSidebar: React.FC = () => {
           className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 rounded-lg transition-colors"
         >
           <Icon name="logout" size={16} />
-          Sign Out
+          {t('nav.logout')}
         </button>
       </div>
     </aside>

@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from apps.accounts.models import UserRole
 from apps.complaint_history.models import ComplaintHistory, HistoryAction
-from apps.complaint_images.models import ComplaintImage
+from apps.complaint_images.models import AttachmentType, ComplaintAttachment, ComplaintImage
 from apps.complaints.models import Complaint, ComplaintCategory, ComplaintPriority, ComplaintStatus
 
 
@@ -39,6 +39,25 @@ class ComplaintImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ComplaintImage
         fields = ("public_id", "image", "caption", "uploaded_at")
+        read_only_fields = fields
+
+
+class ComplaintAttachmentSerializer(serializers.ModelSerializer):
+    """Read-only multimedia attachment representation (image, audio, video)."""
+
+    class Meta:
+        model = ComplaintAttachment
+        fields = (
+            "public_id",
+            "file",
+            "attachment_type",
+            "original_filename",
+            "content_type",
+            "file_size",
+            "caption",
+            "duration_seconds",
+            "uploaded_at",
+        )
         read_only_fields = fields
 
 
@@ -110,6 +129,7 @@ class ComplaintListSerializer(serializers.ModelSerializer):
         source="assigned_authority.full_name", read_only=True, default=None
     )
     image_count = serializers.SerializerMethodField()
+    attachment_count = serializers.SerializerMethodField()
     feedback_rating = serializers.IntegerField(source="feedback.rating", read_only=True, default=None)
     feedback_comments = serializers.CharField(source="feedback.comments", read_only=True, default=None)
 
@@ -130,6 +150,7 @@ class ComplaintListSerializer(serializers.ModelSerializer):
             "latitude",
             "longitude",
             "image_count",
+            "attachment_count",
             "feedback_rating",
             "feedback_comments",
             "created_at",
@@ -140,14 +161,18 @@ class ComplaintListSerializer(serializers.ModelSerializer):
     def get_image_count(self, obj):
         return obj.images.count()
 
+    def get_attachment_count(self, obj):
+        return obj.attachments.count()
+
 
 class ComplaintDetailSerializer(serializers.ModelSerializer):
-    """Detailed read-only complaint representation with nested images, feedback, and history."""
+    """Detailed read-only complaint representation with nested images, attachments, feedback, and history."""
 
     citizen = ComplaintUserInlineSerializer(read_only=True)
     category_display = serializers.CharField(source="get_category_display", read_only=True)
     assigned_authority = ComplaintUserInlineSerializer(read_only=True)
     images = ComplaintImageSerializer(many=True, read_only=True)
+    attachments = ComplaintAttachmentSerializer(many=True, read_only=True)
     feedback = ComplaintFeedbackInlineSerializer(read_only=True)
     latest_history = serializers.SerializerMethodField()
 
@@ -169,6 +194,7 @@ class ComplaintDetailSerializer(serializers.ModelSerializer):
             "longitude",
             "resolution_notes",
             "images",
+            "attachments",
             "feedback",
             "latest_history",
             "created_at",
@@ -202,6 +228,9 @@ class ComplaintCreateSerializer(serializers.Serializer):
     images = serializers.ListField(
         child=serializers.ImageField(), required=False, allow_empty=True, default=list
     )
+    audio = serializers.FileField(required=False, allow_null=True, default=None)
+    video = serializers.FileField(required=False, allow_null=True, default=None)
+    audio_duration = serializers.FloatField(required=False, allow_null=True, default=None)
 
     def validate_location_address(self, value):
         if not value or not str(value).strip():
@@ -281,6 +310,7 @@ class ComplaintTrackingSerializer(serializers.ModelSerializer):
 
     category_display = serializers.CharField(source="get_category_display", read_only=True)
     images = ComplaintImageSerializer(many=True, read_only=True)
+    attachments = ComplaintAttachmentSerializer(many=True, read_only=True)
     feedback = ComplaintFeedbackPublicInlineSerializer(read_only=True)
 
     class Meta:
@@ -297,9 +327,21 @@ class ComplaintTrackingSerializer(serializers.ModelSerializer):
             "location_address",
             "resolution_notes",
             "images",
+            "attachments",
             "feedback",
             "created_at",
             "updated_at",
             "resolved_at",
         )
         read_only_fields = fields
+
+
+class ComplaintAttachmentUploadSerializer(serializers.Serializer):
+    """Validates multimedia attachment upload request."""
+
+    file = serializers.FileField()
+    attachment_type = serializers.ChoiceField(
+        choices=AttachmentType.choices, default=AttachmentType.IMAGE
+    )
+    caption = serializers.CharField(max_length=255, required=False, allow_blank=True, default="")
+    duration_seconds = serializers.FloatField(required=False, allow_null=True, default=None)

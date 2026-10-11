@@ -9,8 +9,8 @@ from django.utils import timezone
 
 from apps.accounts.models import UserRole
 from apps.complaint_history.models import ComplaintHistory, HistoryAction
-from apps.complaint_images.models import ComplaintImage
-from apps.complaints.models import Complaint, ComplaintPriority, ComplaintStatus
+from apps.complaint_images.models import AttachmentType, ComplaintAttachment, ComplaintImage
+from apps.complaints.models import Complaint, ComplaintCategory, ComplaintPriority, ComplaintStatus
 
 
 User = get_user_model()
@@ -19,6 +19,90 @@ logger = logging.getLogger(__name__)
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 MAX_IMAGE_SIZE = 5 * 1024 * 1024  # 5 MB
+
+ALLOWED_AUDIO_TYPES = {
+    "audio/webm", "audio/ogg", "audio/mp3", "audio/mpeg",
+    "audio/wav", "audio/x-wav", "audio/m4a", "audio/mp4", "audio/x-m4a", "audio/aac"
+}
+ALLOWED_AUDIO_EXTENSIONS = {".webm", ".ogg", ".mp3", ".wav", ".m4a", ".aac"}
+MAX_AUDIO_SIZE = 10 * 1024 * 1024  # 10 MB
+
+ALLOWED_VIDEO_TYPES = {
+    "video/mp4", "video/webm", "video/quicktime", "video/x-matroska"
+}
+ALLOWED_VIDEO_EXTENSIONS = {".mp4", ".webm", ".mov"}
+MAX_VIDEO_SIZE = 25 * 1024 * 1024  # 25 MB
+
+
+def evaluate_deterministic_category(title: str, description: str) -> str:
+    """Deterministic keyword-based category fallback using weighted frequency scoring."""
+    import re
+
+    text = f"{title or ''} {description or ''}".lower()
+    tokens = set(re.findall(r"\b[a-z0-9_]{3,}\b", text))
+
+    keywords = {
+        "DRAINAGE": ["drain", "drainage", "sewage", "gutter", "manhole", "sewer", "waterlog", "clog", "wastewater", "culvert"],
+        "SANITATION": ["garbage", "trash", "rubbish", "dump", "bin", "cleanliness", "sanitation", "litter", "filth"],
+        "ELECTRICITY": ["electric", "electricity", "wire", "pole", "spark", "transformer", "power", "current", "voltage", "blackout", "fuse"],
+        "WATER": ["pipeline", "tap", "drinking water", "water tanker", "pipe leak", "water supply", "low pressure", "burst pipe"],
+        "ROAD": ["pothole", "asphalt", "crater", "road", "footpath", "highway", "divider", "pavement"],
+    }
+
+    scores = {cat: 0 for cat in keywords}
+    for cat, kw_list in keywords.items():
+        for kw in kw_list:
+            if kw in text:
+                scores[cat] += 2
+
+    # Standalone token scoring for general words
+    if "water" in tokens and scores["DRAINAGE"] == 0:
+        scores["WATER"] += 2
+    if "waste" in tokens and scores["DRAINAGE"] == 0:
+        scores["SANITATION"] += 2
+
+    best_cat = max(scores, key=scores.get)
+    if scores[best_cat] > 0:
+        return best_cat
+
+    return "ROAD"
+
+
+def evaluate_deterministic_priority(title: str, description: str, category: str, requested_priority=None) -> str:
+    """
+    Evaluates grievance priority deterministically based on safety keywords and user selection,
+    completely eliminating AI inference dependencies.
+    """
+    if requested_priority and str(requested_priority).upper() in ComplaintPriority.values:
+        return str(requested_priority).upper()
+
+    combined_text = f"{title or ''} {description or ''}".lower()
+
+    urgent_keywords = [
+        "fire", "live wire", "open wire", "sparking", "shock", "explosion",
+        "burst pipe", "flooding", "gas leak", "bridge collapse", "fatal", "emergency", "danger"
+    ]
+    high_keywords = [
+        "contamination", "sewage overflow", "deep pothole", "accident", "broken pole",
+        "no water supply", "blockage", "cave in", "sinkhole", "toxic", "hazard"
+    ]
+    low_keywords = [
+        "cosmetic", "paint", "street sign", "garbage bin full", "minor litter", "cleaning schedule"
+    ]
+
+    for kw in urgent_keywords:
+        if kw in combined_text:
+            return ComplaintPriority.URGENT
+
+    for kw in high_keywords:
+        if kw in combined_text:
+            return ComplaintPriority.HIGH
+
+    for kw in low_keywords:
+        if kw in combined_text:
+            return ComplaintPriority.LOW
+
+    return ComplaintPriority.MEDIUM
 
 
 class ComplaintService:
@@ -68,8 +152,12 @@ class ComplaintService:
         location_address="",
         latitude=None,
         longitude=None,
-        priority=ComplaintPriority.MEDIUM,
+        priority=None,
         images=None,
+        audio=None,
+        video=None,
+        audio_duration=None,
+        attachments=None,
         department=None,
         **kwargs,
     ):
@@ -124,48 +212,15 @@ class ComplaintService:
             else:
                 resolved_category = None
 
-        predicted_priority = ComplaintPriority.MEDIUM
         if not resolved_category or resolved_category == "AUTO":
-            # Auto-predict category and triage priority using AI engine
-            try:
-                from apps.ai_predictions.services import AITriageService
-                triage_res = AITriageService.classify_complaint(
-                    title=title,
-                    description=description,
-                    location_address=location_address,
-                    save_log=False,
-                )
-                resolved_category = triage_res.get("predicted_category", "ROAD")
-                predicted_priority = triage_res.get("predicted_priority", ComplaintPriority.MEDIUM)
-            except Exception as exc:
-                logger.warning("AI triage prediction failed during complaint creation: %s", exc)
-                try:
-                    from apps.ai_engine.services import AIEngineService
-                    ai_res = AIEngineService.classify_grievance(
-                        title=title,
-                        description=description,
-                        location_address=location_address,
-                    )
-                    resolved_category = ai_res.get("predicted_category", "ROAD")
-                except Exception as exc2:
-                    logger.warning("Fallback AI classification failed: %s", exc2)
-                    resolved_category = "ROAD"
-        elif priority is None:
-            # Auto-predict priority when category is provided but priority is omitted
-            try:
-                from apps.ai_predictions.services import AITriageService
-                triage_res = AITriageService.classify_complaint(
-                    title=title,
-                    description=description,
-                    location_address=location_address,
-                    save_log=False,
-                )
-                predicted_priority = triage_res.get("predicted_priority", ComplaintPriority.MEDIUM)
-            except Exception as exc:
-                logger.warning("AI priority triage failed during complaint creation: %s", exc)
-                predicted_priority = ComplaintPriority.MEDIUM
+            resolved_category = evaluate_deterministic_category(title, description)
 
-        final_priority = priority or predicted_priority or ComplaintPriority.MEDIUM
+        final_priority = evaluate_deterministic_priority(
+            title=title,
+            description=description,
+            category=resolved_category,
+            requested_priority=priority,
+        )
 
         complaint = Complaint.objects.create(
             citizen=citizen,
@@ -178,19 +233,6 @@ class ComplaintService:
             longitude=longitude,
             status=ComplaintStatus.PENDING,
         )
-
-        # Log AI Prediction in AIPredictionLog for audit & city-wide insights
-        try:
-            from apps.ai_predictions.services import AITriageService
-            AITriageService.classify_complaint(
-                title=title,
-                description=description,
-                location_address=location_address,
-                save_log=True,
-                complaint=complaint,
-            )
-        except Exception as exc:
-            logger.debug("AI prediction log creation skipped: %s", exc)
 
         # Log creation history
         ComplaintHistory.objects.create(
@@ -205,6 +247,22 @@ class ComplaintService:
         if images:
             for img in images:
                 ComplaintService.add_image(complaint, citizen, img)
+
+        # Save audio evidence if provided
+        if audio:
+            ComplaintService.add_audio(complaint, citizen, audio, duration_seconds=audio_duration)
+
+        # Save video evidence if provided
+        if video:
+            ComplaintService.add_video(complaint, citizen, video)
+
+        # Save generic attachments if provided
+        if attachments:
+            for att in attachments:
+                if isinstance(att, tuple):
+                    ComplaintService.add_attachment(complaint, citizen, att[0], attachment_type=att[1])
+                else:
+                    ComplaintService.add_attachment(complaint, citizen, att)
 
         # Notify ALL authority users of new complaint
         try:
@@ -395,15 +453,127 @@ class ComplaintService:
             caption=caption,
         )
 
+        try:
+            ComplaintAttachment.objects.create(
+                complaint=complaint,
+                file=image_file,
+                attachment_type=AttachmentType.IMAGE,
+                original_filename=filename[:255] if filename else "image.jpg",
+                content_type=content_type or "image/jpeg",
+                file_size=getattr(image_file, "size", 0),
+                caption=caption[:255],
+                uploader=actor if actor and getattr(actor, "is_authenticated", False) else None,
+            )
+        except Exception as att_err:
+            logger.debug("Dual-write attachment notice: %s", att_err)
+
         ComplaintHistory.objects.create(
             complaint=complaint,
-            actor=actor,
+            actor=actor if actor and getattr(actor, "is_authenticated", False) else None,
             action=HistoryAction.IMAGE_ADDED,
             remarks=f"Image attached: {caption or image_file.name}",
         )
 
-        logger.info("Image added to complaint %s by %s", complaint.tracking_code, actor.email)
+        logger.info("Image added to complaint %s by %s", complaint.tracking_code, getattr(actor, "email", "guest"))
         return img
+
+    @staticmethod
+    def add_audio(complaint, actor, audio_file, caption="", duration_seconds=None):
+        """Validates and attaches voice recording / audio evidence to a complaint."""
+        return ComplaintService.add_attachment(
+            complaint=complaint,
+            actor=actor,
+            file_obj=audio_file,
+            attachment_type=AttachmentType.AUDIO,
+            caption=caption,
+            duration_seconds=duration_seconds,
+        )
+
+    @staticmethod
+    def add_video(complaint, actor, video_file, caption="", duration_seconds=None):
+        """Validates and attaches video evidence to a complaint."""
+        return ComplaintService.add_attachment(
+            complaint=complaint,
+            actor=actor,
+            file_obj=video_file,
+            attachment_type=AttachmentType.VIDEO,
+            caption=caption,
+            duration_seconds=duration_seconds,
+        )
+
+    @staticmethod
+    def add_attachment(
+        complaint,
+        actor,
+        file_obj,
+        attachment_type=AttachmentType.IMAGE,
+        caption="",
+        duration_seconds=None,
+    ):
+        """Validates and creates a ComplaintAttachment with object-level checks."""
+        if not file_obj:
+            raise ValueError("No attachment file provided.")
+
+        filename = getattr(file_obj, "name", "") or "attachment"
+        ext = os.path.splitext(filename)[1].lower()
+        file_size = getattr(file_obj, "size", 0)
+        content_type = getattr(file_obj, "content_type", "") or ""
+
+        if attachment_type == AttachmentType.IMAGE:
+            return ComplaintService.add_image(complaint, actor, file_obj, caption=caption)
+
+        elif attachment_type == AttachmentType.AUDIO:
+            if file_size > MAX_AUDIO_SIZE:
+                raise ValueError(
+                    f"Audio recording exceeds maximum limit of {MAX_AUDIO_SIZE // (1024 * 1024)} MB."
+                )
+            if ext and ext not in ALLOWED_AUDIO_EXTENSIONS:
+                raise ValueError(
+                    f"Unsupported audio extension '{ext}'. Allowed: {', '.join(sorted(ALLOWED_AUDIO_EXTENSIONS))}."
+                )
+            if content_type and content_type not in ALLOWED_AUDIO_TYPES:
+                raise ValueError(f"Unsupported audio MIME type '{content_type}'.")
+
+        elif attachment_type == AttachmentType.VIDEO:
+            if file_size > MAX_VIDEO_SIZE:
+                raise ValueError(
+                    f"Video file exceeds maximum limit of {MAX_VIDEO_SIZE // (1024 * 1024)} MB."
+                )
+            if ext and ext not in ALLOWED_VIDEO_EXTENSIONS:
+                raise ValueError(
+                    f"Unsupported video extension '{ext}'. Allowed: {', '.join(sorted(ALLOWED_VIDEO_EXTENSIONS))}."
+                )
+            if content_type and content_type not in ALLOWED_VIDEO_TYPES:
+                raise ValueError(f"Unsupported video MIME type '{content_type}'.")
+        else:
+            raise ValueError(f"Unsupported attachment type '{attachment_type}'.")
+
+        attachment = ComplaintAttachment.objects.create(
+            complaint=complaint,
+            file=file_obj,
+            attachment_type=attachment_type,
+            original_filename=filename[:255],
+            content_type=content_type[:100],
+            file_size=file_size,
+            caption=caption[:255],
+            duration_seconds=duration_seconds,
+            uploader=actor if actor and getattr(actor, "is_authenticated", False) else None,
+        )
+
+        ComplaintHistory.objects.create(
+            complaint=complaint,
+            actor=actor if actor and getattr(actor, "is_authenticated", False) else None,
+            action=HistoryAction.IMAGE_ADDED,
+            remarks=f"{attachment_type.title()} attached: {caption or filename}",
+        )
+
+        logger.info(
+            "%s attachment added to complaint %s by %s",
+            attachment_type,
+            complaint.tracking_code,
+            getattr(actor, "email", "guest"),
+        )
+        return attachment
 
     @staticmethod
     def get_timeline(complaint):

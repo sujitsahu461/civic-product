@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import useAuthStore from '../../store/authStore';
 import useComplaintStore from '../../store/complaintStore';
 import authService from '../../services/auth.service';
 import { useToast } from '../../components/ui/Toast';
 import Icon from '../../components/ui/Icon';
-import { formatDate } from '../../utils/formatters';
+import LanguageSelector from '../../components/ui/LanguageSelector';
 import s from './CitizenProfile.module.css';
 
 export const CitizenProfile: React.FC = () => {
+  const { t } = useTranslation();
   const { user, updateProfile } = useAuthStore();
   const { complaints } = useComplaintStore();
   const { success, error: toastError } = useToast();
@@ -40,7 +42,7 @@ export const CitizenProfile: React.FC = () => {
         address,
         bio,
       });
-      success('Profile details updated successfully.');
+      success(t('profile.updatedSuccess'));
     } catch (err: any) {
       toastError(err.message || 'Failed to update profile.');
     } finally {
@@ -78,10 +80,8 @@ export const CitizenProfile: React.FC = () => {
   return (
     <div className={s.container}>
       <div className={s.pageHeader}>
-        <h1 className={s.title}>Citizen Profile</h1>
-        <p className={s.subtitle}>
-          Manage your contact credentials, jurisdictional ward, and account security.
-        </p>
+        <h1 className={s.title}>{t('profile.title')}</h1>
+        <p className={s.subtitle}>{t('profile.subtitle')}</p>
       </div>
 
       <div className={s.grid}>
@@ -101,23 +101,31 @@ export const CitizenProfile: React.FC = () => {
             <span className={s.citizenBadge}>Verified Citizen</span>
           </div>
 
-          {/* Complaint Statistics (Section 18) */}
+          {/* Language Preference Section */}
+          <div className="my-4 p-3 bg-gray-50 border border-gray-200 rounded-xl text-left">
+            <span className="text-xs font-bold text-gray-700 block mb-1.5">
+              {t('profile.langPreference')}
+            </span>
+            <LanguageSelector variant="full" />
+          </div>
+
+          {/* Complaint Statistics */}
           <div className={s.statsSection}>
             <div className={s.statSmallCard}>
               <span className={s.statSmallVal}>{totalCount}</span>
-              <span className={s.statSmallLabel}>Total Complaints</span>
+              <span className={s.statSmallLabel}>{t('dashboard.statTotal')}</span>
             </div>
             <div className={s.statSmallCard}>
               <span className={s.statSmallVal} style={{ color: '#c25e00' }}>{pendingCount}</span>
-              <span className={s.statSmallLabel}>Pending</span>
+              <span className={s.statSmallLabel}>{t('dashboard.statPending')}</span>
             </div>
             <div className={s.statSmallCard}>
               <span className={s.statSmallVal} style={{ color: '#2c6e97' }}>{inProgressCount}</span>
-              <span className={s.statSmallLabel}>In Progress</span>
+              <span className={s.statSmallLabel}>{t('dashboard.statInProgress')}</span>
             </div>
             <div className={s.statSmallCard}>
               <span className={s.statSmallVal} style={{ color: '#236b43' }}>{resolvedCount}</span>
-              <span className={s.statSmallLabel}>Resolved</span>
+              <span className={s.statSmallLabel}>{t('dashboard.statResolved')}</span>
             </div>
           </div>
         </div>
@@ -126,11 +134,11 @@ export const CitizenProfile: React.FC = () => {
         <div className={s.formCardsCol}>
           {/* Personal Information */}
           <div className={s.card}>
-            <h3 className={s.cardTitle}>Personal Information</h3>
+            <h3 className={s.cardTitle}>{t('profile.personalInfo')}</h3>
             <form onSubmit={handleProfileSave}>
               <div className={s.formGrid}>
                 <div className={s.inputGroup}>
-                  <label className={s.label}>Full Name</label>
+                  <label className={s.label}>{t('auth.fullNameLabel')}</label>
                   <input
                     type="text"
                     className={s.input}
@@ -141,7 +149,7 @@ export const CitizenProfile: React.FC = () => {
                 </div>
 
                 <div className={s.inputGroup}>
-                  <label className={s.label}>Phone Number</label>
+                  <label className={s.label}>{t('auth.phoneLabel')}</label>
                   <input
                     type="tel"
                     className={s.input}
@@ -152,13 +160,13 @@ export const CitizenProfile: React.FC = () => {
                 </div>
 
                 <div className={`${s.inputGroup} ${s.fullWidth}`}>
-                  <label className={s.label}>Residential Ward / Street Address</label>
+                  <label className={s.label}>{t('auth.addressLabel')}</label>
                   <input
                     type="text"
                     className={s.input}
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    placeholder="e.g. Modipara, Ward 12, Sambalpur"
+                    placeholder={t('auth.addressPlaceholder')}
                   />
                 </div>
 
@@ -180,7 +188,7 @@ export const CitizenProfile: React.FC = () => {
                 className={s.btnSave}
               >
                 <Icon name="save" size={16} />
-                <span>{profileLoading ? 'Saving...' : 'Save Changes'}</span>
+                <span>{profileLoading ? t('common.submitting') : t('profile.updateBtn')}</span>
               </button>
             </form>
           </div>
@@ -231,7 +239,7 @@ export const CitizenProfile: React.FC = () => {
                 style={{ background: 'var(--cz-secondary-light-blue, #eaf6fc)', color: 'var(--cz-accent-blue-dark, #2c6e97)', borderColor: 'var(--cz-primary-light-blue, #dceffd)' }}
               >
                 <Icon name="lock_reset" size={16} />
-                <span>{passwordLoading ? 'Updating Password...' : 'Update Password'}</span>
+                <span>{passwordLoading ? t('common.loading') : 'Update Password'}</span>
               </button>
             </form>
           </div>

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import useAuthStore from '../../store/authStore';
 import useComplaintStore from '../../store/complaintStore';
 import Icon from '../../components/ui/Icon';
@@ -8,6 +9,7 @@ import { formatTimeAgo, truncateText } from '../../utils/formatters';
 import s from './CitizenDashboard.module.css';
 
 export const CitizenDashboard: React.FC = () => {
+  const { t } = useTranslation();
   const { user } = useAuthStore();
   const { complaints, isLoading, fetchComplaints } = useComplaintStore();
   const navigate = useNavigate();
@@ -33,7 +35,7 @@ export const CitizenDashboard: React.FC = () => {
         return (
           <span className={s.statusBadge + ' ' + s.statusResolved}>
             <Icon name="check_circle" size={14} />
-            RESOLVED
+            {t('statuses.RESOLVED')}
           </span>
         );
       case 'IN_PROGRESS':
@@ -41,14 +43,14 @@ export const CitizenDashboard: React.FC = () => {
         return (
           <span className={s.statusBadge + ' ' + s.statusProgress}>
             <Icon name="settings" size={14} />
-            IN PROGRESS
+            {t('statuses.IN_PROGRESS')}
           </span>
         );
       case 'PENDING':
         return (
           <span className={s.statusBadge + ' ' + s.statusPending}>
             <Icon name="schedule" size={14} />
-            PENDING
+            {t('statuses.PENDING')}
           </span>
         );
       case 'REJECTED':
@@ -56,7 +58,7 @@ export const CitizenDashboard: React.FC = () => {
         return (
           <span className={s.statusBadge + ' ' + s.statusRejected}>
             <Icon name="cancel" size={14} />
-            REJECTED
+            {t('statuses.REJECTED')}
           </span>
         );
       default:
@@ -82,9 +84,8 @@ export const CitizenDashboard: React.FC = () => {
 
   return (
     <div className={s.container}>
-      {/* ================= HERO WELCOME BANNER (GREENERY & ECO-FRIENDLY MERGED) ================= */}
+      {/* ================= HERO WELCOME BANNER ================= */}
       <section className={s.heroBanner}>
-        {/* Full-width merged background eco illustration */}
         <div className={s.heroBgWrapper}>
           <img
             src="/green-eco-city.jpg"
@@ -97,26 +98,24 @@ export const CitizenDashboard: React.FC = () => {
         <div className={s.heroLeft}>
           <div className={s.heroTag}>
             <span className={s.leafIcon}>🌿</span>
-            <span>CLEANER CITIES · GREENER TOMORROW</span>
+            <span>{t('common.tagline')}</span>
           </div>
 
-          <h1 className={s.heroTitle}>Hello, {citizenName} 👋</h1>
+          <h1 className={s.heroTitle}>{t('dashboard.welcome')}, {citizenName} 👋</h1>
 
           <p className={s.heroSubtitle}>
-            Report environmental and civic issues,
-            track your complaints and help build a cleaner,
-            healthier community.
+            {t('dashboard.welcomeSubtitle')}
           </p>
 
           <div className={s.heroActions}>
-            <Link to="/citizen/submit" className={s.btnPrimary}>
+            <Link to="/citizen/complaints/new" className={s.btnPrimary}>
               <Icon name="add_circle" size={18} />
-              <span>Report a Grievance</span>
+              <span>{t('nav.reportIssue')}</span>
               <Icon name="arrow_forward" size={16} />
             </Link>
             <Link to="/citizen/tracking" className={s.btnSecondary}>
               <Icon name="search" size={18} />
-              <span>Track Complaint</span>
+              <span>{t('nav.trackComplaint')}</span>
               <Icon name="arrow_forward" size={16} />
             </Link>
           </div>
@@ -129,11 +128,11 @@ export const CitizenDashboard: React.FC = () => {
               <Icon name="location_on" size={20} />
             </div>
             <div className={s.infoContent}>
-              <span className={s.infoLabel}>My Location</span>
+              <span className={s.infoLabel}>{t('common.location')}</span>
               <span className={s.infoValue}>{user?.address || 'Central District'}</span>
             </div>
             <Link to="/citizen/profile" className={s.editBtn}>
-              Edit
+              {t('common.actions')}
             </Link>
           </div>
 
@@ -164,30 +163,30 @@ export const CitizenDashboard: React.FC = () => {
                 <Icon name="assignment" size={22} />
               </div>
               <div>
-                <h2 className={s.sectionTitle}>Recent Grievances</h2>
-                <p className={s.sectionSub}>Your latest submitted complaints</p>
+                <h2 className={s.sectionTitle}>{t('dashboard.recentTitle')}</h2>
+                <p className={s.sectionSub}>{t('history.subtitle')}</p>
               </div>
             </div>
             <Link to="/citizen/complaints" className={s.viewAllBtn}>
-              View All <Icon name="arrow_forward" size={16} />
+              {t('dashboard.viewAll')} <Icon name="arrow_forward" size={16} />
             </Link>
           </div>
 
           {isLoading && complaints.length === 0 ? (
             <div className={s.loadingState}>
               <span className={s.spinner}></span>
-              <span>Loading grievances...</span>
+              <span>{t('common.loading')}</span>
             </div>
           ) : recentComplaints.length === 0 ? (
             <div className={s.emptyState}>
               <div className={s.emptyIcon}>
                 <Icon name="assignment_turned_in" size={32} />
               </div>
-              <h4 className={s.emptyTitle}>No grievances yet</h4>
-              <p className={s.emptySub}>You haven't submitted any civic complaints.</p>
-              <Link to="/citizen/submit" className={s.btnPrimary}>
+              <h4 className={s.emptyTitle}>{t('history.emptyTitle')}</h4>
+              <p className={s.emptySub}>{t('history.emptyDesc')}</p>
+              <Link to="/citizen/complaints/new" className={s.btnPrimary}>
                 <Icon name="add" size={16} />
-                <span>Report a Grievance</span>
+                <span>{t('history.fileFirstBtn')}</span>
               </Link>
             </div>
           ) : (
@@ -218,7 +217,7 @@ export const CitizenDashboard: React.FC = () => {
                     <div className={s.cardTopRow}>
                       <span className={s.trackingCode}>{item.tracking_code}</span>
                       <span className={s.deptBadge}>
-                        {item.department_name || item.category || 'Civic'}
+                        {t(`categories.${item.category}`) || item.department_name || item.category || 'Civic'}
                       </span>
                     </div>
                     <h3 className={s.cardTitle}>{item.title}</h3>
@@ -252,47 +251,44 @@ export const CitizenDashboard: React.FC = () => {
           {/* Quick Actions Card */}
           <div className={s.quickActionsPanel}>
             <div className={s.quickActionsHeader}>
-              <h2 className={s.quickActionsTitle}>Quick Actions</h2>
-              <p className={s.quickActionsSub}>Choose what you want to do</p>
+              <h2 className={s.quickActionsTitle}>{t('dashboard.quickActions')}</h2>
+              <p className={s.quickActionsSub}>{t('dashboard.welcomeSubtitle')}</p>
             </div>
 
             <div className={s.actionsList}>
-              {/* Action 1: Report a Grievance */}
-              <Link to="/citizen/submit" className={s.actionItem}>
+              <Link to="/citizen/complaints/new" className={s.actionItem}>
                 <div className={s.actionIconGreen}>
                   <Icon name="edit_note" size={24} />
                 </div>
                 <div className={s.actionContent}>
-                  <h3 className={s.actionName}>Report a Grievance</h3>
-                  <p className={s.actionDesc}>Submit an environmental or civic issue with details, location and photo.</p>
+                  <h3 className={s.actionName}>{t('dashboard.fileNew')}</h3>
+                  <p className={s.actionDesc}>{t('submit.pageSubtitle')}</p>
                 </div>
                 <div className={s.actionArrow}>
                   <Icon name="chevron_right" size={20} />
                 </div>
               </Link>
 
-              {/* Action 2: Track Complaint */}
               <Link to="/citizen/tracking" className={s.actionItem}>
                 <div className={s.actionIconBlue}>
                   <Icon name="search" size={24} />
                 </div>
                 <div className={s.actionContent}>
-                  <h3 className={s.actionName}>Track Complaint</h3>
-                  <p className={s.actionDesc}>Check the current status of your submitted complaint.</p>
+                  <h3 className={s.actionName}>{t('dashboard.trackExisting')}</h3>
+                  <p className={s.actionDesc}>{t('track.subtitle')}</p>
                 </div>
                 <div className={s.actionArrow}>
                   <Icon name="chevron_right" size={20} />
                 </div>
               </Link>
 
-              {/* Action 3: My Grievances */}
               <Link to="/citizen/complaints" className={s.actionItem}>
                 <div className={s.actionIconTeal}>
                   <Icon name="assignment" size={24} />
                 </div>
                 <div className={s.actionContent}>
-                  <h3 className={s.actionName}>My Grievances</h3>
-                  <p className={s.actionDesc}>View your complaints and latest updates.</p>
+                  <h3 className={s.actionName}>{t('dashboard.viewAll')}</h3>
+                  <p className={s.actionDesc}>{t('history.subtitle')}</p>
                 </div>
                 <div className={s.actionArrow}>
                   <Icon name="chevron_right" size={20} />
@@ -301,63 +297,51 @@ export const CitizenDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Civic Redressal SLA Commitments (From Screenshot 2) */}
+          {/* Civic Redressal SLA Commitments */}
           <div className={s.slaCard}>
             <div className={s.slaHeader}>
               <Icon name="verified_user" size={18} className={s.slaIcon} />
               <h3 className={s.slaTitle}>Civic Redressal SLA Commitments</h3>
             </div>
             <p className={s.slaDesc}>
-              CivicSetu enforces automated service-level agreements across municipal nodal departments:
+              CivicSetu enforces deterministic service-level agreements across municipal nodal departments:
             </p>
             <div className={s.slaList}>
               <div className={s.slaItem}>
                 <div className={s.slaItemLeft}>
                   <span className={s.slaIconSmall}>🌱</span>
-                  <span>Roads & Pavements</span>
+                  <span>{t('categories.ROAD')}</span>
                 </div>
                 <span className={s.slaBadge}>~24 Hours</span>
               </div>
               <div className={s.slaItem}>
                 <div className={s.slaItemLeft}>
                   <span className={s.slaIconSmall}>💧</span>
-                  <span>Water Supply Leaks</span>
+                  <span>{t('categories.WATER')}</span>
                 </div>
                 <span className={s.slaBadge}>~12 Hours</span>
               </div>
               <div className={s.slaItem}>
                 <div className={s.slaItemLeft}>
                   <span className={s.slaIconSmall}>⚡</span>
-                  <span>Streetlights & Electricity</span>
+                  <span>{t('categories.ELECTRICITY')}</span>
                 </div>
                 <span className={s.slaBadge}>~6 Hours</span>
               </div>
               <div className={s.slaItem}>
                 <div className={s.slaItemLeft}>
                   <span className={s.slaIconSmall}>🗑️</span>
-                  <span>Sanitation & Waste</span>
+                  <span>{t('categories.SANITATION')}</span>
                 </div>
                 <span className={s.slaBadge}>~12 Hours</span>
               </div>
               <div className={s.slaItem}>
                 <div className={s.slaItemLeft}>
                   <span className={s.slaIconSmall}>🌊</span>
-                  <span>Drainage & Sewerage</span>
+                  <span>{t('categories.DRAINAGE')}</span>
                 </div>
                 <span className={s.slaBadge}>~18 Hours</span>
               </div>
-            </div>
-          </div>
-
-          {/* Community Banner (From Screenshot 3) */}
-          <div className={s.communityBanner}>
-            <div className={s.communityContent}>
-              <h3 className={s.communityTitle}>Together for a Cleaner and Greener Community</h3>
-              <p className={s.communityDesc}>Report Issues. Create change. Keep our environment healthy.</p>
-            </div>
-            <div className={s.communityLeaf}>
-              <img src="/leaf-plant.jpg" alt="Green seedling" />
-              <span>🌱</span>
             </div>
           </div>
         </div>

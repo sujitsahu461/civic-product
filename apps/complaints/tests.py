@@ -514,3 +514,169 @@ class ComplaintAPIViewTests(TestCase):
         fake_executable = SimpleUploadedFile("malicious.exe", b"binarycontent", content_type="application/octet-stream")
         with self.assertRaises(ValueError):
             ComplaintService.add_image(complaint, self.citizen, fake_executable)
+
+    def test_multimodal_audio_attachment_creation(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from apps.complaint_images.models import AttachmentType
+
+        complaint = ComplaintService.create_complaint(
+            citizen=self.citizen,
+            title="Audio Evidence Complaint",
+            description="Resident recorded noise complaint audio.",
+            location_address="Civil Station Road",
+        )
+        audio_file = SimpleUploadedFile("recording.mp3", b"ID3v2fakeaudiobytes", content_type="audio/mp3")
+        att = ComplaintService.add_audio(complaint, self.citizen, audio_file, duration_seconds=12.5)
+        self.assertEqual(att.attachment_type, AttachmentType.AUDIO)
+        self.assertEqual(att.original_filename, "recording.mp3")
+        self.assertEqual(att.duration_seconds, 12.5)
+        self.assertEqual(complaint.attachments.filter(attachment_type=AttachmentType.AUDIO).count(), 1)
+
+    def test_multimodal_video_attachment_creation(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from apps.complaint_images.models import AttachmentType
+
+        complaint = ComplaintService.create_complaint(
+            citizen=self.citizen,
+            title="Video Evidence Complaint",
+            description="Resident filmed leaking water pipeline.",
+            location_address="Civil Station Road",
+        )
+        video_file = SimpleUploadedFile("leak.mp4", b"ftypmp42videoheader", content_type="video/mp4")
+        att = ComplaintService.add_video(complaint, self.citizen, video_file)
+        self.assertEqual(att.attachment_type, AttachmentType.VIDEO)
+        self.assertEqual(att.original_filename, "leak.mp4")
+        self.assertEqual(complaint.attachments.filter(attachment_type=AttachmentType.VIDEO).count(), 1)
+
+    def test_audio_disallowed_extension_rejected(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        complaint = ComplaintService.create_complaint(
+            citizen=self.citizen,
+            title="Invalid Audio Test",
+            description="Testing invalid audio format rejection.",
+            location_address="Station Road",
+        )
+        fake_bad = SimpleUploadedFile("sound.exe", b"invalidbytes", content_type="audio/mp3")
+        with self.assertRaises(ValueError):
+            ComplaintService.add_audio(complaint, self.citizen, fake_bad)
+
+    def test_video_disallowed_extension_rejected(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        complaint = ComplaintService.create_complaint(
+            citizen=self.citizen,
+            title="Invalid Video Test",
+            description="Testing invalid video format rejection.",
+            location_address="Station Road",
+        )
+        fake_bad = SimpleUploadedFile("clip.bat", b"invalidbytes", content_type="video/mp4")
+        with self.assertRaises(ValueError):
+            ComplaintService.add_video(complaint, self.citizen, fake_bad)
+
+    def test_complaint_create_api_with_audio_and_video(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        self.client.force_authenticate(user=self.citizen)
+        url = reverse("complaint-create")
+        audio_file = SimpleUploadedFile("evidence.webm", b"audioheaderbytes", content_type="audio/webm")
+        video_file = SimpleUploadedFile("evidence.mp4", b"videoheaderbytes", content_type="video/mp4")
+        payload = {
+            "title": "Multimedia Grievance",
+            "description": "Report with audio and video.",
+            "location_address": "Main Street",
+            "category": "DRAINAGE",
+            "audio": audio_file,
+            "video": video_file,
+            "audio_duration": 45.0,
+        }
+        response = self.client.post(url, payload, format="multipart")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn("attachments", response.data)
+        att_types = [a["attachment_type"] for a in response.data["attachments"]]
+        self.assertIn("AUDIO", att_types)
+        self.assertIn("VIDEO", att_types)
+
+    def test_complaint_attachment_upload_api_endpoint(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        self.client.force_authenticate(user=self.citizen)
+        complaint = ComplaintService.create_complaint(
+            citizen=self.citizen,
+            title="Attachment Upload API Test",
+            description="Testing upload endpoint.",
+            location_address="Station Road",
+        )
+        url = reverse("complaint-attachment-upload", kwargs={"public_id": complaint.public_id})
+        audio_file = SimpleUploadedFile("note.ogg", b"oggheaderbytes", content_type="audio/ogg")
+        payload = {
+            "file": audio_file,
+            "attachment_type": "AUDIO",
+            "caption": "Voice note description",
+            "duration_seconds": 15.0,
+        }
+        response = self.client.post(url, payload, format="multipart")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["attachment_type"], "AUDIO")
+        self.assertEqual(response.data["caption"], "Voice note description")
+
+    def test_complaint_creation_with_odia_and_hindi_unicode(self):
+        self.client.force_authenticate(user=self.citizen)
+        url = reverse("complaint-create")
+        payload = {
+            "title": "ମୁଖ୍ୟ ରାସ୍ତାରେ ଜଳ ନିଷ୍କାସନ ସମସ୍ୟା (मुख्य मार्ग जलभराव)",
+            "description": "ଓଡ଼ିଆ ଭାଷାରେ ଅଭିଯୋଗ: ବର୍ଷା ଜଳ ନିଷ୍କାସନ ନାଳି ଅବରୋଧ ହୋଇଛି। हिन्दी में विवरण: नाली का गंदा पानी सड़क पर बह रहा है।",
+            "category": "DRAINAGE",
+            "priority": "HIGH",
+            "location_address": "ୱାର୍ଡ ନମ୍ବର ୧୨, ମୋଦିପଡ଼ା, ସମ୍ବଲପୁର (वार्ड 12)",
+        }
+        response = self.client.post(url, payload)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn("ମୁଖ୍ୟ ରାସ୍ତାରେ", response.data["title"])
+        self.assertIn("ଓଡ଼ିଆ ଭାଷାରେ", response.data["description"])
+        self.assertIn("ୱାର୍ଡ ନମ୍ବର", response.data["location_address"])
+
+    def test_unauthorized_user_cannot_upload_attachment_to_others_complaint(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from apps.accounts.models import User, UserRole
+
+        other_citizen = User.objects.create_user(
+            email="other_attacker@example.com",
+            password="Password@123",
+            full_name="Attacker Citizen",
+            role=UserRole.CITIZEN,
+        )
+        complaint = ComplaintService.create_complaint(
+            citizen=self.citizen,
+            title="Private Citizen Issue",
+            description="Private details.",
+            location_address="Civil Lines",
+        )
+        self.client.force_authenticate(user=other_citizen)
+        url = reverse("complaint-attachment-upload", kwargs={"public_id": complaint.public_id})
+        audio_file = SimpleUploadedFile("sneaky.mp3", b"maliciousaudio", content_type="audio/mpeg")
+        payload = {
+            "file": audio_file,
+            "attachment_type": "AUDIO",
+        }
+        response = self.client.post(url, payload, format="multipart")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_invalid_attachment_type_rejected(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        self.client.force_authenticate(user=self.citizen)
+        complaint = ComplaintService.create_complaint(
+            citizen=self.citizen,
+            title="MIME Type Test",
+            description="Testing invalid MIME rejection.",
+            location_address="Civil Lines",
+        )
+        url = reverse("complaint-attachment-upload", kwargs={"public_id": complaint.public_id})
+        exe_file = SimpleUploadedFile("virus.exe", b"MZexecutablebytes", content_type="application/x-dosexec")
+        payload = {
+            "file": exe_file,
+            "attachment_type": "VIDEO",
+        }
+        response = self.client.post(url, payload, format="multipart")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

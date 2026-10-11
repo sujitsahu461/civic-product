@@ -15,4 +15,9 @@ REST_FRAMEWORK = {
 
 EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 
-# Uses MySQL from base.py — Django will auto-create test_<DB_NAME>
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": ":memory:",
+    }
+}

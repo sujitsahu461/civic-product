@@ -1,24 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import useComplaintStore from '../../store/complaintStore';
 import Icon from '../../components/ui/Icon';
-import { formatDate, formatTimeAgo, truncateText } from '../../utils/formatters';
+import { formatDate, truncateText } from '../../utils/formatters';
 import s from './ComplaintHistory.module.css';
 
-const STATUS_FILTERS = [
-  { value: '', label: 'All Complaints' },
-  { value: 'PENDING', label: 'Pending' },
-  { value: 'IN_PROGRESS', label: 'In Progress' },
-  { value: 'RESOLVED', label: 'Resolved' },
-  { value: 'REJECTED', label: 'Rejected' },
-];
-
 export const ComplaintHistory: React.FC = () => {
+  const { t } = useTranslation();
   const { complaints, isLoading, fetchComplaints } = useComplaintStore();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+
+  const statusFilters = [
+    { value: '', label: t('common.all') },
+    { value: 'PENDING', label: t('statuses.PENDING') },
+    { value: 'IN_PROGRESS', label: t('statuses.IN_PROGRESS') },
+    { value: 'RESOLVED', label: t('statuses.RESOLVED') },
+    { value: 'REJECTED', label: t('statuses.REJECTED') },
+  ];
+
+  const categories = [
+    'ROAD',
+    'WATER',
+    'ELECTRICITY',
+    'DRAINAGE',
+    'SANITATION',
+    'PARKS',
+    'NOISE',
+    'OTHER',
+  ];
 
   const loadComplaints = (silent = false) => {
     fetchComplaints(
@@ -47,15 +60,15 @@ export const ComplaintHistory: React.FC = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'RESOLVED':
-        return <span className={s.statusBadgeResolved}>Resolved</span>;
+        return <span className={s.statusBadgeResolved}>{t('statuses.RESOLVED')}</span>;
       case 'IN_PROGRESS':
       case 'ASSIGNED':
-        return <span className={s.statusBadgeProgress}>In Progress</span>;
+        return <span className={s.statusBadgeProgress}>{t('statuses.IN_PROGRESS')}</span>;
       case 'PENDING':
-        return <span className={s.statusBadgePending}>Pending</span>;
+        return <span className={s.statusBadgePending}>{t('statuses.PENDING')}</span>;
       case 'REJECTED':
       case 'CLOSED':
-        return <span className={s.statusBadgeRejected}>Rejected</span>;
+        return <span className={s.statusBadgeRejected}>{t('statuses.REJECTED')}</span>;
       default:
         return <span className={s.statusBadgePending}>{status}</span>;
     }
@@ -66,15 +79,13 @@ export const ComplaintHistory: React.FC = () => {
       {/* Header */}
       <div className={s.header}>
         <div>
-          <h1 className={s.title}>My Grievances</h1>
-          <p className={s.subtitle}>
-            View your complaints and their latest updates.
-          </p>
+          <h1 className={s.title}>{t('history.title')}</h1>
+          <p className={s.subtitle}>{t('history.subtitle')}</p>
         </div>
 
-        <Link to="/citizen/submit" className={s.fileNewBtn}>
+        <Link to="/citizen/complaints/new" className={s.fileNewBtn}>
           <Icon name="add" size={18} />
-          <span>Report a Grievance</span>
+          <span>{t('nav.reportIssue')}</span>
         </Link>
       </div>
 
@@ -86,7 +97,7 @@ export const ComplaintHistory: React.FC = () => {
             <input
               type="text"
               className={s.searchInput}
-              placeholder="Search by title, tracking ID, or street address..."
+              placeholder={t('history.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -97,18 +108,18 @@ export const ComplaintHistory: React.FC = () => {
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
           >
-            <option value="">All Categories</option>
-            <option value="ROAD">Roads & Infrastructure</option>
-            <option value="WATER">Water Supply</option>
-            <option value="ELECTRICITY">Electricity</option>
-            <option value="DRAINAGE">Drainage & Sewage</option>
-            <option value="SANITATION">Sanitation & Waste</option>
+            <option value="">{t('common.all')} {t('common.category')}</option>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {t(`categories.${cat}`)}
+              </option>
+            ))}
           </select>
         </div>
 
-        {/* Status Filter Tabs (Section 15) */}
+        {/* Status Filter Tabs */}
         <div className={s.statusTabs}>
-          {STATUS_FILTERS.map((tab) => (
+          {statusFilters.map((tab) => (
             <button
               key={tab.value}
               type="button"
@@ -121,21 +132,21 @@ export const ComplaintHistory: React.FC = () => {
         </div>
       </div>
 
-      {/* Complaints List / Cards (Section 14) */}
+      {/* Complaints List / Cards */}
       {isLoading && complaints.length === 0 ? (
         <div style={{ textAlign: 'center', padding: 48, color: 'var(--cz-secondary-text, #64748b)' }}>
-          <span>Loading complaints...</span>
+          <span>{t('common.loading')}</span>
         </div>
       ) : complaints.length === 0 ? (
         <div className={s.emptyState}>
           <div className={s.emptyIcon}>
             <Icon name="assignment_turned_in" size={32} />
           </div>
-          <h3 className={s.emptyTitle}>No grievances yet</h3>
-          <p className={s.emptySubtitle}>You haven't submitted any civic complaints.</p>
-          <Link to="/citizen/submit" className={s.fileNewBtn}>
+          <h3 className={s.emptyTitle}>{t('history.emptyTitle')}</h3>
+          <p className={s.emptySubtitle}>{t('history.emptyDesc')}</p>
+          <Link to="/citizen/complaints/new" className={s.fileNewBtn}>
             <Icon name="add" size={16} />
-            <span>Report a Grievance</span>
+            <span>{t('history.fileFirstBtn')}</span>
           </Link>
         </div>
       ) : (
@@ -153,33 +164,35 @@ export const ComplaintHistory: React.FC = () => {
 
                 <div className={s.detailsList}>
                   <div className={s.detailRow}>
-                    <span className={s.detailLabel}>Category:</span>
-                    <span className={s.detailValue}>{item.category_display || item.category}</span>
+                    <span className={s.detailLabel}>{t('common.category')}:</span>
+                    <span className={s.detailValue}>
+                      {t(`categories.${item.category}`) || item.category_display || item.category}
+                    </span>
                   </div>
                   <div className={s.detailRow}>
-                    <span className={s.detailLabel}>Department:</span>
+                    <span className={s.detailLabel}>{t('submit.assignedDept')}:</span>
                     <span className={s.detailValue}>
                       {item.department_name || item.category_display || 'Municipal Nodal Office'}
                     </span>
                   </div>
                   <div className={s.detailRow}>
-                    <span className={s.detailLabel}>Priority:</span>
+                    <span className={s.detailLabel}>{t('common.priority')}:</span>
                     <span
                       className={s.detailValue}
                       style={{
                         color:
-                          item.priority === 'HIGH'
+                          item.priority === 'HIGH' || item.priority === 'URGENT'
                             ? '#b91c1c'
                             : item.priority === 'LOW'
                             ? '#1e6f9f'
                             : '#c25e00',
                       }}
                     >
-                      {item.priority}
+                      {t(`priorities.${item.priority}`) || item.priority}
                     </span>
                   </div>
                   <div className={s.detailRow}>
-                    <span className={s.detailLabel}>Location:</span>
+                    <span className={s.detailLabel}>{t('common.location')}:</span>
                     <span className={s.detailValue}>
                       {truncateText(item.location_address || 'Central Ward', 28)}
                     </span>
@@ -197,7 +210,7 @@ export const ComplaintHistory: React.FC = () => {
                   to={`/citizen/tracking?code=${item.tracking_code}`}
                   className={s.viewDetailsBtn}
                 >
-                  <span>View Details</span>
+                  <span>{t('common.viewDetails')}</span>
                   <Icon name="arrow_forward" size={14} />
                 </Link>
               </div>

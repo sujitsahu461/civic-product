@@ -1,29 +1,48 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import useAuthStore from '../../store/authStore';
 import useComplaintStore from '../../store/complaintStore';
 import { ComplaintCategory, ComplaintPriority } from '../../types/complaint';
 import { useToast } from '../../components/ui/Toast';
 import Icon from '../../components/ui/Icon';
 import LocationPicker from '../../components/map/LocationPicker';
+import AudioRecorder from '../../components/ui/AudioRecorder';
 import { smartDetectGps, resolveAddressToCoords } from '../../config/mapConfig';
-import aiService, { AIClassificationResult } from '../../services/ai.service';
 import s from './SubmitComplaint.module.css';
 
-const DEPARTMENT_MAP: Record<string, { name: string; defaultSla: string }> = {
-  ROAD: { name: 'Roads & Infrastructure', defaultSla: '24 hours' },
-  WATER: { name: 'Water Supply', defaultSla: '12 hours' },
-  ELECTRICITY: { name: 'Electricity Department', defaultSla: '6 hours' },
-  DRAINAGE: { name: 'Drainage & Sewage', defaultSla: '18 hours' },
-  SANITATION: { name: 'Sanitation & Waste', defaultSla: '12 hours' },
+const DEPARTMENT_ROUTING: Record<string, { nameKey: string; defaultSla: string }> = {
+  ROAD: { nameKey: 'categories.ROAD', defaultSla: '24-48 hours' },
+  WATER: { nameKey: 'categories.WATER', defaultSla: '12-24 hours' },
+  ELECTRICITY: { nameKey: 'categories.ELECTRICITY', defaultSla: '6-12 hours' },
+  DRAINAGE: { nameKey: 'categories.DRAINAGE', defaultSla: '18-36 hours' },
+  SANITATION: { nameKey: 'categories.SANITATION', defaultSla: '12-24 hours' },
+  PARKS: { nameKey: 'categories.PARKS', defaultSla: '48-72 hours' },
+  NOISE: { nameKey: 'categories.NOISE', defaultSla: '12-24 hours' },
+  OTHER: { nameKey: 'categories.OTHER', defaultSla: '48 hours' },
 };
 
+const CATEGORIES: ComplaintCategory[] = [
+  'ROAD',
+  'WATER',
+  'ELECTRICITY',
+  'DRAINAGE',
+  'SANITATION',
+  'PARKS',
+  'NOISE',
+  'OTHER',
+];
+
+const PRIORITIES: ComplaintPriority[] = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'];
+
 export const SubmitComplaint: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuthStore();
   const { submitComplaint } = useComplaintStore();
   const { success, error: toastError } = useToast();
 
+  // Basic Form State
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<ComplaintCategory>('ROAD');
@@ -31,15 +50,17 @@ export const SubmitComplaint: React.FC = () => {
   const [address, setAddress] = useState('');
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
+
+  // Multimedia Attachments
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [audioFile, setAudioFile] = useState<File | Blob | null>(null);
+  const [audioDuration, setAudioDuration] = useState<number>(0);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
 
-  // AI Live Classification State
-  const [aiPrediction, setAiPrediction] = useState<AIClassificationResult | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const activeReqIdRef = useRef<number>(0);
-
+  // UI / Status State
   const [geoLoading, setGeoLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
@@ -51,55 +72,8 @@ export const SubmitComplaint: React.FC = () => {
     status: string;
   } | null>(null);
 
-  // Live AI classification from backend API
-  useEffect(() => {
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
-
-    const currentReqId = ++activeReqIdRef.current;
-    const trimmedTitle = title.trim();
-    const trimmedDesc = description.trim();
-
-    if (trimmedTitle.length < 3 && trimmedDesc.length < 3) {
-      setAiPrediction(null);
-      setIsAnalyzing(false);
-      return;
-    }
-
-    setIsAnalyzing(true);
-    debounceTimerRef.current = setTimeout(async () => {
-      try {
-        const result = await aiService.classifyComplaint(trimmedTitle, trimmedDesc, address.trim());
-        if (currentReqId === activeReqIdRef.current) {
-          setAiPrediction(result);
-          if (result?.predicted_category) {
-            setSelectedCategory(result.predicted_category as ComplaintCategory);
-          }
-          if (result?.predicted_priority) {
-            setSelectedPriority(result.predicted_priority as ComplaintPriority);
-          }
-        }
-      } catch (err) {
-        if (currentReqId === activeReqIdRef.current) {
-          console.error('Live AI classification failed:', err);
-        }
-      } finally {
-        if (currentReqId === activeReqIdRef.current) {
-          setIsAnalyzing(false);
-        }
-      }
-    }, 350);
-
-    return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-    };
-  }, [title, description, address]);
-
   const userWardName = useMemo(() => {
-    if (!user?.address) return 'Modipara';
+    if (!user?.address) return 'Central Ward';
     const addr = user.address.trim();
     if (addr.toLowerCase().includes('modip')) return 'Modipara';
     if (addr.toLowerCase().includes('sakhip')) return 'Sakhipara';
@@ -140,16 +114,21 @@ export const SubmitComplaint: React.FC = () => {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const files = Array.from(e.target.files);
+
+    if (selectedFiles.length + files.length > 5) {
+      toastError(t('media.fileSizeExceeded') || 'Maximum 5 photos allowed.');
+      return;
+    }
 
     const validFiles: File[] = [];
     const newPreviews: string[] = [];
 
     files.forEach((file) => {
       if (file.size > 5 * 1024 * 1024) {
-        toastError(`File "${file.name}" exceeds maximum size limit of 5MB.`);
+        toastError(`File "${file.name}" exceeds 5MB limit.`);
         return;
       }
       validFiles.push(file);
@@ -166,22 +145,56 @@ export const SubmitComplaint: React.FC = () => {
     setPreviewUrls((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleVideoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 25 * 1024 * 1024) {
+      toastError('Video file exceeds 25MB limit.');
+      return;
+    }
+
+    const allowedTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-matroska'];
+    if (!allowedTypes.some((t) => file.type.startsWith('video/') || file.name.endsWith('.mp4') || file.name.endsWith('.webm'))) {
+      toastError(t('media.fileTypeUnsupported') || 'Unsupported video format. Please upload MP4 or WebM.');
+      return;
+    }
+
+    if (videoPreviewUrl) {
+      URL.revokeObjectURL(videoPreviewUrl);
+    }
+
+    setVideoFile(file);
+    setVideoPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const handleRemoveVideo = () => {
+    if (videoPreviewUrl) {
+      URL.revokeObjectURL(videoPreviewUrl);
+    }
+    setVideoFile(null);
+    setVideoPreviewUrl(null);
+    if (videoInputRef.current) {
+      videoInputRef.current.value = '';
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
 
-    if (!title.trim()) {
-      setFormError('Please enter a descriptive complaint title.');
+    if (!title.trim() || title.trim().length < 5) {
+      setFormError('Please enter a descriptive complaint title (at least 5 characters).');
       return;
     }
 
-    if (!description.trim()) {
-      setFormError('Please describe the issue in detail.');
+    if (!description.trim() || description.trim().length < 10) {
+      setFormError('Please describe the issue in detail (at least 10 characters).');
       return;
     }
 
-    if (!address.trim()) {
-      setFormError('Please provide a specific street address or location description.');
+    if (!address.trim() || address.trim().length < 3) {
+      setFormError('Please provide a specific street address or landmark.');
       return;
     }
 
@@ -200,13 +213,14 @@ export const SubmitComplaint: React.FC = () => {
         latitude: cleanLat,
         longitude: cleanLng,
         images: selectedFiles,
+        audio: audioFile || undefined,
+        video: videoFile || undefined,
+        audio_duration: audioDuration > 0 ? audioDuration : undefined,
       });
 
       const deptName =
         created.department_name ||
-        created.category_display ||
-        DEPARTMENT_MAP[created.category || selectedCategory]?.name ||
-        created.category;
+        t(DEPARTMENT_ROUTING[created.category || selectedCategory]?.nameKey || 'categories.ROAD');
 
       setSubmittedData({
         tracking_code: created.tracking_code,
@@ -223,38 +237,24 @@ export const SubmitComplaint: React.FC = () => {
     }
   };
 
-  // Determine dynamic department and priority labels from backend
-  const displayDepartment =
-    aiPrediction?.predicted_department ||
-    aiPrediction?.department_routing?.db_department_name ||
-    aiPrediction?.department_routing?.predicted_department ||
-    (aiPrediction?.predicted_category ? DEPARTMENT_MAP[aiPrediction.predicted_category]?.name || aiPrediction.predicted_category : DEPARTMENT_MAP[selectedCategory]?.name);
-
-  const displayCategory = aiPrediction?.predicted_category || selectedCategory;
-  const displayPriority = aiPrediction?.predicted_priority || selectedPriority;
-  const displayConfidence = aiPrediction ? Math.round(aiPrediction.confidence_score * 100) : null;
-  const displaySla = aiPrediction?.estimated_resolution_hours
-    ? `${aiPrediction.estimated_resolution_hours} hours`
-    : null;
+  const currentDept = DEPARTMENT_ROUTING[selectedCategory] || DEPARTMENT_ROUTING.OTHER;
 
   return (
     <div className={s.container}>
       {/* Header */}
       <div className={s.pageHeader}>
-        <h1 className={s.title}>Report a Civic Issue</h1>
-        <p className={s.subtitle}>
-          Provide the details below. CivicSetu's AI system will automatically analyze and route your grievance.
-        </p>
+        <h1 className={s.title}>{t('submit.pageTitle')}</h1>
+        <p className={s.subtitle}>{t('submit.pageSubtitle')}</p>
       </div>
 
       {!isAuthenticated && (
         <div className={s.anonNoticeBanner}>
           <div className={s.anonBadge}>
             <Icon name="visibility_off" size={17} />
-            <span>Anonymous Reporting Active — No Login Required</span>
+            <span>{t('submit.anonymousBannerTitle')}</span>
           </div>
           <p className={s.anonNoticeText}>
-            Your identity and personal details will remain completely anonymous. Upon submission, our AI Engine immediately routes your issue to the correct department and generates a municipal <strong>Tracking Code</strong> (e.g. <code>CMP-YYYYMMDD-XXXX</code>) to track progress anytime.
+            {t('submit.anonymousBannerDesc')}
           </p>
         </div>
       )}
@@ -274,34 +274,76 @@ export const SubmitComplaint: React.FC = () => {
             <div className={s.section}>
               <h3 className={s.sectionHeading}>
                 <span className={s.stepNum}>1</span>
-                <span>Grievance Details</span>
+                <span>{t('submit.descLabel')}</span>
               </h3>
 
               <div className={s.fieldGroup}>
                 <div>
                   <label className={s.inputLabel}>
-                    Complaint Title <span className={s.req}>*</span>
+                    {t('submit.titleLabel')} <span className={s.req}>*</span>
                   </label>
                   <input
                     type="text"
                     className={s.textInput}
-                    placeholder="e.g. Broken water pipeline leaking on Main Road"
+                    placeholder={t('submit.titlePlaceholder')}
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
+                    maxLength={200}
                     required
                   />
                 </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className={s.inputLabel}>
+                      {t('submit.categoryLabel')} <span className={s.req}>*</span>
+                    </label>
+                    <select
+                      className={s.selectInput}
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value as ComplaintCategory)}
+                      required
+                    >
+                      {CATEGORIES.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {t(`categories.${cat}`)}
+                        </option>
+                      ))}
+                    </select>
+                    <p className={s.helpText}>{t('submit.categoryHelp')}</p>
+                  </div>
+
+                  <div>
+                    <label className={s.inputLabel}>
+                      {t('submit.priorityLabel')} <span className={s.req}>*</span>
+                    </label>
+                    <select
+                      className={s.selectInput}
+                      value={selectedPriority}
+                      onChange={(e) => setSelectedPriority(e.target.value as ComplaintPriority)}
+                      required
+                    >
+                      {PRIORITIES.map((p) => (
+                        <option key={p} value={p}>
+                          {t(`priorities.${p}`)}
+                        </option>
+                      ))}
+                    </select>
+                    <p className={s.helpText}>{t('submit.priorityHelp')}</p>
+                  </div>
+                </div>
+
                 <div>
                   <label className={s.inputLabel}>
-                    Complaint Description <span className={s.req}>*</span>
+                    {t('submit.descLabel')} <span className={s.req}>*</span>
                   </label>
                   <textarea
                     className={s.textarea}
                     rows={4}
-                    placeholder="Provide complete details about the civic issue (e.g. exact spot, severity, duration, impact on traffic or water supply)..."
+                    placeholder={t('submit.descPlaceholder')}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
+                    maxLength={3000}
                     required
                   />
                 </div>
@@ -313,7 +355,7 @@ export const SubmitComplaint: React.FC = () => {
               <div className={s.locationHeaderRow}>
                 <h3 className={s.sectionHeading}>
                   <span className={s.stepNum}>2</span>
-                  <span>Complaint Location</span>
+                  <span>{t('submit.locationSection')}</span>
                 </h3>
 
                 <div className={s.locationActionGroup}>
@@ -322,10 +364,10 @@ export const SubmitComplaint: React.FC = () => {
                     onClick={handleUseMyWard}
                     disabled={geoLoading}
                     className={`${s.locBtn} ${s.locBtnOrange}`}
-                    title={`Apply registered ward: ${user?.address || 'Modipara'}`}
+                    title={`Apply registered ward: ${user?.address || 'Central Ward'}`}
                   >
                     <Icon name="home_pin" size={15} />
-                    <span>My Ward ({userWardName})</span>
+                    <span>{t('submit.useMyWardBtn')} ({userWardName})</span>
                   </button>
 
                   <button
@@ -335,7 +377,7 @@ export const SubmitComplaint: React.FC = () => {
                     className={`${s.locBtn} ${s.locBtnBlue}`}
                   >
                     <Icon name={geoLoading ? 'hourglass_top' : 'my_location'} size={15} />
-                    <span>{geoLoading ? 'Detecting...' : 'Use My Current Location'}</span>
+                    <span>{geoLoading ? t('common.loading') : t('submit.detectGpsBtn')}</span>
                   </button>
                 </div>
               </div>
@@ -354,12 +396,12 @@ export const SubmitComplaint: React.FC = () => {
 
                 <div>
                   <label className={s.inputLabel}>
-                    Street Address / Landmark <span className={s.req}>*</span>
+                    {t('submit.addressLabel')} <span className={s.req}>*</span>
                   </label>
                   <input
                     type="text"
                     className={s.textInput}
-                    placeholder="e.g. Near Community Center, Main Road, Ward 4"
+                    placeholder={t('submit.addressPlaceholder')}
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     required
@@ -393,46 +435,108 @@ export const SubmitComplaint: React.FC = () => {
               </div>
             </div>
 
-            {/* Step 3: Photo Evidence Upload */}
+            {/* Step 3: Multimedia Evidence Section */}
             <div className={s.section}>
               <h3 className={s.sectionHeading}>
                 <span className={s.stepNum}>3</span>
-                <span>Upload Photo Evidence</span>
+                <span>{t('submit.evidenceSection')}</span>
               </h3>
 
-              <div className={s.uploadDropArea}>
-                <input
-                  type="file"
-                  id="fileUpload"
-                  multiple
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className={s.fileInput}
+              {/* 3A: Audio Voice Evidence */}
+              <div className="mb-5">
+                <AudioRecorder
+                  onAudioChange={(file, duration) => {
+                    setAudioFile(file);
+                    setAudioDuration(duration);
+                  }}
                 />
-                <div className={s.uploadIcon}>
-                  <Icon name="add_a_photo" size={26} />
-                </div>
-                <h4 className={s.uploadTitle}>Drag & drop photo evidence or click to browse</h4>
-                <p className={s.uploadSub}>Supports PNG, JPG, WebP up to 5MB each</p>
               </div>
 
-              {previewUrls.length > 0 && (
-                <div className={s.previewGrid}>
-                  {previewUrls.map((url, i) => (
-                    <div key={url} className={s.previewItem}>
-                      <img src={url} alt={`Evidence ${i + 1}`} className={s.previewImg} />
+              {/* 3B: Photo Evidence */}
+              <div className="mb-5">
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">
+                  {t('submit.photosTitle')}
+                </label>
+                <div className={s.uploadDropArea}>
+                  <input
+                    type="file"
+                    id="fileUpload"
+                    multiple
+                    accept="image/*"
+                    onChange={handleImageFileChange}
+                    className={s.fileInput}
+                  />
+                  <div className={s.uploadIcon}>
+                    <Icon name="add_a_photo" size={26} />
+                  </div>
+                  <h4 className={s.uploadTitle}>{t('submit.selectPhotosBtn')}</h4>
+                  <p className={s.uploadSub}>{t('submit.photosHelp')}</p>
+                </div>
+
+                {previewUrls.length > 0 && (
+                  <div className={s.previewGrid}>
+                    {previewUrls.map((url, i) => (
+                      <div key={url} className={s.previewItem}>
+                        <img src={url} alt={`Photo ${i + 1}`} className={s.previewImg} />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(i)}
+                          className={s.removeImgBtn}
+                          aria-label="Remove image"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* 3C: Video Evidence */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">
+                  {t('submit.videoTitle')}
+                </label>
+                {!videoPreviewUrl ? (
+                  <div
+                    onClick={() => videoInputRef.current?.click()}
+                    className="p-5 border-2 border-dashed border-gray-300 hover:border-emerald-500 rounded-xl cursor-pointer bg-gray-50/60 hover:bg-emerald-50/20 transition-all text-center"
+                  >
+                    <input
+                      type="file"
+                      ref={videoInputRef}
+                      accept="video/mp4,video/webm,video/*"
+                      onChange={handleVideoFileChange}
+                      className="hidden"
+                    />
+                    <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-600 mx-auto flex items-center justify-center mb-2">
+                      <Icon name="videocam" size={22} />
+                    </div>
+                    <div className="text-xs font-bold text-gray-800">{t('submit.selectVideoBtn')}</div>
+                    <div className="text-[11px] text-gray-500 mt-1">{t('submit.videoHelp')}</div>
+                  </div>
+                ) : (
+                  <div className={s.videoContainer}>
+                    <video
+                      controls
+                      src={videoPreviewUrl}
+                      className={s.videoPlayer}
+                    />
+                    <div className={s.videoFooter}>
+                      <span className="truncate max-w-[200px]">
+                        {videoFile?.name || 'On-site video evidence'}
+                      </span>
                       <button
                         type="button"
-                        onClick={() => handleRemoveImage(i)}
-                        className={s.removeImgBtn}
-                        aria-label="Remove image"
+                        onClick={handleRemoveVideo}
+                        className={s.removeVideoBtn}
                       >
-                        ×
+                        {t('submit.removeVideoBtn')}
                       </button>
                     </div>
-                  ))}
-                </div>
-              )}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Submit Action */}
@@ -442,109 +546,82 @@ export const SubmitComplaint: React.FC = () => {
               className={s.submitBtn}
             >
               <Icon name="send" size={18} />
-              <span>{isSubmitting ? 'Submitting Grievance...' : 'Submit Grievance'}</span>
+              <span>{isSubmitting ? t('common.submitting') : t('submit.submitBtn')}</span>
             </button>
           </form>
         </div>
 
-        {/* Right Column: AI Auto-Triage Section */}
+        {/* Right Column: Municipal Jurisdiction & Guidelines */}
         <div className={s.sidebarCol}>
-          {/* AI Model Auto-Triage Card (Section 8 & 9) */}
           <div className={s.triageCard}>
             <div className={s.triageHeader}>
               <div className={s.triageTitleGroup}>
                 <h4 className={s.triageTitle}>
-                  <Icon name="smart_toy" size={20} style={{ color: 'var(--cz-accent-blue, #5b9fcb)' }} />
-                  <span>AI Model Auto-Triage</span>
+                  <Icon name="account_balance" size={20} style={{ color: 'var(--cz-accent-blue, #5b9fcb)' }} />
+                  <span>Municipal Jurisdiction</span>
                 </h4>
                 <p className={s.triageSubtitle}>
-                  Your complaint is analyzed automatically using CivicSetu's trained ML models.
+                  Transparent, deterministic routing to jurisdictional field engineers.
                 </p>
               </div>
-              <span className={s.aiStatusPill}>
-                <span className={s.pulseDot} />
-                {isAnalyzing ? 'Analyzing...' : aiPrediction ? 'Classified' : 'Ready'}
-              </span>
             </div>
 
-            {isAnalyzing ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '16px 0', color: 'var(--cz-secondary-text, #64748b)', fontSize: 13 }}>
-                <span className={s.pulseDot} />
-                <span>Analyzing your complaint with trained ML models...</span>
+            <div className={s.aiResultBox}>
+              <div className={s.aiBadgeRow}>
+                <span className={s.aiBadgeLabel}>{t('common.category')}</span>
+                <span className={s.aiBadgeValue}>
+                  {t(`categories.${selectedCategory}`)}
+                </span>
               </div>
-            ) : (
-              <div className={s.aiResultBox}>
-                <div className={s.aiBadgeRow}>
-                  <span className={s.aiBadgeLabel}>Category</span>
-                  <span className={s.aiBadgeValue}>
-                    {aiPrediction ? displayCategory : 'Pending input...'}
-                  </span>
-                </div>
 
-                <div className={s.aiBadgeRow}>
-                  <span className={s.aiBadgeLabel}>Department</span>
-                  <span className={s.aiBadgeValue} style={{ color: 'var(--cz-accent-blue-dark, #2c6e97)' }}>
-                    {aiPrediction ? displayDepartment : 'Auto-routed by AI'}
-                  </span>
-                </div>
+              <div className={s.aiBadgeRow}>
+                <span className={s.aiBadgeLabel}>{t('submit.assignedDept')}</span>
+                <span className={s.aiBadgeValue} style={{ color: 'var(--cz-accent-blue-dark, #2c6e97)' }}>
+                  {t(currentDept.nameKey)}
+                </span>
+              </div>
 
-                <div className={s.aiBadgeRow}>
-                  <span className={s.aiBadgeLabel}>Priority</span>
-                  <div>
-                    {aiPrediction ? (
-                      <span
-                        className={
-                          displayPriority === 'HIGH'
-                            ? s.badgePriorityHigh
-                            : displayPriority === 'LOW'
-                            ? s.badgePriorityLow
-                            : s.badgePriorityMedium
-                        }
-                      >
-                        {displayPriority}
-                      </span>
-                    ) : (
-                      <span className={s.badgePriorityMedium}>MEDIUM</span>
-                    )}
-                  </div>
-                </div>
-
-                {displayConfidence !== null && (
-                  <div className={s.aiBadgeRow} style={{ flexDirection: 'column', alignItems: 'stretch', gap: 6 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span className={s.aiBadgeLabel}>Confidence</span>
-                      <strong style={{ fontSize: 13, color: '#0f172a' }}>{displayConfidence}%</strong>
-                    </div>
-                    <div className={s.confidenceTrack}>
-                      <div className={s.confidenceFill} style={{ width: `${displayConfidence}%` }} />
-                    </div>
-                  </div>
-                )}
-
-                <div className={s.aiBadgeRow}>
-                  <span className={s.aiBadgeLabel}>SLA</span>
-                  <span className={s.aiBadgeValue} style={{ fontSize: 12.5, color: 'var(--cz-secondary-text, #64748b)' }}>
-                    {displaySla ? displaySla : 'SLA: Being calculated'}
+              <div className={s.aiBadgeRow}>
+                <span className={s.aiBadgeLabel}>{t('common.priority')}</span>
+                <div>
+                  <span
+                    className={
+                      selectedPriority === 'URGENT' || selectedPriority === 'HIGH'
+                        ? s.badgePriorityHigh
+                        : selectedPriority === 'LOW'
+                        ? s.badgePriorityLow
+                        : s.badgePriorityMedium
+                    }
+                  >
+                    {t(`priorities.${selectedPriority}`)}
                   </span>
                 </div>
               </div>
-            )}
+
+              <div className={s.aiBadgeRow}>
+                <span className={s.aiBadgeLabel}>Estimated SLA</span>
+                <span className={s.aiBadgeValue} style={{ fontSize: 12.5, color: 'var(--cz-secondary-text, #64748b)' }}>
+                  {currentDept.defaultSla}
+                </span>
+              </div>
+            </div>
           </div>
 
           {/* Filing Guidelines Card */}
           <div className={s.guidelinesCard}>
             <h4 className={s.guidelinesTitle}>Filing Guidelines</h4>
             <ul className={s.guideList}>
-              <li>Department and priority are automatically classified by trained AI models.</li>
-              <li>Include prominent landmarks or building names in your address.</li>
-              <li>Upload clear, well-lit photos showing the scale of the issue.</li>
-              <li>Track real-time progress anytime with your tracking code.</li>
+              <li>Select the municipal category matching your issue for direct jurisdictional dispatch.</li>
+              <li>Include prominent landmarks, street names, or ward numbers.</li>
+              <li>Voice recordings allow instant reporting in your native language.</li>
+              <li>Upload photos and video clips to prove physical ground severity.</li>
+              <li>Use the generated Tracking Code anytime to track inspection and repairs.</li>
             </ul>
           </div>
         </div>
       </div>
 
-      {/* ================= COMPLAINT SUCCESS SCREEN / MODAL (SECTION 13) ================= */}
+      {/* ================= COMPLAINT SUCCESS SCREEN / MODAL ================= */}
       {submittedData && (
         <div className={s.successOverlay}>
           <div className={s.successCard}>
@@ -552,25 +629,25 @@ export const SubmitComplaint: React.FC = () => {
               <Icon name="check" size={32} />
             </div>
 
-            <h3 className={s.successTitle}>✓ Complaint Registered</h3>
+            <h3 className={s.successTitle}>{t('submit.successModalTitle')}</h3>
             <p className={s.successMsg}>
-              Your grievance has been successfully submitted to the concerned municipal department.
+              {t('submit.successModalSubtitle')}
             </p>
 
             <div className={s.trackingBox}>
-              <span className={s.trackingBoxLabel}>Complaint ID</span>
+              <span className={s.trackingBoxLabel}>{t('common.trackingCode')}</span>
               <span className={s.trackingBoxCode}>{submittedData.tracking_code}</span>
             </div>
 
             <div className={s.successDetailsRow}>
               <div>
-                <span style={{ fontSize: 11, color: 'var(--cz-secondary-text, #64748b)', display: 'block' }}>Status</span>
+                <span style={{ fontSize: 11, color: 'var(--cz-secondary-text, #64748b)', display: 'block' }}>{t('common.status')}</span>
                 <span className={s.badgePriorityMedium} style={{ display: 'inline-block', marginTop: 4 }}>
-                  {submittedData.status}
+                  {t(`statuses.${submittedData.status}`) || submittedData.status}
                 </span>
               </div>
               <div>
-                <span style={{ fontSize: 11, color: 'var(--cz-secondary-text, #64748b)', display: 'block' }}>Department</span>
+                <span style={{ fontSize: 11, color: 'var(--cz-secondary-text, #64748b)', display: 'block' }}>{t('submit.assignedDept')}</span>
                 <strong style={{ fontSize: 13, color: '#0f172a', display: 'inline-block', marginTop: 4 }}>
                   {submittedData.department_name}
                 </strong>
@@ -583,15 +660,26 @@ export const SubmitComplaint: React.FC = () => {
                 className={s.successBtnTrack}
               >
                 <Icon name="search" size={16} />
-                <span>Track Status</span>
+                <span>{t('submit.trackNowBtn')}</span>
               </Link>
-              <Link
-                to="/citizen/complaints"
+              <button
+                type="button"
+                onClick={() => {
+                  setSubmittedData(null);
+                  setTitle('');
+                  setDescription('');
+                  setAddress('');
+                  setSelectedFiles([]);
+                  setPreviewUrls([]);
+                  setAudioFile(null);
+                  setVideoFile(null);
+                  setVideoPreviewUrl(null);
+                }}
                 className={s.successBtnList}
               >
-                <Icon name="assignment" size={16} />
-                <span>View My Grievances</span>
-              </Link>
+                <Icon name="add" size={16} />
+                <span>{t('submit.fileAnotherBtn')}</span>
+              </button>
             </div>
           </div>
         </div>
