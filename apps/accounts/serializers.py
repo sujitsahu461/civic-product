@@ -133,7 +133,10 @@ class RefreshTokenSerializer(serializers.Serializer):
     refresh = serializers.CharField()
 
     def validate(self, attrs):
-        attrs["tokens"] = TokenService.refresh_tokens(attrs["refresh"])
+        try:
+            attrs["tokens"] = TokenService.refresh_tokens(attrs["refresh"])
+        except ValueError as exc:
+            raise serializers.ValidationError({"refresh": str(exc)}) from exc
         return attrs
 
 
