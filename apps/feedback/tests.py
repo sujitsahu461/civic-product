@@ -152,6 +152,26 @@ class FeedbackAPITests(APITestCase):
         self.assertEqual(response.data["rating"], 5)
         self.assertEqual(response.data["complaint_tracking_code"], self.complaint.tracking_code)
 
+    def test_api_submit_feedback_requires_sign_in(self):
+        # Without a token the API must not rate on the owner's behalf.
+        payload = {"complaint_public_id": str(self.complaint.public_id), "rating": 1}
+        response = self.client.post(self.submit_url, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertFalse(Feedback.objects.filter(complaint=self.complaint).exists())
+
+    def test_api_submit_feedback_rejects_non_owner(self):
+        other = User.objects.create_user(
+            email="other_api_fb@example.com",
+            password="Password123!",
+            role=UserRole.CITIZEN,
+            full_name="Other Citizen",
+        )
+        self.client.force_authenticate(user=other)
+        payload = {"complaint_public_id": str(self.complaint.public_id), "rating": 1}
+        response = self.client.post(self.submit_url, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertFalse(Feedback.objects.filter(complaint=self.complaint).exists())
+
     def test_api_submit_feedback_invalid_rating(self):
         self.client.force_authenticate(user=self.citizen)
         payload = {

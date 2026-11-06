@@ -74,6 +74,31 @@ class AuditLogService:
         return audit_entry
 
     @classmethod
+    def safe_log(
+        cls,
+        action: str,
+        entity_type: str,
+        entity_id: str = "",
+        actor=None,
+        request=None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> Optional[AuditLog]:
+        """Like log_action, but never raises: a failed audit write must not
+        break the user's action. Failures are logged as errors instead."""
+        try:
+            return cls.log_action(
+                action=action,
+                entity_type=entity_type,
+                entity_id=entity_id,
+                actor=actor,
+                request=request,
+                metadata=metadata,
+            )
+        except Exception as exc:  # noqa: BLE001 - auditing must never break a request
+            logger.error("Audit log write failed for %s on %s:%s: %s", action, entity_type, entity_id, exc)
+            return None
+
+    @classmethod
     def query_logs(cls, filters: Dict[str, Any]):
         """Filter audit logs based on parameters."""
         queryset = AuditLog.objects.all()

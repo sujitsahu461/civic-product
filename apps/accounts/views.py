@@ -1,7 +1,6 @@
-from django.conf import settings
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import status
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -20,6 +19,8 @@ from apps.accounts.serializers import (
     UserSerializer,
 )
 from apps.accounts.services import TokenService
+from apps.audit_logs.models import AuditAction
+from apps.audit_logs.services import AuditLogService
 
 
 class CaptchaView(APIView):
@@ -45,13 +46,19 @@ class RegisterView(APIView):
         tags=["Authentication"],
         request=RegisterSerializer,
         responses={201: AuthResponseSerializer},
-        summary="Register a citizen or authority account",
+        summary="Register a citizen account",
+        description="Public sign-up creates citizen accounts only. Officer and administrator "
+        "accounts are created by a super admin via POST /api/v1/users/create/.",
     )
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         tokens = TokenService.issue_tokens(user)
+        AuditLogService.safe_log(
+            AuditAction.AUTH_REGISTER, "User", user.public_id, actor=user, request=request,
+            metadata={"email": user.email, "role": user.role},
+        )
         return Response(
             {"user": UserSerializer(user).data, "tokens": tokens},
             status=status.HTTP_201_CREATED,
@@ -67,13 +74,21 @@ class LoginView(APIView):
         tags=["Authentication"],
         request=LoginSerializer,
         responses={200: AuthResponseSerializer},
-        summary="Login with email, password, and optional captcha",
+        summary="Login with email, password and captcha",
     )
     def post(self, request):
         serializer = LoginSerializer(data=request.data, context={"request": request})
-        serializer.is_valid(raise_exception=True)
+        if not serializer.is_valid():
+            # Record failed sign-ins (bad password, bad captcha, inactive account).
+            AuditLogService.safe_log(
+                AuditAction.SYSTEM_EVENT, "User", str(request.data.get("email", ""))[:100],
+                request=request,
+                metadata={"event": "login_failed", "fields": sorted(serializer.errors.keys())},
+            )
+            raise ValidationError(serializer.errors)
         user = serializer.validated_data["user"]
         tokens = TokenService.issue_tokens(user)
+        AuditLogService.safe_log(AuditAction.AUTH_LOGIN, "User", user.public_id, actor=user, request=request)
         return Response({"user": UserSerializer(user).data, "tokens": tokens})
 
 
@@ -105,6 +120,9 @@ class LogoutView(APIView):
         serializer = LogoutSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         TokenService.blacklist_refresh_token(serializer.validated_data["refresh"])
+        AuditLogService.safe_log(
+            AuditAction.AUTH_LOGOUT, "User", request.user.public_id, actor=request.user, request=request
+        )
         return Response(status=status.HTTP_205_RESET_CONTENT)
 
 
@@ -134,20 +152,13 @@ class ForgotPasswordView(APIView):
     def post(self, request):
         serializer = ForgotPasswordSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
-        result = serializer.save() or {}
-        detail_msg = "If the account exists, a password reset email has been processed."
-        response_data = {
-            "detail": detail_msg,
-            "message": detail_msg,
-            "sent": result.get("sent", False),
-        }
-        if result.get("smtp_error"):
-            response_data["smtp_error"] = result["smtp_error"]
-        if getattr(settings, "DEBUG", False) or not result.get("sent"):
-            if result.get("reset_url"):
-                response_data["reset_url"] = result["reset_url"]
+        serializer.save()
 
-        return Response(response_data, status=status.HTTP_200_OK)
+        # Always return the same generic response. The reset link, SMTP errors and
+        # whether the account exists must never reach the caller: returning the link
+        # would let anyone reset any account. Failures are logged server-side.
+        detail_msg = "If the account exists, a password reset email has been sent."
+        return Response({"detail": detail_msg, "message": detail_msg}, status=status.HTTP_200_OK)
 
 
 class ResetPasswordView(APIView):
@@ -165,6 +176,11 @@ class ResetPasswordView(APIView):
         serializer = ResetPasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        user = serializer.validated_data["user"]
+        AuditLogService.safe_log(
+            AuditAction.PASSWORD_CHANGE, "User", user.public_id, actor=user, request=request,
+            metadata={"method": "reset_link"},
+        )
         return Response({
             "detail": "Password has been reset successfully.",
             "message": "Password has been reset successfully.",

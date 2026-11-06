@@ -12,6 +12,7 @@ from rest_framework.test import APIClient
 from apps.accounts.models import UserRole
 from apps.complaint_history.models import ComplaintHistory, HistoryAction
 from apps.complaints.models import Complaint, ComplaintCategory, ComplaintPriority, ComplaintStatus
+from apps.complaints.scoping import categories_for_department_name
 from apps.complaints.services import ComplaintService
 from apps.departments.models import Department, DepartmentAuthority
 from apps.notifications.models import Notification, NotificationType
@@ -47,9 +48,15 @@ def _get_department(name="Road"):
 
 
 def _create_complaint(citizen, dept=None, title="Test Complaint", **kwargs):
+    # Default to a category the given department handles, so officers of that
+    # department can see the complaint (department scoping).
+    category = kwargs.get("category")
+    if category is None and dept is not None:
+        dept_categories = sorted(categories_for_department_name(dept.name))
+        category = dept_categories[0] if dept_categories else None
     return ComplaintService.create_complaint(
         citizen=citizen,
-        category=kwargs.get("category", ComplaintCategory.ROAD),
+        category=category or ComplaintCategory.ROAD,
         title=title,
         description=kwargs.get("description", "Test description"),
         location_address=kwargs.get("location_address", "Test Address"),
@@ -642,3 +649,95 @@ class AuthorityAIRoutedComplaintLifecycleTests(TestCase):
             self.assertEqual(track_resp.data["priority"], ComplaintPriority.URGENT)
             self.assertIn("Fully resolved and verified.", track_resp.data["resolution_notes"])
             self.assertGreaterEqual(len(track_resp.data["images"]), 1)
+
+
+# ===========================================================================
+# Department scoping, mandatory notes and audit trail (security hardening)
+# ===========================================================================
+class DepartmentScopingAndAuditTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.citizen = _make_user(UserRole.CITIZEN, email="scope_cit@example.com")
+        self.road_officer = _make_user(UserRole.AUTHORITY, email="scope_road@example.com")
+        self.water_officer = _make_user(UserRole.AUTHORITY, email="scope_water@example.com")
+        self.no_dept_officer = _make_user(UserRole.AUTHORITY, email="scope_nodept@example.com")
+        self.admin = _make_user(UserRole.SUPER_ADMIN, email="scope_admin@example.com")
+        DepartmentAuthority.objects.create(department=_get_department("Public Works Department"), user=self.road_officer)
+        DepartmentAuthority.objects.create(department=_get_department("Water"), user=self.water_officer)
+        self.road_complaint = _create_complaint(
+            self.citizen, title="Pothole near school", category=ComplaintCategory.ROAD
+        )
+
+    def _queue_codes(self, user):
+        self.client.force_authenticate(user=user)
+        response = self.client.get(reverse("authority-complaint-list"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        return {row["tracking_code"] for row in response.data["results"]}
+
+    def test_officer_sees_only_own_department_complaints(self):
+        code = self.road_complaint.tracking_code
+        self.assertIn(code, self._queue_codes(self.road_officer))
+        self.assertNotIn(code, self._queue_codes(self.water_officer))
+        self.assertNotIn(code, self._queue_codes(self.no_dept_officer))
+        self.assertIn(code, self._queue_codes(self.admin))
+
+        # The general complaint list applies the same rule.
+        self.client.force_authenticate(user=self.water_officer)
+        response = self.client.get(reverse("complaint-list"))
+        self.assertNotIn(code, {row["tracking_code"] for row in response.data["results"]})
+
+    def test_officer_cannot_open_or_change_other_department_complaint(self):
+        kwargs = {"public_id": self.road_complaint.public_id}
+        self.client.force_authenticate(user=self.water_officer)
+
+        detail = self.client.get(reverse("authority-complaint-detail", kwargs=kwargs))
+        change = self.client.patch(
+            reverse("authority-complaint-status", kwargs=kwargs),
+            {"status": ComplaintStatus.IN_PROGRESS},
+            format="json",
+        )
+
+        self.assertEqual(detail.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(change.status_code, status.HTTP_403_FORBIDDEN)
+        self.road_complaint.refresh_from_db()
+        self.assertEqual(self.road_complaint.status, ComplaintStatus.PENDING)
+
+    def test_direct_assignment_grants_access_without_department(self):
+        self.road_complaint.assigned_authority = self.no_dept_officer
+        self.road_complaint.save(update_fields=["assigned_authority"])
+        self.assertIn(self.road_complaint.tracking_code, self._queue_codes(self.no_dept_officer))
+
+    def test_new_complaint_notifies_only_responsible_department(self):
+        self.assertTrue(
+            Notification.objects.filter(recipient=self.road_officer, complaint=self.road_complaint).exists()
+        )
+        self.assertFalse(
+            Notification.objects.filter(recipient=self.water_officer, complaint=self.road_complaint).exists()
+        )
+
+    def test_resolve_without_notes_is_refused(self):
+        self.client.force_authenticate(user=self.road_officer)
+        url = reverse("authority-complaint-status", kwargs={"public_id": self.road_complaint.public_id})
+        refused = self.client.patch(url, {"status": ComplaintStatus.RESOLVED}, format="json")
+        reject_refused = self.client.patch(url, {"status": ComplaintStatus.REJECTED, "remarks": " "}, format="json")
+        accepted = self.client.patch(
+            url, {"status": ComplaintStatus.RESOLVED, "remarks": "Pothole filled."}, format="json"
+        )
+
+        self.assertEqual(refused.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(reject_refused.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(accepted.status_code, status.HTTP_200_OK)
+
+    def test_status_change_is_written_to_audit_log(self):
+        from apps.audit_logs.models import AuditAction, AuditLog
+
+        self.client.force_authenticate(user=self.road_officer)
+        url = reverse("authority-complaint-status", kwargs={"public_id": self.road_complaint.public_id})
+        self.client.patch(url, {"status": ComplaintStatus.IN_PROGRESS}, format="json")
+
+        entry = AuditLog.objects.get(
+            action=AuditAction.COMPLAINT_STATUS_UPDATE, entity_id=self.road_complaint.tracking_code
+        )
+        self.assertEqual(entry.actor, self.road_officer)
+        self.assertEqual(entry.metadata["old_status"], ComplaintStatus.PENDING)
+        self.assertEqual(entry.metadata["new_status"], ComplaintStatus.IN_PROGRESS)

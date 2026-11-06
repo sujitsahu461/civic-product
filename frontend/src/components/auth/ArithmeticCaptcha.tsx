@@ -19,6 +19,9 @@ export const ArithmeticCaptcha: React.FC<ArithmeticCaptchaProps> = ({
   const [userInput, setUserInput] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [hasInteracted, setHasInteracted] = useState<boolean>(false);
+  // True when the server challenge could not be loaded. The server only accepts
+  // its own signed challenges, so sign-in stays blocked until a refresh succeeds.
+  const [loadError, setLoadError] = useState<boolean>(false);
 
   const onVerifyRef = React.useRef(onVerify);
   useEffect(() => {
@@ -94,12 +97,15 @@ export const ArithmeticCaptcha: React.FC<ArithmeticCaptchaProps> = ({
         }
         setUserInput('');
         setHasInteracted(false);
+        setLoadError(false);
         onVerifyRef.current(res.captcha_key, '', false);
       } else {
         generateLocalProblem();
+        setLoadError(true);
       }
     } catch {
       generateLocalProblem();
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -117,7 +123,7 @@ export const ArithmeticCaptcha: React.FC<ArithmeticCaptchaProps> = ({
     setHasInteracted(true);
 
     const parsed = parseInt(val, 10);
-    const isCorrect = !isNaN(parsed) && parsed === expectedAnswer;
+    const isCorrect = !loadError && !isNaN(parsed) && parsed === expectedAnswer;
     onVerify(captchaKey, val, isCorrect);
   };
 
@@ -135,7 +141,7 @@ export const ArithmeticCaptcha: React.FC<ArithmeticCaptchaProps> = ({
     }
   };
 
-  const isAnswerCorrect = hasInteracted && parseInt(userInput, 10) === expectedAnswer;
+  const isAnswerCorrect = !loadError && hasInteracted && parseInt(userInput, 10) === expectedAnswer;
   const isAnswerWrong = hasInteracted && userInput.length > 0 && parseInt(userInput, 10) !== expectedAnswer;
 
   return (
@@ -182,6 +188,12 @@ export const ArithmeticCaptcha: React.FC<ArithmeticCaptchaProps> = ({
           </button>
         </div>
       </div>
+
+      {loadError && (
+        <p className={s.instruction} role="alert" style={{ color: '#b91c1c', fontWeight: 600 }}>
+          Could not load the security check from the server. Press refresh to try again.
+        </p>
+      )}
 
       <div className={s.inputRow}>
         <div className={s.inputWrapper}>

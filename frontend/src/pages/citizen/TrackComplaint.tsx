@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import useComplaintStore from '../../store/complaintStore';
+import useAuthStore from '../../store/authStore';
 import feedbackService from '../../services/feedback.service';
 import { useToast } from '../../components/ui/Toast';
 import Icon from '../../components/ui/Icon';
@@ -16,6 +17,9 @@ export const TrackComplaint: React.FC = () => {
   const { selectedComplaint, timeline, isLoading, error, trackComplaint, fetchTimeline } =
     useComplaintStore();
   const { error: toastError, success } = useToast();
+  // Ratings require sign-in; the API also checks that this citizen filed the complaint.
+  const { user, isAuthenticated } = useAuthStore();
+  const canRate = isAuthenticated && user?.role === 'CITIZEN';
 
   const [inputCode, setInputCode] = useState(initialCode);
   const [rating, setRating] = useState(5);
@@ -141,8 +145,8 @@ export const TrackComplaint: React.FC = () => {
       });
       success(t('track.feedbackThanks'));
       setFeedbackSubmitted(true);
-    } catch {
-      toastError('Could not submit feedback.');
+    } catch (err: any) {
+      toastError(err?.message || 'Could not submit feedback.');
     } finally {
       setIsSubmittingFeedback(false);
     }
@@ -252,6 +256,18 @@ export const TrackComplaint: React.FC = () => {
               <span className={s.metaVal}>{formatDate(selectedComplaint.created_at)}</span>
             </div>
           </div>
+
+          {/* Evidence is only shared with the citizen who filed it and municipal staff */}
+          {selectedComplaint.evidence_hidden && (
+            <p style={{ margin: '0 0 16px 0', fontSize: 13, color: 'var(--cz-secondary-text, #64748b)' }}>
+              {t('track.evidenceHidden', 'Photos and recordings are visible only to the citizen who filed this complaint and municipal staff.')}{' '}
+              {!isAuthenticated && (
+                <Link to="/login/citizen" style={{ color: '#16a34a', fontWeight: 700 }}>
+                  {t('track.signInToSeeEvidence', 'Sign in to see them')}
+                </Link>
+              )}
+            </p>
+          )}
 
           {/* Multimedia Evidence Section */}
           {(imageAttachments.length > 0 || audioAttachments.length > 0 || videoAttachments.length > 0) && (
@@ -383,6 +399,14 @@ export const TrackComplaint: React.FC = () => {
                 {t('track.rateDesc')}
               </p>
 
+              {!canRate ? (
+                <p style={{ margin: 0, fontSize: 13.5, color: 'var(--cz-secondary-text, #64748b)' }}>
+                  {t('track.signInToRate', 'Only the citizen who filed this complaint can rate it.')}{' '}
+                  <Link to="/login/citizen" style={{ color: '#16a34a', fontWeight: 700 }}>
+                    {t('track.signInToRateLink', 'Sign in to rate')}
+                  </Link>
+                </p>
+              ) : (
               <form onSubmit={handleFeedbackSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   {[1, 2, 3, 4, 5].map((star) => (
@@ -426,6 +450,7 @@ export const TrackComplaint: React.FC = () => {
                   <span>{isSubmittingFeedback ? t('common.submitting') : t('track.submitFeedback')}</span>
                 </button>
               </form>
+              )}
             </div>
           )}
         </div>

@@ -19,6 +19,8 @@ from apps.departments.serializers import (
     UpdateAuthoritySerializer,
 )
 from apps.departments.services import DepartmentAuthorityService, DepartmentService
+from apps.audit_logs.models import AuditAction
+from apps.audit_logs.services import AuditLogService
 from apps.users.permissions import IsActiveUser
 
 
@@ -86,6 +88,10 @@ class DepartmentCreateView(APIView):
         except ValueError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
+        AuditLogService.safe_log(
+            AuditAction.DEPARTMENT_CREATED, "Department", department.public_id, request=request,
+            metadata={"name": department.name},
+        )
         return Response(DepartmentSerializer(department).data, status=status.HTTP_201_CREATED)
 
 
@@ -142,6 +148,10 @@ class DepartmentUpdateView(APIView):
         )
         serializer.is_valid(raise_exception=True)
         department = DepartmentService.update_department(department, serializer.validated_data)
+        AuditLogService.safe_log(
+            AuditAction.DEPARTMENT_UPDATED, "Department", department.public_id, request=request,
+            metadata={"name": department.name, "fields": sorted(serializer.validated_data.keys())},
+        )
         return Response(DepartmentSerializer(department).data)
 
 
@@ -162,6 +172,10 @@ class DepartmentDeactivateView(APIView):
             return _department_not_found()
 
         DepartmentService.deactivate_department(department)
+        AuditLogService.safe_log(
+            AuditAction.DEPARTMENT_UPDATED, "Department", department.public_id, request=request,
+            metadata={"name": department.name, "event": "deactivated"},
+        )
         return Response({"detail": "Department deactivated."})
 
 
@@ -226,6 +240,10 @@ class AssignAuthorityView(APIView):
         except ValueError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
+        AuditLogService.safe_log(
+            AuditAction.AUTHORITY_ASSIGNED, "Department", department.public_id, request=request,
+            metadata={"event": "assigned", "user": str(user.public_id), "is_head": assignment.is_head},
+        )
         return Response(
             DepartmentAuthoritySerializer(assignment).data,
             status=status.HTTP_201_CREATED,
@@ -258,6 +276,10 @@ class RemoveAuthorityView(APIView):
         except ValueError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
+        AuditLogService.safe_log(
+            AuditAction.AUTHORITY_ASSIGNED, "Department", department.public_id, request=request,
+            metadata={"event": "removed", "user": str(user.public_id)},
+        )
         return Response({"detail": "Authority removed from department."})
 
 
@@ -291,6 +313,10 @@ class UpdateAuthorityView(APIView):
         serializer = UpdateAuthoritySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         assignment = DepartmentAuthorityService.update_authority(assignment, serializer.validated_data)
+        AuditLogService.safe_log(
+            AuditAction.AUTHORITY_ASSIGNED, "Department", department.public_id, request=request,
+            metadata={"event": "updated", "user": str(assignment.user.public_id), "fields": sorted(serializer.validated_data.keys())},
+        )
         return Response(DepartmentAuthoritySerializer(assignment).data)
 
 

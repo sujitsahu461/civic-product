@@ -23,7 +23,10 @@ from apps.complaints.serializers import (
     ComplaintStatusUpdateSerializer,
     ComplaintTrackingSerializer,
 )
+from apps.complaints.scoping import can_access_complaint
 from apps.complaints.services import ComplaintSearchService, ComplaintService
+from apps.audit_logs.models import AuditAction
+from apps.audit_logs.services import AuditLogService
 from apps.users.permissions import IsActiveUser
 
 
@@ -38,6 +41,40 @@ def _get_complaint_or_404(public_id):
 
 def _complaint_not_found():
     return Response({"detail": "Complaint not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+GUEST_CITIZEN_EMAIL = "guest_citizen@civicsetu.local"
+
+
+def _locked_guest_citizen():
+    """The shared owner of complaints filed without signing in.
+
+    It must never be usable as a real account (anyone signed in as it would see
+    every guest complaint), so it is kept inactive with an unusable password:
+    sign-in and password reset both refuse it. Guests follow their complaint by
+    tracking code instead.
+    """
+    from django.contrib.auth import get_user_model
+
+    from apps.accounts.models import UserStatus
+
+    User = get_user_model()
+    guest, _ = User.objects.get_or_create(
+        email=GUEST_CITIZEN_EMAIL,
+        defaults={
+            "username": GUEST_CITIZEN_EMAIL,
+            "full_name": "Resident Citizen",
+            "role": UserRole.CITIZEN,
+            "is_active": False,
+            "status": UserStatus.INACTIVE,
+        },
+    )
+    if guest.is_active or guest.has_usable_password() or guest.status != UserStatus.INACTIVE:
+        guest.set_unusable_password()
+        guest.is_active = False
+        guest.status = UserStatus.INACTIVE
+        guest.save(update_fields=["password", "is_active", "status", "updated_at"])
+    return guest
 
 
 # ---------------------------------------------------------------------------
@@ -107,16 +144,7 @@ class ComplaintCreateView(APIView):
 
         citizen = request.user if request.user and request.user.is_authenticated else None
         if not citizen:
-            from django.contrib.auth import get_user_model
-            User = get_user_model()
-            citizen, _ = User.objects.get_or_create(
-                email="guest_citizen@civicsetu.local",
-                defaults={
-                    "full_name": "Resident Citizen",
-                    "role": UserRole.CITIZEN,
-                    "is_active": True,
-                }
-            )
+            citizen = _locked_guest_citizen()
 
         try:
             complaint = ComplaintService.create_complaint(
@@ -136,6 +164,14 @@ class ComplaintCreateView(APIView):
         except ValueError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
+        AuditLogService.safe_log(
+            AuditAction.COMPLAINT_CREATED, "Complaint", complaint.tracking_code, request=request,
+            metadata={
+                "category": complaint.category,
+                "priority": complaint.priority,
+                "guest": not (request.user and request.user.is_authenticated),
+            },
+        )
         return Response(ComplaintDetailSerializer(complaint).data, status=status.HTTP_201_CREATED)
 
 
@@ -187,6 +223,7 @@ class ComplaintStatusUpdateView(APIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
 
+        old_status = complaint.status
         try:
             complaint = ComplaintService.update_status(
                 complaint=complaint,
@@ -197,6 +234,10 @@ class ComplaintStatusUpdateView(APIView):
         except ValueError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
+        AuditLogService.safe_log(
+            AuditAction.COMPLAINT_STATUS_UPDATE, "Complaint", complaint.tracking_code, request=request,
+            metadata={"old_status": old_status, "new_status": complaint.status},
+        )
         return Response(ComplaintDetailSerializer(complaint).data)
 
 
@@ -234,6 +275,10 @@ class ComplaintAssignView(APIView):
         except ValueError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
+        AuditLogService.safe_log(
+            AuditAction.COMPLAINT_ASSIGNED, "Complaint", complaint.tracking_code, request=request,
+            metadata={"assigned_to": str(authority_user.public_id)},
+        )
         return Response(ComplaintDetailSerializer(complaint).data)
 
 
@@ -339,7 +384,10 @@ class ComplaintTimelineView(APIView):
             return _complaint_not_found()
 
         history_qs = ComplaintService.get_timeline(complaint)
-        return Response(ComplaintHistorySerializer(history_qs, many=True).data)
+        # Anyone with the ID may read the timeline, but only the owner, responsible
+        # officers and super admins see names and unmasked remarks.
+        public = not can_access_complaint(request.user, complaint)
+        return Response(ComplaintHistorySerializer(history_qs, many=True, context={"public": public}).data)
 
 
 class ComplaintTrackingView(APIView):
@@ -360,4 +408,5 @@ class ComplaintTrackingView(APIView):
                 {"detail": "No complaint found matching the provided tracking code."},
                 status=status.HTTP_404_NOT_FOUND,
             )
-        return Response(ComplaintTrackingSerializer(complaint).data)
+        # Evidence files are only returned to the owner, responsible officers and admins.
+        return Response(ComplaintTrackingSerializer(complaint, context={"request": request}).data)

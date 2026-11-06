@@ -30,7 +30,6 @@ export const ResetPassword: React.FC = () => {
   const [isDone, setIsDone] = useState(false);
   const [sendingLink, setSendingLink] = useState(false);
   const [emailLinkSent, setEmailLinkSent] = useState(false);
-  const [generatedResetUrl, setGeneratedResetUrl] = useState('');
 
   const handleSendEmailLink = async () => {
     if (!email.trim()) {
@@ -40,12 +39,10 @@ export const ResetPassword: React.FC = () => {
     setFormError('');
     setSendingLink(true);
     try {
-      const res: any = await forgotPassword(email.trim());
+      // The API never returns the reset link; it only arrives by email.
+      await forgotPassword(email.trim());
       setEmailLinkSent(true);
-      if (res?.reset_url) {
-        setGeneratedResetUrl(res.reset_url);
-      }
-      success('Password reset request processed! Check your email or use the link below.');
+      success('If an account exists for this email, a reset link has been sent to it.');
     } catch (err: any) {
       let msg = 'Failed to dispatch reset email.';
       if (err.message) msg = err.message;
@@ -289,27 +286,8 @@ export const ResetPassword: React.FC = () => {
                   }}>
                     <div style={{ fontWeight: 700, marginBottom: '4px' }}>✓ Reset Request Dispatched!</div>
                     <p style={{ margin: '0 0 8px 0', color: '#166534', lineHeight: 1.5 }}>
-                      If an active account exists for <strong>{email}</strong>, a secure password reset link has been processed.
+                      If an active account exists for <strong>{email}</strong>, a password reset link has been sent to that inbox.
                     </p>
-                    {generatedResetUrl && (
-                      <div style={{ marginTop: '8px' }}>
-                        <span style={{ fontSize: '11px', fontWeight: 700, color: '#047857' }}>DEV MODE DIRECT RESET LINK:</span>
-                        <a
-                          href={generatedResetUrl}
-                          style={{
-                            display: 'block',
-                            marginTop: '4px',
-                            wordBreak: 'break-all',
-                            color: '#2563eb',
-                            textDecoration: 'underline',
-                            fontSize: '12px',
-                            fontWeight: 600
-                          }}
-                        >
-                          {generatedResetUrl}
-                        </a>
-                      </div>
-                    )}
                   </div>
                 )}
 

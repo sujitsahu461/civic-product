@@ -245,9 +245,9 @@ export const AuthorityLogin: React.FC = () => {
             </form>
 
             <div className={s.footerText} style={{ marginTop: '16px' }}>
-              Need municipal authority credentials?{' '}
+              Need an officer account?{' '}
               <Link to="/signup/authority" className={s.signupLink} style={{ color: '#2563eb' }}>
-                Register as Authority
+                See how to get one
               </Link>
             </div>
 

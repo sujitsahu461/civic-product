@@ -130,12 +130,8 @@ def verify_captcha(captcha_key: str, user_code: str) -> tuple[bool, str | None]:
 
     user_val = str(user_code).strip()
 
-    if captcha_key in ("local", "fallback", "arithmetic") or captcha_key.startswith("local:"):
-        # Client-evaluated challenge
-        if len(user_val) >= 1:
-            return True, None
-        return False, "Please enter the arithmetic captcha answer."
-
+    # Only server-signed challenges are accepted. (Client-generated "local"
+    # challenges used to pass with any answer, which made the check useless.)
     signer = TimestampSigner(salt=CAPTCHA_SALT)
     try:
         original_code = signer.unsign(captcha_key, max_age=CAPTCHA_EXPIRY_SECONDS)

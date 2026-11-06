@@ -208,6 +208,15 @@ export const ComplaintManagement: React.FC = () => {
   const handleStatusSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedComplaint) return;
+    // The API requires a written record to resolve or reject (resolution notes / reason).
+    if (newStatus === 'REJECTED' && !statusRemarks.trim()) {
+      toastError('Please give a reason for rejecting this complaint.');
+      return;
+    }
+    if (newStatus === 'RESOLVED' && !statusRemarks.trim() && !selectedComplaint.resolution_notes?.trim()) {
+      toastError('Please add resolution notes describing what was done.');
+      return;
+    }
     setModalLoading(true);
     try {
       await authorityService.updateComplaintStatus(
@@ -248,6 +257,10 @@ export const ComplaintManagement: React.FC = () => {
   const handleResolutionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedComplaint) return;
+    if (!resolutionNotes.trim() && !selectedComplaint.resolution_notes?.trim()) {
+      toastError('Please add resolution notes describing what was done.');
+      return;
+    }
     setModalLoading(true);
     try {
       if (resolutionNotes) {
@@ -265,7 +278,7 @@ export const ComplaintManagement: React.FC = () => {
         await authorityService.updateComplaintStatus(
           selectedComplaint.public_id,
           'RESOLVED',
-          resolutionNotes || 'Grievance work completed and verified by officer.'
+          resolutionNotes.trim() || selectedComplaint.resolution_notes || ''
         );
       }
       success(`Complaint ${selectedComplaint.tracking_code} resolution updated successfully.`);

@@ -22,9 +22,6 @@ interface AuthStore {
   forgotPassword: (email: string) => Promise<{
     message: string;
     detail?: string;
-    sent?: boolean;
-    smtp_error?: string;
-    reset_url?: string;
   }>;
   resetPassword: (payload: ResetPasswordPayload) => Promise<{ message: string }>;
   updateProfile: (payload: Partial<User>) => Promise<User>;

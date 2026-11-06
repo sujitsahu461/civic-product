@@ -19,6 +19,16 @@ from apps.users.serializers import (
     UserSearchSerializer,
 )
 from apps.users.services import UserProfileService, UserSearchService
+from apps.audit_logs.models import AuditAction
+from apps.audit_logs.services import AuditLogService
+
+
+def _audit_profile_update(request, user, validated_data):
+    """Record a self-service profile change (field names only, not values)."""
+    AuditLogService.safe_log(
+        AuditAction.PROFILE_UPDATE, "User", user.public_id, request=request,
+        metadata={"fields": sorted(validated_data.keys())},
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -89,6 +99,7 @@ class UpdateProfileView(APIView):
         )
         serializer.is_valid(raise_exception=True)
         user = UserProfileService.update_profile(request.user, serializer.validated_data)
+        _audit_profile_update(request, user, serializer.validated_data)
         return Response(AdminProfileSerializer(user).data)
 
     @extend_schema(
@@ -104,6 +115,7 @@ class UpdateProfileView(APIView):
         )
         serializer.is_valid(raise_exception=True)
         user = UserProfileService.update_profile(request.user, serializer.validated_data)
+        _audit_profile_update(request, user, serializer.validated_data)
         return Response(AdminProfileSerializer(user).data)
 
 
@@ -124,6 +136,10 @@ class UploadProfileImageView(APIView):
         serializer = ProfileImageSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+        AuditLogService.safe_log(
+            AuditAction.PROFILE_UPDATE, "User", user.public_id, request=request,
+            metadata={"fields": ["profile_image"]},
+        )
         return Response(AdminProfileSerializer(user).data)
 
 
@@ -149,6 +165,10 @@ class ChangePasswordView(APIView):
         serializer = ChangePasswordSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        AuditLogService.safe_log(
+            AuditAction.PASSWORD_CHANGE, "User", request.user.public_id, request=request,
+            metadata={"method": "change_password"},
+        )
         return Response({"detail": "Password changed successfully."})
 
 
@@ -311,6 +331,10 @@ class UserDetailView(APIView):
         target_user.is_active = False
         target_user.status = UserStatus.SUSPENDED
         target_user.save()
+        AuditLogService.safe_log(
+            AuditAction.PROFILE_UPDATE, "User", target_user.public_id, request=request,
+            metadata={"event": "user_suspended", "email": target_user.email, "role": target_user.role},
+        )
 
         return Response(
             {"detail": f"User {target_user.email} suspended successfully."},

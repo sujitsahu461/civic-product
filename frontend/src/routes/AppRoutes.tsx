@@ -12,13 +12,11 @@ import ProtectedRoute from './ProtectedRoute';
 // Public Auth & Landing Pages
 import Landing from '../pages/Landing';
 import Login from '../pages/Login';
-import Signup from '../pages/Signup';
 import CitizenLogin from '../pages/CitizenLogin';
 import AuthorityLogin from '../pages/AuthorityLogin';
 import SuperAdminLogin from '../pages/SuperAdminLogin';
 import CitizenSignup from '../pages/CitizenSignup';
-import AuthoritySignup from '../pages/AuthoritySignup';
-import SuperAdminSignup from '../pages/SuperAdminSignup';
+import StaffAccountNotice from '../pages/StaffAccountNotice';
 import ResetPassword from '../pages/ResetPassword';
 import MapView from '../pages/MapView';
 
@@ -83,10 +81,11 @@ export const AppRoutes: React.FC = () => {
 
       <Route path="/signup" element={<SignupRedirect />} />
       <Route path="/signup/citizen" element={<CitizenSignup />} />
-      <Route path="/signup/authority" element={<AuthoritySignup />} />
-      <Route path="/signup/superadmin" element={<SuperAdminSignup />} />
-      <Route path="/signup/admin" element={<SuperAdminSignup />} />
-      <Route path="/signup/unified" element={<Signup />} />
+      {/* Officer and admin accounts are created by a super admin, not by public sign-up. */}
+      <Route path="/signup/authority" element={<StaffAccountNotice />} />
+      <Route path="/signup/superadmin" element={<StaffAccountNotice />} />
+      <Route path="/signup/admin" element={<StaffAccountNotice />} />
+      <Route path="/signup/unified" element={<Navigate to="/signup/citizen" replace />} />
 
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/forgot-password" element={<ResetPassword />} />

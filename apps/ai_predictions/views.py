@@ -119,9 +119,11 @@ class ComplaintAIPredictionView(APIView):
         tags=["AI Predictions"],
     )
     def get(self, request, complaint_public_id):
-        try:
-            complaint = Complaint.objects.get(public_id=complaint_public_id)
-        except Complaint.DoesNotExist:
+        from apps.complaints.scoping import scoped_complaint_or_none
+
+        # Owner, officers of the responsible department, or super admins only.
+        complaint = scoped_complaint_or_none(request.user, complaint_public_id)
+        if complaint is None:
             raise NotFound("Complaint not found.")
 
         # Classify and return
