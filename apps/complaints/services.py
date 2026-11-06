@@ -213,15 +213,35 @@ class ComplaintService:
             else:
                 resolved_category = None
 
-        if not resolved_category or resolved_category == "AUTO":
-            resolved_category = evaluate_deterministic_category(title, description)
+        ai_triage_result = None
+        try:
+            from apps.ai_predictions.services import AITriageService
+            ai_triage_result = AITriageService.classify_complaint(
+                title=title,
+                description=description,
+                location_address=location_address,
+                save_log=False,
+            )
+        except Exception as ai_err:
+            logger.warning("AI triage pre-scoring error: %s", type(ai_err).__name__)
 
-        final_priority = evaluate_deterministic_priority(
-            title=title,
-            description=description,
-            category=resolved_category,
-            requested_priority=priority,
-        )
+        if not resolved_category or resolved_category == "AUTO":
+            if ai_triage_result and ai_triage_result.get("predicted_category"):
+                resolved_category = ai_triage_result["predicted_category"]
+            else:
+                resolved_category = evaluate_deterministic_category(title, description)
+
+        if priority and str(priority).upper() in ComplaintPriority.values:
+            final_priority = str(priority).upper()
+        elif ai_triage_result and ai_triage_result.get("predicted_priority"):
+            final_priority = ai_triage_result["predicted_priority"]
+        else:
+            final_priority = evaluate_deterministic_priority(
+                title=title,
+                description=description,
+                category=resolved_category,
+                requested_priority=priority,
+            )
 
         complaint = Complaint.objects.create(
             citizen=citizen,
@@ -234,6 +254,33 @@ class ComplaintService:
             longitude=longitude,
             status=ComplaintStatus.PENDING,
         )
+
+        # Persist AI prediction record in PostgreSQL
+        try:
+            from apps.ai_predictions.models import AIPredictionLog
+            from apps.ai_predictions.services import AITriageService
+            if not ai_triage_result:
+                ai_triage_result = AITriageService.classify_complaint(
+                    title=title,
+                    description=description,
+                    location_address=location_address,
+                    save_log=False,
+                )
+            AIPredictionLog.objects.create(
+                complaint=complaint,
+                predicted_category=ai_triage_result.get("predicted_category", resolved_category),
+                confidence_score=ai_triage_result.get("confidence_score", 0.85),
+                urgency_score=ai_triage_result.get("urgency_score", 50),
+                predicted_priority=ai_triage_result.get("predicted_priority", final_priority),
+                predicted_department=ai_triage_result.get("predicted_department", ""),
+                requires_human_review=ai_triage_result.get("requires_human_review", False),
+                detected_keywords=ai_triage_result.get("detected_keywords", []),
+                hazard_tags=ai_triage_result.get("hazard_tags", []),
+                sentiment=ai_triage_result.get("sentiment", "NEGATIVE"),
+                estimated_resolution_hours=ai_triage_result.get("estimated_resolution_hours", 48),
+            )
+        except Exception as ai_log_err:
+            logger.warning("Failed to persist AI prediction record: %s", type(ai_log_err).__name__)
 
         # Log creation history
         ComplaintHistory.objects.create(
