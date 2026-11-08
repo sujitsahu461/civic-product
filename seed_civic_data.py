@@ -132,13 +132,13 @@ def seed():
         ("superadmin", "superadmin@civicsetu.gov.in", "SUPER_ADMIN", AuditAction.AUTH_LOGIN, "Session", "SES-9821", "192.168.1.42", "Super Admin logged into Platform Governance Console", 1),
         ("superadmin", "superadmin@civicsetu.gov.in", "SUPER_ADMIN", AuditAction.DEPARTMENT_UPDATED, "Department", "DEP-ROAD", "192.168.1.42", "Updated category SLA threshold for Roads & Infrastructure (24 hrs)", 2),
         ("officer@civicsetu.gov.in", "officer@civicsetu.gov.in", "AUTHORITY", AuditAction.COMPLAINT_STATUS_UPDATE, "Complaint", "CMP-20260920-ROA1", "10.0.1.18", "Changed status from IN_PROGRESS to RESOLVED with verification notes", 3),
-        ("system", "system@civicsetu.internal", "SYSTEM", AuditAction.AI_TRIAGE_RUN, "AIModel", "TRIAGE-NLP-V2", "127.0.0.1", "Automated grievance categorization completed: 96.2% confidence", 4),
+        ("system", "system@civicsetu.internal", "SYSTEM", AuditAction.SYSTEM_EVENT, "Routing", "ROUTING-RULES", "127.0.0.1", "Rule-based category and priority applied to new complaints", 4),
         ("superadmin", "superadmin@civicsetu.gov.in", "SUPER_ADMIN", AuditAction.AUTH_REGISTER, "User", "USR-0042", "192.168.1.42", "Provisioned Nodal Officer account: Er. Rajesh Verma (Roads & Infra)", 6),
         ("officer@civicsetu.gov.in", "officer@civicsetu.gov.in", "AUTHORITY", AuditAction.COMPLAINT_PRIORITY_UPDATE, "Complaint", "CMP-20260918-ELE2", "10.0.1.18", "Escalated priority to URGENT due to safety hazard report", 8),
         ("system", "system@civicsetu.internal", "SYSTEM", AuditAction.SYSTEM_EVENT, "BackupService", "BAK-20260922", "127.0.0.1", "Automated daily platform database & image snapshot archived", 10),
         ("citizen@civicsetu.gov.in", "citizen@civicsetu.gov.in", "CITIZEN", AuditAction.COMPLAINT_CREATED, "Complaint", "CMP-20260914-WAT1", "103.24.88.12", "Citizen filed grievance: Underground water pipeline leakage", 14),
         ("superadmin", "superadmin@civicsetu.gov.in", "SUPER_ADMIN", AuditAction.AUTHORITY_ASSIGNED, "Department", "DEP-DRAIN", "192.168.1.42", "Assigned Nodal Officer to Drainage & Sewage Department", 16),
-        ("system", "system@civicsetu.internal", "SYSTEM", AuditAction.AI_TRIAGE_RUN, "AIInsight", "HAZARD-SCAN-01", "127.0.0.1", "City-wide hazard scanning: Identified 3 high-priority electrical hotspots", 18),
+        ("system", "system@civicsetu.internal", "SYSTEM", AuditAction.SYSTEM_EVENT, "Report", "DAILY-SLA-CHECK", "127.0.0.1", "Daily SLA check: 3 high-priority electrical complaints approaching deadline", 18),
     ]
 
     log_count = 0
