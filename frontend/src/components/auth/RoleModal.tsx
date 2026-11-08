@@ -40,7 +40,7 @@ export const RoleModal: React.FC<RoleModalProps> = ({
             type="button"
             className={s.closeButton}
             onClick={onClose}
-            aria-label="Close dialog"
+            aria-label={t('roleModal.closeDialog')}
           >
             <Icon name="close" size={20} />
           </button>

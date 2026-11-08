@@ -162,7 +162,7 @@ export const SystemComplaintManagement: React.FC = () => {
         </div>
       ) : complaints.length === 0 ? (
         <div className={s.emptyBox}>
-          <Icon name="folder_off" size={40} style={{ color: '#64748b' }} />
+          <Icon name="folder_off" size={40} style={{ color: '#7D6657' }} />
           <h3>No Incidents Found</h3>
           <p>No complaints match your active filter parameters.</p>
         </div>
@@ -210,10 +210,10 @@ export const SystemComplaintManagement: React.FC = () => {
                       style={{
                         color:
                           c.priority === 'URGENT'
-                            ? '#ef4444'
+                            ? '#B42318'
                             : c.priority === 'HIGH'
-                            ? '#fb923c'
-                            : '#38bdf8',
+                            ? '#B93E0C'
+                            : '#7D6657',
                       }}
                     >
                       ● {c.priority}
@@ -270,7 +270,7 @@ export const SystemComplaintManagement: React.FC = () => {
               </div>
               <div className={s.metaBox}>
                 <span className={s.metaLabel}>Priority</span>
-                <span className={s.metaVal} style={{ color: '#fb923c' }}>{selectedComplaint.priority}</span>
+                <span className={s.metaVal} style={{ color: '#B93E0C' }}>{selectedComplaint.priority}</span>
               </div>
               <div className={s.metaBox}>
                 <span className={s.metaLabel}>Citizen</span>
@@ -289,7 +289,7 @@ export const SystemComplaintManagement: React.FC = () => {
 
             {selectedComplaint.resolution_notes && (
               <div className={s.resolutionBanner}>
-                <Icon name="verified" size={18} style={{ color: '#34d399' }} />
+                <Icon name="verified" size={18} style={{ color: '#2E7D4F' }} />
                 <div>
                   <strong>Official Resolution Notes:</strong>
                   <p>{selectedComplaint.resolution_notes}</p>

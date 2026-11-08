@@ -5,13 +5,22 @@ import Icon from '../../components/ui/Icon';
 import s from './SuperAdminLayout.module.css';
 
 export const SuperAdminLayout: React.FC = () => {
-  const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
   const location = useLocation();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeModal, setActiveModal] = useState<'audit' | 'settings' | null>(null);
+  const [scrolled, setScrolled] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Soft shadow under the pinned header once the page moves
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 4);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -30,9 +39,10 @@ export const SuperAdminLayout: React.FC = () => {
     setDropdownOpen(false);
   }, [location.pathname]);
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login/superadmin');
+  // Sign out to the landing page. The landing page finishes signing out once
+  // it's on screen, so this protected page's "go to login" guard can't win.
+  const handleLogout = () => {
+    navigate('/', { replace: true, state: { signOut: true } });
   };
 
   const navLinks = [
@@ -46,6 +56,12 @@ export const SuperAdminLayout: React.FC = () => {
     { label: 'Settings', path: '#settings', icon: 'settings', isModal: 'settings' },
   ];
 
+  // Top bar shows the pages; Audit Logs and Settings open panels, so they
+  // live in the avatar menu (the bell also opens Audit Logs).
+  // The mobile menu still lists everything.
+  const barLinks = navLinks.filter((item) => !item.isModal);
+  const firstName = user?.full_name ? user.full_name.split(' ')[0] : 'Admin';
+
   const isUserDirectory = location.pathname.startsWith('/superadmin/users');
   const isAnalyticsPage = location.pathname.startsWith('/superadmin/analytics');
   const isFluidPage = isUserDirectory || isAnalyticsPage;
@@ -53,48 +69,28 @@ export const SuperAdminLayout: React.FC = () => {
   return (
     <div className={s.layoutContainer}>
       {/* ================= TOP NAVBAR ================= */}
-      <header className={s.navbar}>
+      <header className={`${s.navbar} ${scrolled ? s.navbarScrolled : ''}`}>
         <div className={`${s.navInner} ${isFluidPage ? s.navInnerFluid : ''}`}>
-          {/* Left: Brand & Portal Badge */}
+          {/* Left: Brand */}
           <Link to="/superadmin/dashboard" className={s.brandGroup} title="CivicSetu Super Admin Portal">
             <div className={s.brandLogo}>
               <img src="/logo-mark.png" alt="CivicSetu Logo" className={s.brandLogoImg} />
             </div>
-            <div className={s.brandTitleWrapper}>
-              <span className={s.brandName}>CivicSetu</span>
-            </div>
-            <div className={s.portalBadge}>
-              <span className={s.portalBadgeTitle}>SUPER ADMIN PORTAL</span>
-              <span className={s.portalBadgeSub}>Municipal Platform Administration</span>
-            </div>
+            <span className={s.brandName}>CivicSetu</span>
           </Link>
 
-          {/* Center: Navigation Links */}
+          {/* Center: one slim segmented bar */}
           <nav className={s.navLinks}>
-            {navLinks.map((item) => {
-              if (item.isModal) {
-                const isModalOpen = activeModal === item.isModal;
-                return (
-                  <button
-                    key={item.label}
-                    type="button"
-                    className={`${s.navLink} ${isModalOpen ? s.activeNavLink : ''}`}
-                    onClick={() => setActiveModal(item.isModal as 'audit' | 'settings')}
-                  >
-                    <Icon name={item.icon} size={17} />
-                    <span>{item.label}</span>
-                  </button>
-                );
-              }
-
+            {barLinks.map((item) => {
               const isActive = location.pathname === item.path;
               return (
                 <Link
                   key={item.path}
                   to={item.path}
                   className={`${s.navLink} ${isActive ? s.activeNavLink : ''}`}
+                  aria-current={isActive ? 'page' : undefined}
                 >
-                  <Icon name={item.icon} size={17} />
+                  <Icon name={item.icon} size={17} className={s.navIcon} />
                   <span>{item.label}</span>
                 </Link>
               );
@@ -124,10 +120,7 @@ export const SuperAdminLayout: React.FC = () => {
                 aria-label="User Menu"
               >
                 <div className={s.userAvatar}>{user?.full_name ? user.full_name[0].toUpperCase() : 'S'}</div>
-                <div className={s.userMetaCol}>
-                  <span className={s.userName}>{user?.full_name || 'Super Admin'}</span>
-                  <span className={s.userRoleSub}>System Administrator</span>
-                </div>
+                <span className={s.userName}>{firstName}</span>
                 <Icon
                   name="expand_more"
                   size={18}
@@ -171,6 +164,18 @@ export const SuperAdminLayout: React.FC = () => {
                   >
                     <Icon name="tune" size={17} />
                     <span>Platform Settings</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      setActiveModal('audit');
+                    }}
+                    className={s.dropdownItem}
+                  >
+                    <Icon name="receipt_long" size={17} />
+                    <span>Audit Logs</span>
                   </button>
 
                   <div className={s.dropdownDivider} />
@@ -224,7 +229,8 @@ export const SuperAdminLayout: React.FC = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={s.mobileNavLink}
+                  className={`${s.mobileNavLink} ${location.pathname === item.path ? s.mobileNavLinkActive : ''}`}
+                  aria-current={location.pathname === item.path ? 'page' : undefined}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Icon name={item.icon} size={18} />
@@ -256,7 +262,7 @@ export const SuperAdminLayout: React.FC = () => {
           <div className={s.modalCard} onClick={(e) => e.stopPropagation()}>
             <div className={s.modalHeader}>
               <div className={s.modalTitleWrap}>
-                <div className={s.modalIconBox} style={{ background: '#ede9fe', color: '#7c3aed' }}>
+                <div className={s.modalIconBox} style={{ background: 'var(--cs-haldi-tint)', color: 'var(--cs-haldi-text)' }}>
                   <Icon name="receipt_long" size={20} />
                 </div>
                 <div>
@@ -318,7 +324,7 @@ export const SuperAdminLayout: React.FC = () => {
           <div className={s.modalCard} onClick={(e) => e.stopPropagation()}>
             <div className={s.modalHeader}>
               <div className={s.modalTitleWrap}>
-                <div className={s.modalIconBox} style={{ background: '#e0f2fe', color: '#0284c7' }}>
+                <div className={s.modalIconBox} style={{ background: 'var(--cs-kesari-tint)', color: 'var(--cs-maroon)' }}>
                   <Icon name="tune" size={20} />
                 </div>
                 <div>

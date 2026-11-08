@@ -7,7 +7,7 @@ import { formatDate, truncateText } from '../../utils/formatters';
 import s from './ComplaintHistory.module.css';
 
 export const ComplaintHistory: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { complaints, isLoading, fetchComplaints } = useComplaintStore();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -134,7 +134,7 @@ export const ComplaintHistory: React.FC = () => {
 
       {/* Complaints List / Cards */}
       {isLoading && complaints.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: 48, color: 'var(--cz-secondary-text, #64748b)' }}>
+        <div style={{ textAlign: 'center', padding: 48, color: 'var(--cs-text-muted)' }}>
           <span>{t('common.loading')}</span>
         </div>
       ) : complaints.length === 0 ? (
@@ -182,10 +182,10 @@ export const ComplaintHistory: React.FC = () => {
                       style={{
                         color:
                           item.priority === 'HIGH' || item.priority === 'URGENT'
-                            ? '#b91c1c'
+                            ? '#912018'
                             : item.priority === 'LOW'
-                            ? '#1e6f9f'
-                            : '#c25e00',
+                            ? '#5A4033'
+                            : '#B93E0C',
                       }}
                     >
                       {t(`priorities.${item.priority}`) || item.priority}
@@ -203,7 +203,7 @@ export const ComplaintHistory: React.FC = () => {
               <div className={s.cardFooter}>
                 <span className={s.dateText}>
                   <Icon name="schedule" size={14} />
-                  <span>{formatDate(item.created_at)}</span>
+                  <span>{formatDate(item.created_at, i18n.language)}</span>
                 </span>
 
                 <Link

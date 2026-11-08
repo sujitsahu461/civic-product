@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Icon from './Icon';
+import s from './AudioRecorder.module.css';
 
 interface AudioRecorderProps {
   onAudioChange: (file: File | Blob | null, duration: number) => void;
@@ -26,6 +27,8 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
   const chunksRef = useRef<BlobPart[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Real recording length (the state value is stale inside the recorder callbacks)
+  const durationRef = useRef(0);
 
   // Helper to determine best browser supported audio mime type
   const getSupportedMimeType = (): string => {
@@ -49,6 +52,7 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
     setMicError(null);
     chunksRef.current = [];
     setRecordDuration(0);
+    durationRef.current = 0;
 
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       setMicError(t('media.recordingPermissionError') || 'Microphone recording is not supported in this browser.');
@@ -77,7 +81,7 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
         const url = URL.createObjectURL(blob);
         setAudioUrl(url);
         setSelectedFileName(`voice_complaint_${Date.now()}.${recordedMime.includes('mp4') ? 'mp4' : 'webm'}`);
-        onAudioChange(blob, recordDuration);
+        onAudioChange(blob, durationRef.current);
 
         // Stop all audio tracks
         if (streamRef.current) {
@@ -92,6 +96,7 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
       timerRef.current = setInterval(() => {
         setRecordDuration((prev) => {
           const next = prev + 1;
+          durationRef.current = next;
           if (next >= maxDurationSeconds) {
             stopRecording();
           }
@@ -172,124 +177,86 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
   };
 
   return (
-    <div className={`p-4 rounded-xl border border-gray-700/60 bg-[#111726]/70 backdrop-blur-sm space-y-3 ${className}`}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-            <Icon name="mic" size={18} />
+    <div
+      className={`${s.tile} ${audioUrl ? s.tileOn : ''} ${isRecording ? s.tileRec : ''} ${className}`}
+    >
+      {isRecording ? (
+        <>
+          <span className={s.recPulse} aria-hidden="true">
+            <span />
+          </span>
+          <span className={s.label}>{t('submit.wizard.recording')}</span>
+          <span className={s.timer} aria-live="polite">
+            {formatTime(recordDuration)} / {formatTime(maxDurationSeconds)}
+          </span>
+          <div className={s.actions}>
+            <button type="button" onClick={stopRecording} className={s.stopBtn}>
+              <Icon name="stop" size={16} />
+              <span>{t('submit.wizard.stop')}</span>
+            </button>
+            <button type="button" onClick={resetRecording} className={s.linkBtn}>
+              {t('common.cancel')}
+            </button>
           </div>
-          <div>
-            <h4 className="text-xs font-bold text-gray-200 uppercase tracking-wide">
-              {t('submit.audioTitle')}
-            </h4>
-            <p className="text-[11px] text-gray-400">
-              {t('submit.audioHelp')}
-            </p>
+        </>
+      ) : audioUrl ? (
+        <>
+          <span className={s.icon} aria-hidden="true">
+            <Icon name="mic" size={22} />
+          </span>
+          <span className={s.label}>
+            {t('submit.wizard.voiceLabel')}
+            {recordDuration > 0 ? ` · ${formatTime(recordDuration)}` : ''}
+          </span>
+          <span className={s.fileName} title={selectedFileName || undefined}>
+            {selectedFileName || t('media.audioPlayback')}
+          </span>
+          <audio controls src={audioUrl} className={s.player} />
+          <div className={s.actions}>
+            <button type="button" onClick={startRecording} className={s.linkBtn}>
+              <Icon name="replay" size={15} />
+              <span>{t('submit.wizard.recordAgain')}</span>
+            </button>
+            <button type="button" onClick={resetRecording} className={`${s.linkBtn} ${s.linkBtnDanger}`}>
+              <Icon name="delete" size={15} />
+              <span>{t('submit.wizard.remove')}</span>
+            </button>
           </div>
-        </div>
-
-        {isRecording && (
-          <div className="flex items-center gap-2 px-2.5 py-1 bg-red-500/10 border border-red-500/30 rounded-full animate-pulse">
-            <span className="w-2 h-2 rounded-full bg-red-500"></span>
-            <span className="text-xs font-mono font-bold text-red-400">
-              {formatTime(recordDuration)} / {formatTime(maxDurationSeconds)}
-            </span>
+        </>
+      ) : (
+        <>
+          <span className={s.icon} aria-hidden="true">
+            <Icon name="mic" size={22} />
+          </span>
+          <span className={s.label}>{t('submit.wizard.voiceLabel')}</span>
+          <span className={s.sub}>{t('submit.wizard.voiceSub')}</span>
+          <div className={s.actions}>
+            <button type="button" onClick={startRecording} className={s.recordBtn}>
+              <Icon name="mic" size={16} />
+              <span>{t('submit.wizard.record')}</span>
+            </button>
+            <button type="button" onClick={() => fileInputRef.current?.click()} className={s.linkBtn}>
+              <Icon name="upload_file" size={15} />
+              <span>{t('submit.wizard.uploadFile')}</span>
+            </button>
           </div>
-        )}
-      </div>
+        </>
+      )}
 
       {micError && (
-        <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-start gap-2">
-          <Icon name="warning" size={16} className="shrink-0 mt-0.5" />
-          <span>{micError}</span>
-        </div>
+        <p className={s.error} role="alert">
+          <Icon name="info" size={15} />
+          <span>{t('submit.wizard.micBlocked')}</span>
+        </p>
       )}
 
-      {/* Recording in progress */}
-      {isRecording ? (
-        <div className="flex items-center gap-3 py-2">
-          <button
-            type="button"
-            onClick={stopRecording}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-red-600/30 transition-all active:scale-95"
-          >
-            <Icon name="stop" size={18} />
-            <span>{t('submit.stopRecordBtn')}</span>
-          </button>
-          <button
-            type="button"
-            onClick={resetRecording}
-            className="py-2.5 px-4 bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold text-xs rounded-xl border border-gray-700 transition-all"
-          >
-            {t('common.cancel')}
-          </button>
-        </div>
-      ) : audioUrl ? (
-        /* Audio Preview State */
-        <div className="space-y-2.5 pt-1">
-          <div className="flex items-center justify-between text-xs text-gray-300">
-            <span className="font-medium truncate max-w-[240px]">
-              {selectedFileName || t('media.audioPlayback')}
-            </span>
-            {recordDuration > 0 && (
-              <span className="text-gray-400 font-mono text-[11px]">
-                {formatTime(recordDuration)}
-              </span>
-            )}
-          </div>
-          <audio
-            controls
-            src={audioUrl}
-            className="w-full h-10 rounded-lg filter invert-[0.85] hue-rotate-180"
-          />
-          <div className="flex items-center gap-2 pt-1">
-            <button
-              type="button"
-              onClick={startRecording}
-              className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-300 font-semibold text-xs rounded-lg transition-all"
-            >
-              <Icon name="replay" size={15} />
-              <span>{t('submit.retakeAudioBtn')}</span>
-            </button>
-            <button
-              type="button"
-              onClick={resetRecording}
-              className="py-1.5 px-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 font-semibold text-xs rounded-lg transition-all"
-            >
-              <Icon name="delete" size={15} />
-              <span>{t('submit.deleteAudioBtn')}</span>
-            </button>
-          </div>
-        </div>
-      ) : (
-        /* Idle state: Record or Select File */
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-1">
-          <button
-            type="button"
-            onClick={startRecording}
-            className="flex-1 flex items-center justify-center gap-2 py-2 px-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-600/20 transition-all active:scale-95"
-          >
-            <Icon name="mic" size={16} />
-            <span>{t('submit.recordVoiceBtn')}</span>
-          </button>
-
-          <input
-            type="file"
-            ref={fileInputRef}
-            accept="audio/*,.mp3,.wav,.ogg,.m4a,.webm"
-            onChange={handleFileSelect}
-            className="hidden"
-          />
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="flex items-center justify-center gap-1.5 py-2 px-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 font-semibold text-xs rounded-xl transition-all"
-          >
-            <Icon name="upload_file" size={16} />
-            <span>{t('submit.uploadAudioAlt')}</span>
-          </button>
-        </div>
-      )}
+      <input
+        type="file"
+        ref={fileInputRef}
+        accept="audio/*,.mp3,.wav,.ogg,.m4a,.webm"
+        onChange={handleFileSelect}
+        hidden
+      />
     </div>
   );
 };

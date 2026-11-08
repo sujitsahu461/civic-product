@@ -76,7 +76,7 @@ export const AuthorityDashboard: React.FC = () => {
           </div>
           <div>
             <div className={s.deptPill}>
-              <Icon name="verified" size={14} style={{ color: '#34d399' }} />
+              <Icon name="verified" size={14} style={{ color: '#2E7D4F' }} />
               <span>{user?.department || 'Municipal Engineering & Works'}</span>
             </div>
             <h1 className={s.officerName}>{user?.full_name || 'Nodal Authority Officer'}</h1>
@@ -101,7 +101,7 @@ export const AuthorityDashboard: React.FC = () => {
       {/* KPI Stats Counters */}
       <div className={s.statsGrid}>
         <div className={s.statCard}>
-          <div className={s.statIconWrapper} style={{ background: 'rgba(99, 102, 241, 0.15)', color: '#818cf8' }}>
+          <div className={s.statIconWrapper} style={{ background: 'rgba(122, 31, 43, 0.15)', color: '#7A1F2B' }}>
             <Icon name="inbox" size={24} />
           </div>
           <div className={s.statInfo}>
@@ -111,7 +111,7 @@ export const AuthorityDashboard: React.FC = () => {
         </div>
 
         <div className={s.statCard}>
-          <div className={s.statIconWrapper} style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24' }}>
+          <div className={s.statIconWrapper} style={{ background: 'rgba(244, 196, 48, 0.15)', color: '#6B4E00' }}>
             <Icon name="pending_actions" size={24} />
           </div>
           <div className={s.statInfo}>
@@ -121,7 +121,7 @@ export const AuthorityDashboard: React.FC = () => {
         </div>
 
         <div className={s.statCard}>
-          <div className={s.statIconWrapper} style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa' }}>
+          <div className={s.statIconWrapper} style={{ background: 'rgba(255, 119, 34, 0.15)', color: '#7A1F2B' }}>
             <Icon name="construction" size={24} />
           </div>
           <div className={s.statInfo}>
@@ -131,24 +131,24 @@ export const AuthorityDashboard: React.FC = () => {
         </div>
 
         <div className={s.statCard}>
-          <div className={s.statIconWrapper} style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#f87171' }}>
+          <div className={s.statIconWrapper} style={{ background: 'rgba(180, 35, 24, 0.15)', color: '#B42318' }}>
             <Icon name="warning" size={24} />
           </div>
           <div className={s.statInfo}>
             <span className={s.statLabel}>Urgent / Critical</span>
-            <span className={s.statNum} style={{ color: '#f87171' }}>
+            <span className={s.statNum} style={{ color: '#B42318' }}>
               {isLoading ? '...' : summary?.urgent_active ?? 0}
             </span>
           </div>
         </div>
 
         <div className={s.statCard}>
-          <div className={s.statIconWrapper} style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#34d399' }}>
+          <div className={s.statIconWrapper} style={{ background: 'rgba(46, 125, 79, 0.15)', color: '#2E7D4F' }}>
             <Icon name="task_alt" size={24} />
           </div>
           <div className={s.statInfo}>
             <span className={s.statLabel}>Resolved & Closed</span>
-            <span className={s.statNum} style={{ color: '#34d399' }}>
+            <span className={s.statNum} style={{ color: '#2E7D4F' }}>
               {isLoading ? '...' : summary?.resolved ?? 0}
             </span>
           </div>
@@ -178,7 +178,7 @@ export const AuthorityDashboard: React.FC = () => {
             </div>
           ) : recentComplaints.length === 0 ? (
             <div className={s.emptyBox}>
-              <Icon name="assignment_turned_in" size={40} style={{ color: '#64748b' }} />
+              <Icon name="assignment_turned_in" size={40} style={{ color: '#7D6657' }} />
               <h3>Work Queue Clean</h3>
               <p>No new grievances currently awaiting review in your department queue.</p>
             </div>
@@ -195,8 +195,8 @@ export const AuthorityDashboard: React.FC = () => {
                         style={{
                           color:
                             c.priority === 'URGENT' || c.priority === 'HIGH'
-                              ? '#f87171'
-                              : '#38bdf8',
+                              ? '#B42318'
+                              : '#7D6657',
                         }}
                       >
                         ● {c.priority}
@@ -242,7 +242,7 @@ export const AuthorityDashboard: React.FC = () => {
           {/* SLA Performance Card */}
           <div className={s.slaCard}>
             <div className={s.slaHeader}>
-              <Icon name="timer" size={22} style={{ color: '#34d399' }} />
+              <Icon name="timer" size={22} style={{ color: '#2E7D4F' }} />
               <h4>Municipal SLA Benchmark</h4>
             </div>
             <div className={s.slaMetric}>
@@ -275,15 +275,15 @@ export const AuthorityDashboard: React.FC = () => {
             <h4 className={s.quickTitle}>Authority Dispatch Hub</h4>
             <div className={s.quickLinks}>
               <Link to="/authority/complaints" className={s.quickLinkItem}>
-                <Icon name="assignment_late" size={18} style={{ color: '#f87171' }} />
+                <Icon name="assignment_late" size={18} style={{ color: '#B42318' }} />
                 <span>Filter Urgent Incidents</span>
               </Link>
               <Link to="/authority/analytics" className={s.quickLinkItem}>
-                <Icon name="bar_chart" size={18} style={{ color: '#818cf8' }} />
+                <Icon name="bar_chart" size={18} style={{ color: '#7A1F2B' }} />
                 <span>View Resolution TAT Trends</span>
               </Link>
               <Link to="/authority/notifications" className={s.quickLinkItem}>
-                <Icon name="notifications_active" size={18} style={{ color: '#fbbf24' }} />
+                <Icon name="notifications_active" size={18} style={{ color: '#6B4E00' }} />
                 <span>Nodal Broadcast Notifications</span>
               </Link>
             </div>

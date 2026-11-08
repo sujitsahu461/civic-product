@@ -17,44 +17,46 @@
   align-items: center;
 }
 
+/* Roles */
 .citizen {
-  background: #eff6ff;
-  color: #1d4ed8;
-  border-color: #bfdbfe;
+  background: var(--cs-kesari-tint);
+  color: var(--cs-maroon);
+  border-color: var(--cs-kesari-light);
 }
 
 .authority {
-  background: #ecfdf5;
-  color: #047857;
-  border-color: #a7f3d0;
+  background: var(--cs-maroon-tint);
+  color: var(--cs-maroon);
+  border-color: var(--cs-maroon-light);
 }
 
 .superadmin {
-  background: #fdf4ff;
-  color: #7e22ce;
-  border-color: #f0abfc;
+  background: var(--cs-haldi-tint);
+  color: var(--cs-haldi-text);
+  border-color: var(--cs-haldi);
 }
 
+/* Status */
 .success {
-  background: #dcfce7;
-  color: #15803d;
-  border-color: #bbf7d0;
+  background: var(--cs-success-tint);
+  color: var(--cs-success-text);
+  border-color: var(--cs-success-light);
 }
 
 .warning {
-  background: #fef3c7;
-  color: #b45309;
-  border-color: #fde68a;
+  background: var(--cs-haldi-tint);
+  color: var(--cs-haldi-text);
+  border-color: var(--cs-haldi);
 }
 
 .danger {
-  background: #fee2e2;
-  color: #b91c1c;
-  border-color: #fca5a5;
+  background: var(--cs-danger-tint);
+  color: var(--cs-danger);
+  border-color: var(--cs-danger-light);
 }
 
 .neutral {
-  background: #f1f5f9;
-  color: #475569;
-  border-color: #e2e8f0;
+  background: var(--cs-neutral-tint);
+  color: var(--cs-text);
+  border-color: var(--cs-neutral-light);
 }

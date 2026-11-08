@@ -52,7 +52,7 @@ export const Phase2Placeholder: React.FC<Phase2PlaceholderProps> = ({
           </div>
           <div className={s.specRow}>
             <span className={s.specLabel}>Subsystem Status:</span>
-            <span className={s.specValue} style={{ color: '#fbbf24' }}>Preserved in Background</span>
+            <span className={s.specValue} style={{ color: '#6B4E00' }}>Preserved in Background</span>
           </div>
         </div>
 

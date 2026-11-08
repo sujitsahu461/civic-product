@@ -1,117 +1,187 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import RoleModal from '../components/auth/RoleModal';
+import useAuthStore from '../store/authStore';
 import LanguageSelector from '../components/ui/LanguageSelector';
 import s from './Landing.module.css';
 
+const ROW_ICONS = {
+  road: '🛣️',
+  water: '💧',
+  light: '💡',
+  drain: '🌊',
+  sanitation: '🧹',
+};
+
+// Sections the top menu links to, in page order.
+const NAV_SECTIONS = [
+  { id: 'hero', key: 'product' },
+  { id: 'dilemma', key: 'dilemma' },
+  { id: 'platform', key: 'platform' },
+  { id: 'workflow', key: 'howItWorks' },
+  { id: 'integrity', key: 'integrity' },
+];
+
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 export default function Landing() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeRow, setActiveRow] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleModalOpen, setRoleModalOpen] = useState(false);
   const [roleModalMode, setRoleModalMode] = useState('login');
+  const [activeSection, setActiveSection] = useState(NAV_SECTIONS[0].id);
+  const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
+  const logout = useAuthStore((state) => state.logout);
+
+  // Arriving from "Sign out" in a portal: finish signing out here, once the
+  // protected page is gone (so its "go to login" guard can't redirect us).
+  // Then drop the note so a refresh or Back doesn't repeat it.
+  useEffect(() => {
+    if (!location.state?.signOut) return;
+    navigate('/', { replace: true, state: null });
+    logout();
+  }, [location.state]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // On scroll: tighten the header and highlight the menu link of the
+  // section currently being read.
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      setScrolled(window.scrollY > 8);
+      // Current section = the last one whose top has passed 40% of the screen.
+      const line = window.innerHeight * 0.4;
+      let current = NAV_SECTIONS[0].id;
+      NAV_SECTIONS.forEach(({ id }) => {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top <= line) current = id;
+      });
+      setActiveSection(current);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  // Fade blocks up as they scroll into view; cards in a grid follow one another.
+  // Skipped when the visitor asks for reduced motion.
+  useEffect(() => {
+    if (prefersReducedMotion() || !('IntersectionObserver' in window)) return undefined;
+    const staggerGrids = [s.dilemmaGrid, s.workflowGrid, s.trustGrid];
+    const groups = [];
+    document.querySelectorAll(`.${s.framedContainer} section[id]`).forEach((section) => {
+      [...section.children].forEach((child) => {
+        const isGrid = staggerGrids.some((c) => child.classList.contains(c));
+        groups.push(isGrid ? [...child.children] : [child]);
+      });
+    });
+    const cta = document.querySelector(`.${s.ctaBannerWrapper}`);
+    if (cta) groups.push([cta]);
+
+    const timers = [];
+    let delivered = false;
+    const observer = new IntersectionObserver((entries) => {
+      delivered = true;
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        observer.unobserve(el);
+        el.classList.add(s.revealVisible);
+        // Once the fade is done, hand the element back to its own styles
+        // so hover transitions aren't slowed by the reveal delay.
+        const delay = parseInt(el.style.transitionDelay, 10) || 0;
+        timers.push(setTimeout(() => {
+          el.classList.remove(s.reveal, s.revealVisible);
+          el.style.transitionDelay = '';
+        }, 800 + delay));
+      });
+    }, { rootMargin: '0px 0px -10% 0px', threshold: 0 });
+
+    groups.forEach((items) => items.forEach((el, i) => {
+      el.classList.add(s.reveal);
+      el.style.transitionDelay = `${Math.min(i, 4) * 90}ms`;
+      observer.observe(el);
+    }));
+
+    // Safety net: if the browser never reports visibility (some embedded
+    // views do this), show everything rather than leave blank sections.
+    const showAllIfStuck = () => {
+      if (delivered) return;
+      if (document.hidden) {
+        timers.push(setTimeout(showAllIfStuck, 1000));
+        return;
+      }
+      observer.disconnect();
+      groups.flat().forEach((el) => {
+        el.classList.remove(s.reveal, s.revealVisible);
+        el.style.transitionDelay = '';
+      });
+    };
+    timers.push(setTimeout(showAllIfStuck, 2000));
+
+    return () => {
+      observer.disconnect();
+      timers.forEach(clearTimeout);
+    };
+  }, []);
 
   const scrollToSection = (id) => {
     setMobileMenuOpen(false);
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
+    const behavior = prefersReducedMotion() ? 'auto' : 'smooth';
+    if (id === NAV_SECTIONS[0].id) {
+      window.scrollTo({ top: 0, behavior });
+      return;
     }
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior, block: 'start' });
+  };
+
+  const under = (h) => t('landing.units.underHours', { h });
+  const tier = (n) => t('landing.units.tier', { n });
+
+  const buildRow = (key, data) => {
+    const base = `landing.platform.rows.${key}`;
+    return {
+      ...data,
+      title: t(`${base}.title`),
+      location: t(`${base}.location`),
+      department: t(`${base}.department`),
+      status: t(`${base}.status`),
+      popover: {
+        heading: t(`${base}.popHeading`),
+        text: t(`${base}.popText`),
+        actionText: t(`${base}.popAction`),
+      },
+    };
   };
 
   const registryRows = [
-    {
-      id: 'CIVIC-8921',
-      title: 'Deep Hazardous Pothole & Caving',
-      location: 'Ward 12 • Ring Road West',
-      time: '12m ago',
-      match: '98.4%',
-      department: 'Roads & Infrastructure',
-      priority: 'HIGH',
-      sla: '< 24h',
-      tier: 'Tier 1',
-      status: 'Auto-Routed',
-      popover: {
-        heading: 'Tier 1 • Road & Infrastructure',
-        text: 'AI Classification: High-risk commuter road hazard. Routed to Ward 12 PWD Quick Response Team.',
-        actionText: 'View Details',
-      },
-    },
-    {
-      id: 'CIVIC-8919',
-      title: 'Main Drinking Pipeline Rupture',
-      location: 'Ward 07 • Sector 4 Market',
-      time: '34m ago',
-      match: '99.1%',
-      department: 'Water Board Division',
-      priority: 'CRITICAL',
-      sla: '< 8h',
-      tier: 'Tier 1',
-      status: 'Dispatched',
-      popover: {
-        heading: 'Tier 1 • Water Board Emergency',
-        text: 'Severe clean water loss detected. Emergency repair vehicle dispatched with estimated arrival in 25m.',
-        actionText: 'Track Crew',
-      },
-    },
-    {
-      id: 'CIVIC-8914',
-      title: 'Cluster of 8 Dark Streetlights',
-      location: 'Ward 22 • Metro Flyover Path',
-      time: '1h ago',
-      match: '96.5%',
-      department: 'Electrical & Lighting',
-      priority: 'MEDIUM',
-      sla: '< 36h',
-      tier: 'Tier 2',
-      status: 'Scheduled',
-      popover: {
-        heading: 'Tier 2 • Electrical Maintenance',
-        text: 'Multiple circuit failure reported. Night maintenance squad scheduled for 20:00 inspection.',
-        actionText: 'View Shift',
-      },
-    },
-    {
-      id: 'CIVIC-8908',
-      title: 'Stormwater Drain Overflow & Sludge',
-      location: 'Ward 11 • Subhash Nagar',
-      time: '2h ago',
-      match: '97.8%',
-      department: 'Stormwater Drainage',
-      priority: 'HIGH',
-      sla: '< 18h',
-      tier: 'Tier 1',
-      status: 'In Progress',
-      popover: {
-        heading: 'Tier 1 • Stormwater Cell',
-        text: 'Drain blockage creating surface flood hazard. Suction pump team en route.',
-        actionText: 'Inspect Log',
-      },
-    },
-    {
-      id: 'CIVIC-8896',
-      title: 'Commercial Waste Dump on Sidewalk',
-      location: 'Ward 03 • Station Road',
-      time: '3h ago',
-      match: '95.2%',
-      department: 'Sanitation & Solid Waste',
-      priority: 'MEDIUM',
-      sla: '< 24h',
-      tier: 'Tier 2',
-      status: 'Queued',
-      popover: {
-        heading: 'Tier 2 • Sanitation Desk',
-        text: 'Bulk garbage accumulation ticket confirmed. Added to morning collection route truck #14.',
-        actionText: 'View Ward',
-      },
-    },
+    buildRow('r1', { id: 'CIVIC-8921', kind: 'road', time: t('landing.units.minutesAgo', { n: 12 }), match: '98.4%', priority: 'HIGH', sla: under(24), tier: tier(1) }),
+    buildRow('r2', { id: 'CIVIC-8919', kind: 'water', time: t('landing.units.minutesAgo', { n: 34 }), match: '99.1%', priority: 'CRITICAL', sla: under(8), tier: tier(1) }),
+    buildRow('r3', { id: 'CIVIC-8914', kind: 'light', time: t('landing.units.hoursAgo', { n: 1 }), match: '96.5%', priority: 'MEDIUM', sla: under(36), tier: tier(2) }),
+    buildRow('r4', { id: 'CIVIC-8908', kind: 'drain', time: t('landing.units.hoursAgo', { n: 2 }), match: '97.8%', priority: 'HIGH', sla: under(18), tier: tier(1) }),
+    buildRow('r5', { id: 'CIVIC-8896', kind: 'sanitation', time: t('landing.units.hoursAgo', { n: 3 }), match: '95.2%', priority: 'MEDIUM', sla: under(24), tier: tier(2) }),
   ];
 
+  const query = searchQuery.toLowerCase();
   const filteredRows = registryRows.filter((row) =>
-    row.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    row.department.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    row.location.toLowerCase().includes(searchQuery.toLowerCase())
+    row.title.toLowerCase().includes(query) ||
+    row.department.toLowerCase().includes(query) ||
+    row.location.toLowerCase().includes(query)
   );
 
   return (
@@ -120,13 +190,13 @@ export default function Landing() {
         {/* ============================================================
             1. TOP NAVIGATION
             ============================================================ */}
-        <header className={s.navbar}>
+        <header className={`${s.navbar} ${scrolled ? s.navbarScrolled : ''}`}>
           <Link to="/" className={s.navLeft}>
             <div className={s.brandLogoWrap}>
               <img
                 src="/civicsetu-logo.png"
                 onError={(e) => { e.currentTarget.src = '/static/civicsetu-logo.png'; }}
-                alt="CivicSetu Logo"
+                alt={t('landing.logoAlt')}
                 className={s.brandLogoImg}
               />
             </div>
@@ -134,32 +204,38 @@ export default function Landing() {
           </Link>
 
           <nav className={s.navCenter}>
-            <button type="button" className={s.navLink} onClick={() => scrollToSection('hero')}>Product</button>
-            <button type="button" className={s.navLink} onClick={() => scrollToSection('dilemma')}>Dilemma</button>
-            <button type="button" className={s.navLink} onClick={() => scrollToSection('platform')}>Platform</button>
-            <button type="button" className={s.navLink} onClick={() => scrollToSection('workflow')}>How It Works</button>
-            <button type="button" className={s.navLink} onClick={() => scrollToSection('integrity')}>Integrity</button>
-            <Link to="/map" className={s.navLink} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#16A34A', fontWeight: 600, textDecoration: 'none' }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E', boxShadow: '0 0 6px rgba(34, 197, 94, 0.6)' }} />
-              Live Map
+            {NAV_SECTIONS.map(({ id, key }) => (
+              <button
+                key={id}
+                type="button"
+                className={`${s.navLink} ${activeSection === id ? s.navLinkActive : ''}`}
+                aria-current={activeSection === id ? 'location' : undefined}
+                onClick={() => scrollToSection(id)}
+              >
+                {t(`landing.nav.${key}`)}
+              </button>
+            ))}
+            <Link to="/map" className={`${s.navLink} ${s.navLinkLive}`}>
+              <span className={s.liveDot} aria-hidden="true" />
+              {t('landing.nav.liveMap')}
             </Link>
           </nav>
 
           <div className={s.navRight}>
-            <LanguageSelector />
+            <LanguageSelector className={s.navLang} />
             <button
               type="button"
               className={s.navBtnGhost}
               onClick={() => { setRoleModalMode('login'); setRoleModalOpen(true); }}
             >
-              Login
+              {t('landing.nav.login')}
             </button>
             <button
               type="button"
               className={s.navBtnPrimary}
               onClick={() => { setRoleModalMode('signup'); setRoleModalOpen(true); }}
             >
-              Sign Up
+              {t('landing.nav.signUp')}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
@@ -168,45 +244,39 @@ export default function Landing() {
               type="button"
               className={s.mobileMenuBtn}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle Navigation"
+              aria-label={t('landing.nav.toggleNav')}
             >
               ☰
             </button>
           </div>
-        </header>
 
-        {/* Mobile dropdown */}
-        {mobileMenuOpen && (
-          <div className={s.mobileNavPanel}>
-            <div className={s.mobileNavBrand}>
-              <div className={s.brandLogoWrap}>
-                <img
-                  src="/civicsetu-logo.png"
-                  onError={(e) => { e.currentTarget.src = '/static/civicsetu-logo.png'; }}
-                  alt="CivicSetu Logo"
-                  className={s.brandLogoImg}
-                />
-              </div>
-              <span className={s.brandName}>CivicSetu</span>
+          {/* Mobile dropdown (inside the header so it opens under it after scrolling) */}
+          {mobileMenuOpen && (
+            <div className={s.mobileNavPanel}>
+              {NAV_SECTIONS.map(({ id, key }) => (
+                <button
+                  key={id}
+                  type="button"
+                  className={`${s.navLink} ${activeSection === id ? s.navLinkActive : ''}`}
+                  aria-current={activeSection === id ? 'location' : undefined}
+                  onClick={() => scrollToSection(id)}
+                >
+                  {t(`landing.nav.${key}`)}
+                </button>
+              ))}
+              <Link
+                to="/map"
+                className={`${s.navLink} ${s.navLinkLive}`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <span className={s.liveDot} aria-hidden="true" />
+                {t('landing.nav.liveCityMap')}
+              </Link>
+              <button type="button" className={s.navBtnGhost} onClick={() => { setMobileMenuOpen(false); setRoleModalMode('login'); setRoleModalOpen(true); }}>{t('landing.nav.login')}</button>
+              <button type="button" className={s.navBtnPrimary} onClick={() => { setMobileMenuOpen(false); setRoleModalMode('signup'); setRoleModalOpen(true); }}>{t('landing.nav.signUp')}</button>
             </div>
-            <button type="button" className={s.navLink} onClick={() => scrollToSection('hero')}>Product</button>
-            <button type="button" className={s.navLink} onClick={() => scrollToSection('dilemma')}>Dilemma</button>
-            <button type="button" className={s.navLink} onClick={() => scrollToSection('platform')}>Platform</button>
-            <button type="button" className={s.navLink} onClick={() => scrollToSection('workflow')}>How It Works</button>
-            <button type="button" className={s.navLink} onClick={() => scrollToSection('integrity')}>Integrity</button>
-            <Link
-              to="/map"
-              className={s.navLink}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#16A34A', fontWeight: 600, textDecoration: 'none' }}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E' }} />
-              Live City Map
-            </Link>
-            <button type="button" className={s.navBtnGhost} style={{ textAlign: 'center' }} onClick={() => { setMobileMenuOpen(false); setRoleModalMode('login'); setRoleModalOpen(true); }}>Login</button>
-            <button type="button" className={s.navBtnPrimary} style={{ justifyContent: 'center' }} onClick={() => { setMobileMenuOpen(false); setRoleModalMode('signup'); setRoleModalOpen(true); }}>Sign Up</button>
-          </div>
-        )}
+          )}
+        </header>
 
         {/* ============================================================
             2. HERO SECTION (Editorial Left + 3-Card Composite Right)
@@ -216,28 +286,28 @@ export default function Landing() {
           <div className={s.heroLeft}>
             <div className={s.pillBadge}>
               <span className={s.pillDot} />
-              CIVIC INTELLIGENCE ENGINE
+              {t('landing.hero.badge')}
             </div>
 
             <h1 className={s.heroHeading}>
-              Built for the next<br />
-              generation of<br />
-              civic action.
+              {t('landing.hero.headingLine1')}<br />
+              {t('landing.hero.headingLine2')}<br />
+              {t('landing.hero.headingLine3')}
             </h1>
 
             <p className={s.heroParagraph}>
-              CivicSetu is an intelligent civic triage platform purpose-built for citizens and municipal authorities to classify grievances, prioritize critical hazards, and accelerate urban resolution.
+              {t('landing.hero.paragraph')}
             </p>
 
             <div className={s.heroActions}>
               <Link to="/citizen/submit" className={s.primaryCtaBtn}>
-                Report a Grievance
+                {t('landing.hero.reportCta')}
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <path d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
               </Link>
               <Link to="/track" className={s.secondaryCtaBtn}>
-                Track a Complaint
+                {t('landing.hero.trackCta')}
               </Link>
             </div>
           </div>
@@ -251,15 +321,15 @@ export default function Landing() {
                   <img
                     src="/civic-hero-city.jpg"
                     onError={(e) => { e.currentTarget.src = '/static/civic-hero-city.jpg'; }}
-                    alt="Ward 12 Municipal Infrastructure"
+                    alt={t('landing.hero.incidentImageAlt')}
                     className={s.incidentImage}
                   />
                 </div>
                 <div className={s.incidentMeta}>
-                  <h3 className={s.incidentTitle}>2026 Ward 12 Infrastructure</h3>
+                  <h3 className={s.incidentTitle}>{t('landing.hero.incidentTitle')}</h3>
                   <span className={s.incidentSubtitle}>GEO-28.6139N / 77.2090E</span>
                   <Link to="/map" className={s.incidentLink}>
-                    Explore Incident Map
+                    {t('landing.hero.exploreMap')}
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <path d="M5 12h14M12 5l7 7-7 7" />
                     </svg>
@@ -272,8 +342,8 @@ export default function Landing() {
                 <div>
                   <div className={s.metricTop}>
                     <div className={s.metricPills}>
-                      <span className={s.metricMiniTag}>AI Triage</span>
-                      <span className={s.metricMiniTag}>Ward Dispatch</span>
+                      <span className={s.metricMiniTag}>{t('landing.hero.tagAiTriage')}</span>
+                      <span className={s.metricMiniTag}>{t('landing.hero.tagWardDispatch')}</span>
                     </div>
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
@@ -281,11 +351,11 @@ export default function Landing() {
                     </svg>
                   </div>
                   <div className={s.metricValue}>94%</div>
-                  <p className={s.metricLabel}>Verified Grievance Resolution Rate</p>
+                  <p className={s.metricLabel}>{t('landing.hero.metricLabel')}</p>
                 </div>
                 <div className={s.metricFooter}>
-                  <span>Target SLA: &lt; 24h</span>
-                  <span>+18% MoM Efficiency</span>
+                  <span>{t('landing.hero.targetSla')}</span>
+                  <span>{t('landing.hero.efficiency')}</span>
                 </div>
               </div>
             </div>
@@ -293,45 +363,45 @@ export default function Landing() {
             {/* Bottom: Overview & Department Routing Card */}
             <div className={s.overviewCard}>
               <div className={s.overviewHeader}>
-                <span className={s.overviewTitle}>AI Routing Overview</span>
-                <span className={s.bestOptionBadge}>BEST ROUTE</span>
+                <span className={s.overviewTitle}>{t('landing.hero.overviewTitle')}</span>
+                <span className={s.bestOptionBadge}>{t('landing.hero.bestRoute')}</span>
               </div>
 
               <div className={s.bestOptionBox}>
                 <div className={s.bestOptionDept}>
                   <div className={s.bestOptionDot} />
                   <div>
-                    <div className={s.bestOptionName}>Road & Infrastructure Dept</div>
-                    <div className={s.bestOptionWard}>Ward 12 Central Division • PWD Cell</div>
+                    <div className={s.bestOptionName}>{t('landing.hero.bestDept')}</div>
+                    <div className={s.bestOptionWard}>{t('landing.hero.bestWard')}</div>
                   </div>
                 </div>
-                <span className={s.bestOptionBadge}>98% MATCH</span>
+                <span className={s.bestOptionBadge}>{t('landing.hero.matchBadge')}</span>
               </div>
 
               <div className={s.scoreRow}>
                 <div className={s.scoreItem}>
                   <span className={s.scoreValue}>98</span>
-                  <span className={s.scoreDesc}>AI Confidence Score</span>
+                  <span className={s.scoreDesc}>{t('landing.hero.confidenceScore')}</span>
                 </div>
                 <div className={s.scoreItem}>
-                  <span className={s.scoreValue}>&lt; 24h</span>
-                  <span className={s.scoreDesc}>Policy SLA Target</span>
+                  <span className={s.scoreValue}>{under(24)}</span>
+                  <span className={s.scoreDesc}>{t('landing.hero.policySla')}</span>
                 </div>
                 <div className={s.scoreItem}>
-                  <span className={s.scoreValue}>Tier 1</span>
-                  <span className={s.scoreDesc}>Emergency Dispatch</span>
+                  <span className={s.scoreValue}>{tier(1)}</span>
+                  <span className={s.scoreDesc}>{t('landing.hero.emergencyDispatch')}</span>
                 </div>
               </div>
 
               <div className={s.otherOptions}>
-                <span className={s.otherOptionsLabel}>Other Department Evaluations</span>
+                <span className={s.otherOptionsLabel}>{t('landing.hero.otherEvaluations')}</span>
                 <div className={s.otherOptionItem}>
-                  <span>Sanitation & Waste Cell</span>
-                  <span className={s.otherOptionBadge}>Score: 42 • Secondary</span>
+                  <span>{t('landing.hero.sanitationCell')}</span>
+                  <span className={s.otherOptionBadge}>{t('landing.hero.sanitationScore')}</span>
                 </div>
                 <div className={s.otherOptionItem}>
-                  <span>Water Board Division</span>
-                  <span className={s.otherOptionBadge}>Score: 28 • Non-Jurisdictional</span>
+                  <span>{t('landing.hero.waterBoard')}</span>
+                  <span className={s.otherOptionBadge}>{t('landing.hero.waterScore')}</span>
                 </div>
               </div>
             </div>
@@ -345,13 +415,13 @@ export default function Landing() {
           <div className={s.dilemmaHeader}>
             <div className={`${s.pillBadge} ${s.pillBadgeDilemma}`}>
               <span className={s.pillDot} />
-              CIVIC DILEMMA
+              {t('landing.dilemma.badge')}
             </div>
             <h2 className={s.sectionHeadline}>
-              Why civic grievance resolution remains complex for most cities.
+              {t('landing.dilemma.headline')}
             </h2>
             <p className={s.sectionSubtext}>
-              Traditional municipal reporting pipelines break down at intake, causing citizen disengagement and departmental delays.
+              {t('landing.dilemma.subtext')}
             </p>
           </div>
 
@@ -363,9 +433,9 @@ export default function Landing() {
                   <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
                 </svg>
               </div>
-              <h3 className={s.dilemmaCardTitle}>Unstructured Grievance Data</h3>
+              <h3 className={s.dilemmaCardTitle}>{t('landing.dilemma.card1Title')}</h3>
               <p className={s.dilemmaCardText}>
-                Traditional helplines and paper registries lack standardized categorization, accurate geotags, and verified photographic evidence.
+                {t('landing.dilemma.card1Text')}
               </p>
             </div>
 
@@ -379,9 +449,9 @@ export default function Landing() {
                   <path d="M4 4l5 5" />
                 </svg>
               </div>
-              <h3 className={s.dilemmaCardTitle}>Department Routing Friction</h3>
+              <h3 className={s.dilemmaCardTitle}>{t('landing.dilemma.card2Title')}</h3>
               <p className={s.dilemmaCardText}>
-                Tickets are manually shuffled between road, drainage, and electricity desks without automated jurisdiction or ownership clarity.
+                {t('landing.dilemma.card2Text')}
               </p>
             </div>
 
@@ -392,9 +462,9 @@ export default function Landing() {
                   <circle cx="12" cy="12" r="3" />
                 </svg>
               </div>
-              <h3 className={s.dilemmaCardTitle}>Zero Citizen Visibility</h3>
+              <h3 className={s.dilemmaCardTitle}>{t('landing.dilemma.card3Title')}</h3>
               <p className={s.dilemmaCardText}>
-                Residents file reports into a black hole with no progress timestamps, live tracking codes, or enforceable resolution deadlines.
+                {t('landing.dilemma.card3Text')}
               </p>
             </div>
           </div>
@@ -407,13 +477,13 @@ export default function Landing() {
           <div className={s.platformHeader}>
             <div className={s.pillBadge}>
               <span className={s.pillDot} />
-              ONE PLATFORM
+              {t('landing.platform.badge')}
             </div>
             <h2 className={s.sectionHeadline}>
-              Full confidence in every civic action.
+              {t('landing.platform.headline')}
             </h2>
             <p className={s.sectionSubtext}>
-              A single operational interface connecting proactive citizens, AI automated triage, and municipal workforces.
+              {t('landing.platform.subtext')}
             </p>
           </div>
 
@@ -427,7 +497,7 @@ export default function Landing() {
                     <img
                       src="/civicsetu-logo.png"
                       onError={(e) => { e.currentTarget.src = '/static/civicsetu-logo.png'; }}
-                      alt="CivicSetu Logo"
+                      alt={t('landing.logoAlt')}
                       className={s.brandLogoImg}
                     />
                   </div>
@@ -435,35 +505,35 @@ export default function Landing() {
                 </div>
 
                 <div className={s.sidebarNav}>
-                  <div className={s.sidebarItem} onClick={() => navigate('/citizen/dashboard')} style={{ cursor: 'pointer' }} title="Citizen Dashboard">
+                  <div className={s.sidebarItem} onClick={() => navigate('/citizen/dashboard')} style={{ cursor: 'pointer' }} title={t('landing.platform.sidebar.dashboardTitle')}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>
-                    Dashboard
+                    {t('landing.platform.sidebar.dashboard')}
                   </div>
-                  <div className={`${s.sidebarItem} ${s.sidebarItemActive}`} onClick={() => navigate('/citizen/complaints')} style={{ cursor: 'pointer' }} title="View Grievance Queue">
+                  <div className={`${s.sidebarItem} ${s.sidebarItemActive}`} onClick={() => navigate('/citizen/complaints')} style={{ cursor: 'pointer' }} title={t('landing.platform.sidebar.grievancesTitle')}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>
-                    Grievances
+                    {t('landing.platform.sidebar.grievances')}
                     <span className={s.sidebarItemCount}>24</span>
                   </div>
-                  <div className={s.sidebarItem} onClick={() => navigate('/map')} style={{ cursor: 'pointer' }} title="Open Live Incident Map">
+                  <div className={s.sidebarItem} onClick={() => navigate('/map')} style={{ cursor: 'pointer' }} title={t('landing.platform.sidebar.mapTitle')}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" /><line x1="8" y1="2" x2="8" y2="18" /><line x1="16" y1="6" x2="16" y2="22" /></svg>
-                    Live City Map
+                    {t('landing.nav.liveCityMap')}
                   </div>
-                  <div className={s.sidebarItem} onClick={() => navigate('/authority/dashboard')} style={{ cursor: 'pointer' }} title="Department Portal">
+                  <div className={s.sidebarItem} onClick={() => navigate('/authority/dashboard')} style={{ cursor: 'pointer' }} title={t('landing.platform.sidebar.departmentsTitle')}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
-                    Departments
+                    {t('landing.platform.sidebar.departments')}
                   </div>
-                  <div className={s.sidebarItem} onClick={() => navigate('/superadmin/analytics')} style={{ cursor: 'pointer' }} title="System Analytics">
+                  <div className={s.sidebarItem} onClick={() => navigate('/superadmin/analytics')} style={{ cursor: 'pointer' }} title={t('landing.platform.sidebar.analyticsTitle')}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></svg>
-                    Analytics
+                    {t('landing.platform.sidebar.analytics')}
                   </div>
                 </div>
               </div>
 
-              <div className={s.sidebarUser} onClick={() => navigate('/login/authority')} style={{ cursor: 'pointer' }} title="Authority Login">
+              <div className={s.sidebarUser} onClick={() => navigate('/login/authority')} style={{ cursor: 'pointer' }} title={t('landing.platform.sidebar.authorityLoginTitle')}>
                 <div className={s.sidebarAvatar}>RM</div>
                 <div className={s.sidebarUserInfo}>
-                  <span className={s.sidebarUserName}>Rajesh M.</span>
-                  <span className={s.sidebarUserRole}>Ward 12 Officer ↗</span>
+                  <span className={s.sidebarUserName}>{t('landing.platform.sidebar.userName')}</span>
+                  <span className={s.sidebarUserRole}>{t('landing.platform.sidebar.userRole')}</span>
                 </div>
               </div>
             </div>
@@ -472,8 +542,8 @@ export default function Landing() {
             <div className={s.registryContent}>
               <div className={s.registryTopBar}>
                 <div className={s.registryHeadingGroup}>
-                  <h3 className={s.registryTitle}>Grievance Registry</h3>
-                  <span className={s.registrySub}>Automated AI intake, categorization, and routing queue</span>
+                  <h3 className={s.registryTitle}>{t('landing.platform.registryTitle')}</h3>
+                  <span className={s.registrySub}>{t('landing.platform.registrySub')}</span>
                 </div>
 
                 <div className={s.registryControls}>
@@ -481,13 +551,13 @@ export default function Landing() {
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
                     <input
                       type="text"
-                      placeholder="Search grievances..."
+                      placeholder={t('landing.platform.searchPlaceholder')}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
                   </div>
                   <Link to="/citizen/submit" className={s.registryBtnAdd}>
-                    + New Grievance
+                    {t('landing.platform.newGrievance')}
                   </Link>
                 </div>
               </div>
@@ -495,13 +565,13 @@ export default function Landing() {
               <table className={s.registryTable}>
                 <thead>
                   <tr>
-                    <th>Grievance Details</th>
-                    <th>Reported</th>
-                    <th>AI Match</th>
-                    <th>Department</th>
-                    <th>Priority</th>
-                    <th>SLA Target</th>
-                    <th>Routing</th>
+                    <th>{t('landing.platform.table.details')}</th>
+                    <th>{t('landing.platform.table.reported')}</th>
+                    <th>{t('landing.platform.table.aiMatch')}</th>
+                    <th>{t('landing.platform.table.department')}</th>
+                    <th>{t('landing.platform.table.priority')}</th>
+                    <th>{t('landing.platform.table.slaTarget')}</th>
+                    <th>{t('landing.platform.table.routing')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -510,16 +580,12 @@ export default function Landing() {
                       key={row.id}
                       className={s.registryTableRow}
                       onMouseEnter={() => setActiveRow(index)}
-                      style={{ background: activeRow === index ? '#F9FAF9' : 'transparent' }}
+                      style={{ background: activeRow === index ? '#FFFBF2' : 'transparent' }}
                     >
                       <td>
                         <div className={s.itemMain}>
                           <div className={s.itemIconThumb}>
-                            {row.department.includes('Road') && '🛣️'}
-                            {row.department.includes('Water') && '💧'}
-                            {row.department.includes('Light') && '💡'}
-                            {row.department.includes('Drain') && '🌊'}
-                            {row.department.includes('Sanitation') && '🧹'}
+                            {ROW_ICONS[row.kind]}
                           </div>
                           <div>
                             <div className={s.itemTitleBold}>{row.title}</div>
@@ -527,7 +593,7 @@ export default function Landing() {
                           </div>
                         </div>
                       </td>
-                      <td style={{ color: '#5F6E62', fontSize: '12px' }}>{row.time}</td>
+                      <td style={{ color: '#7D6657', fontSize: '12px' }}>{row.time}</td>
                       <td>
                         <span className={s.matchPill}>{row.match}</span>
                       </td>
@@ -542,7 +608,7 @@ export default function Landing() {
                               : s.priorityMedium
                           }
                         >
-                          {row.priority}
+                          {t(`landing.platform.priority.${row.priority}`)}
                         </span>
                       </td>
                       <td style={{ fontWeight: 600 }}>{row.sla}</td>
@@ -564,7 +630,7 @@ export default function Landing() {
               {registryRows[activeRow] && (
                 <div className={s.registryPopover}>
                   <div className={s.popoverTier}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E7D4F" strokeWidth="2.5">
                       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                       <polyline points="22 4 12 14.01 9 11.01" />
                     </svg>
@@ -587,9 +653,9 @@ export default function Landing() {
               <div className={s.featColIcon}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
               </div>
-              <h4 className={s.featColTitle}>Built for Citizens</h4>
+              <h4 className={s.featColTitle}>{t('landing.platform.features.f1Title')}</h4>
               <p className={s.featColDesc}>
-                Frictionless mobile reporting with automatic GPS geotagging, instant photo proof, and zero paperwork.
+                {t('landing.platform.features.f1Desc')}
               </p>
             </div>
 
@@ -597,9 +663,9 @@ export default function Landing() {
               <div className={s.featColIcon}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2" /><rect x="2" y="14" width="20" height="8" rx="2" ry="2" /><line x1="6" y1="6" x2="6.01" y2="6" /><line x1="6" y1="18" x2="6.01" y2="18" /></svg>
               </div>
-              <h4 className={s.featColTitle}>Scalable and Modular</h4>
+              <h4 className={s.featColTitle}>{t('landing.platform.features.f2Title')}</h4>
               <p className={s.featColDesc}>
-                Connects all 5 municipal departments onto a unified real-time ledger across wards and zones.
+                {t('landing.platform.features.f2Desc')}
               </p>
             </div>
 
@@ -607,9 +673,9 @@ export default function Landing() {
               <div className={s.featColIcon}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>
               </div>
-              <h4 className={s.featColTitle}>Automated AI Triage</h4>
+              <h4 className={s.featColTitle}>{t('landing.platform.features.f3Title')}</h4>
               <p className={s.featColDesc}>
-                Understands natural language complaints and classifies category, urgency, and routing in milliseconds.
+                {t('landing.platform.features.f3Desc')}
               </p>
             </div>
 
@@ -617,9 +683,9 @@ export default function Landing() {
               <div className={s.featColIcon}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
               </div>
-              <h4 className={s.featColTitle}>Real-Time Decisioning</h4>
+              <h4 className={s.featColTitle}>{t('landing.platform.features.f4Title')}</h4>
               <p className={s.featColDesc}>
-                Automated SLA timers and escalation alerts ensure public safety issues never sit idle.
+                {t('landing.platform.features.f4Desc')}
               </p>
             </div>
           </div>
@@ -633,18 +699,18 @@ export default function Landing() {
             <div className={s.workflowLeft}>
               <div className={s.pillBadge}>
                 <span className={s.pillDot} />
-                HOW CIVICSETU WORKS
+                {t('landing.workflow.badge')}
               </div>
               <h2 className={s.workflowLeftHeading}>
-                How CivicSetu<br />
-                fits into your<br />
-                civic workflow.
+                {t('landing.workflow.headingLine1')}<br />
+                {t('landing.workflow.headingLine2')}<br />
+                {t('landing.workflow.headingLine3')}
               </h2>
               <p className={s.workflowLeftDesc}>
-                From the moment a resident spots a civic hazard to verified departmental fix, our platform orchestrates every stage seamlessly.
+                {t('landing.workflow.desc')}
               </p>
               <Link to="/citizen/submit" className={s.primaryCtaBtn}>
-                Report an Issue
+                {t('landing.workflow.reportIssue')}
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <path d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
@@ -656,32 +722,32 @@ export default function Landing() {
               <div className={s.stepCard}>
                 <div className={s.stepPreviewBox}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <div style={{ height: '8px', background: '#DCE8DE', borderRadius: '4px', width: '80%' }} />
-                    <div style={{ height: '8px', background: '#EAF0EB', borderRadius: '4px', width: '60%' }} />
+                    <div style={{ height: '8px', background: '#EADFCB', borderRadius: '4px', width: '80%' }} />
+                    <div style={{ height: '8px', background: '#F3E9D8', borderRadius: '4px', width: '60%' }} />
                     <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
-                      <span style={{ fontSize: '11px', background: '#E2ECE4', padding: '3px 8px', borderRadius: '4px' }}>📍 Geotag Added</span>
-                      <span style={{ fontSize: '11px', background: '#E2ECE4', padding: '3px 8px', borderRadius: '4px' }}>📷 Photo Proof</span>
+                      <span style={{ fontSize: '11px', background: '#F7EFE1', padding: '3px 8px', borderRadius: '4px' }}>{t('landing.workflow.geotagAdded')}</span>
+                      <span style={{ fontSize: '11px', background: '#F7EFE1', padding: '3px 8px', borderRadius: '4px' }}>{t('landing.workflow.photoProof')}</span>
                     </div>
                   </div>
                 </div>
-                <div className={s.stepNumber}>Step 1</div>
+                <div className={s.stepNumber}>{t('landing.workflow.step', { n: 1 })}</div>
                 <p className={s.stepCardText}>
-                  Citizen submits grievance details with mobile photo, GPS location, and voice or text description.
+                  {t('landing.workflow.step1Text')}
                 </p>
               </div>
 
               {/* Step 2 */}
               <div className={s.stepCard}>
                 <div className={s.stepPreviewBox}>
-                  <div style={{ background: '#FFFFFF', padding: '10px 12px', borderRadius: '8px', border: '1px solid #DCE6DC' }}>
-                    <div style={{ fontSize: '11px', fontWeight: '700', color: '#1F6B34', marginBottom: '4px' }}>AI TRIAGE MATRIX</div>
-                    <div style={{ fontSize: '12px', fontWeight: '600' }}>Roads & Infrastructure (98.4%)</div>
-                    <div style={{ fontSize: '11px', color: '#DC2626', marginTop: '2px' }}>High Urgency • SLA: &lt; 24h</div>
+                  <div style={{ background: '#FFFFFF', padding: '10px 12px', borderRadius: '8px', border: '1px solid #EADFCB' }}>
+                    <div style={{ fontSize: '11px', fontWeight: '700', color: '#7A1F2B', marginBottom: '4px' }}>{t('landing.workflow.triageMatrix')}</div>
+                    <div style={{ fontSize: '12px', fontWeight: '600' }}>{t('landing.workflow.triageDept')}</div>
+                    <div style={{ fontSize: '11px', color: '#B42318', marginTop: '2px' }}>{t('landing.workflow.triageUrgency')}</div>
                   </div>
                 </div>
-                <div className={s.stepNumber}>Step 2</div>
+                <div className={s.stepNumber}>{t('landing.workflow.step', { n: 2 })}</div>
                 <p className={s.stepCardText}>
-                  CivicSetu AI analyzes severity, confirms jurisdictional boundaries, and routes directly to the ward desk.
+                  {t('landing.workflow.step2Text')}
                 </p>
               </div>
 
@@ -690,16 +756,16 @@ export default function Landing() {
                 <div className={s.stepPreviewBox}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: '600' }}>
-                      <span>Ward 12 PWD</span>
-                      <span style={{ color: '#16A34A' }}>✓ Dispatched</span>
+                      <span>{t('landing.workflow.wardPwd')}</span>
+                      <span style={{ color: '#1F6B3F' }}>{t('landing.workflow.dispatched')}</span>
                     </div>
-                    <div style={{ height: '6px', background: '#22C55E', borderRadius: '3px', width: '100%' }} />
-                    <span style={{ fontSize: '10.5px', color: '#5F6E62' }}>Citizen notified with tracking link</span>
+                    <div style={{ height: '6px', background: '#2E7D4F', borderRadius: '3px', width: '100%' }} />
+                    <span style={{ fontSize: '10.5px', color: '#7D6657' }}>{t('landing.workflow.citizenNotified')}</span>
                   </div>
                 </div>
-                <div className={s.stepNumber}>Step 3</div>
+                <div className={s.stepNumber}>{t('landing.workflow.step', { n: 3 })}</div>
                 <p className={s.stepCardText}>
-                  Field teams execute repairs, upload resolution proof, and automatically close the ticket on the ledger.
+                  {t('landing.workflow.step3Text')}
                 </p>
               </div>
             </div>
@@ -713,13 +779,13 @@ export default function Landing() {
           <div className={s.trustHeader}>
             <div className={s.pillBadge}>
               <span className={s.pillDot} />
-              CIVIC-GRADE INTEGRITY
+              {t('landing.trust.badge')}
             </div>
             <h2 className={s.sectionHeadline}>
-              Trust engineered into every resolution.
+              {t('landing.trust.headline')}
             </h2>
             <p className={s.sectionSubtext}>
-              Built on verified accountability standards that guarantee transparent governance for both citizens and municipal officers.
+              {t('landing.trust.subtext')}
             </p>
           </div>
 
@@ -728,9 +794,9 @@ export default function Landing() {
               <div className={s.trustCardIcon}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
               </div>
-              <h4 className={s.trustCardTitle}>Geotagged Photo Proof</h4>
+              <h4 className={s.trustCardTitle}>{t('landing.trust.c1Title')}</h4>
               <p className={s.trustCardDesc}>
-                Tamper-resistant EXIF coordinates and timestamp verification ensure every filed complaint corresponds to a physical real-world site.
+                {t('landing.trust.c1Desc')}
               </p>
             </div>
 
@@ -738,9 +804,9 @@ export default function Landing() {
               <div className={s.trustCardIcon}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M16 12l-4-4-4 4M12 16V9" /></svg>
               </div>
-              <h4 className={s.trustCardTitle}>Zero-Drop Routing Engine</h4>
+              <h4 className={s.trustCardTitle}>{t('landing.trust.c2Title')}</h4>
               <p className={s.trustCardDesc}>
-                Complaints are bound programmatically to designated ward officers, eliminating bureaucratic ping-pong and jurisdictional loopholes.
+                {t('landing.trust.c2Desc')}
               </p>
             </div>
 
@@ -748,9 +814,9 @@ export default function Landing() {
               <div className={s.trustCardIcon}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><path d="M9 15l2 2 4-4" /></svg>
               </div>
-              <h4 className={s.trustCardTitle}>SLA Compliance Audit</h4>
+              <h4 className={s.trustCardTitle}>{t('landing.trust.c3Title')}</h4>
               <p className={s.trustCardDesc}>
-                Citizen charters are enforced through automatic escalation notifications sent to municipal supervisors when deadlines approach.
+                {t('landing.trust.c3Desc')}
               </p>
             </div>
 
@@ -758,9 +824,9 @@ export default function Landing() {
               <div className={s.trustCardIcon}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
               </div>
-              <h4 className={s.trustCardTitle}>Public Live Tracking</h4>
+              <h4 className={s.trustCardTitle}>{t('landing.trust.c4Title')}</h4>
               <p className={s.trustCardDesc}>
-                Every resident receives a unique alphanumeric tracking code to inspect real-time departmental notes and repair photographs.
+                {t('landing.trust.c4Desc')}
               </p>
             </div>
           </div>
@@ -774,47 +840,47 @@ export default function Landing() {
             <div className={s.ctaLeft}>
               <div className={`${s.pillBadge} ${s.pillBadgeWhite}`}>
                 <span className={s.pillDot} />
-                GET STARTED
+                {t('landing.cta.badge')}
               </div>
               <h2 className={s.ctaHeading}>
-                Ready to modernize your city's civic response?
+                {t('landing.cta.heading')}
               </h2>
             </div>
 
             <div className={s.ctaRight}>
               <p className={s.ctaSubtext}>
-                Report a civic problem in under 60 seconds or track an ongoing complaint with your unique code.
+                {t('landing.cta.subtext')}
               </p>
 
               <div
                 className={s.ctaTabletCard}
                 onClick={() => navigate('/citizen/submit')}
                 style={{ cursor: 'pointer' }}
-                title="Open Citizen Grievance Portal"
+                title={t('landing.cta.tabletTooltip')}
               >
                 <div className={s.ctaTabletLogoWrap}>
                   <img
                     src="/civicsetu-logo.png"
                     onError={(e) => { e.currentTarget.src = '/static/civicsetu-logo.png'; }}
-                    alt="CivicSetu App"
+                    alt={t('landing.cta.appAlt')}
                     className={s.brandLogoImg}
                   />
                 </div>
                 <div className={s.ctaTabletInfo}>
-                  <span className={s.ctaTabletTitle}>CivicSetu Citizen Portal</span>
-                  <span className={s.ctaTabletDesc}>Instant mobile-friendly reporting without downloading any app ↗</span>
+                  <span className={s.ctaTabletTitle}>{t('landing.cta.tabletTitle')}</span>
+                  <span className={s.ctaTabletDesc}>{t('landing.cta.tabletDesc')}</span>
                 </div>
               </div>
 
               <div className={s.ctaButtonRow}>
                 <Link to="/citizen/submit" className={s.ctaBtnBlack}>
-                  Report an Issue
+                  {t('landing.workflow.reportIssue')}
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <path d="M5 12h14M12 5l7 7-7 7" />
                   </svg>
                 </Link>
                 <Link to="/track" className={s.ctaBtnWhite}>
-                  Track a Complaint
+                  {t('landing.hero.trackCta')}
                 </Link>
               </div>
             </div>
@@ -831,27 +897,27 @@ export default function Landing() {
                 <img
                   src="/civicsetu-logo.png"
                   onError={(e) => { e.currentTarget.src = '/static/civicsetu-logo.png'; }}
-                  alt="CivicSetu Logo"
+                  alt={t('landing.logoAlt')}
                   className={s.brandLogoImg}
                 />
               </div>
-              <span className={s.footerCopyright}>© 2026 CivicSetu. Built for sustainable Indian communities.</span>
+              <span className={s.footerCopyright}>{t('landing.footer.copyright')}</span>
             </div>
 
             <div className={s.footerLinks}>
-              <button type="button" className={s.footerLink} onClick={() => scrollToSection('hero')}>Product</button>
-              <button type="button" className={s.footerLink} onClick={() => scrollToSection('workflow')}>How It Works</button>
-              <Link to="/citizen/submit" className={s.footerLink}>Report Grievance</Link>
-              <Link to="/track" className={s.footerLink}>Track Complaint</Link>
-              <Link to="/map" className={s.footerLink}>Live City Map</Link>
-              <Link to="/login/authority" className={s.footerLink}>Municipal Login</Link>
+              <button type="button" className={s.footerLink} onClick={() => scrollToSection('hero')}>{t('landing.nav.product')}</button>
+              <button type="button" className={s.footerLink} onClick={() => scrollToSection('workflow')}>{t('landing.nav.howItWorks')}</button>
+              <Link to="/citizen/submit" className={s.footerLink}>{t('landing.footer.reportGrievance')}</Link>
+              <Link to="/track" className={s.footerLink}>{t('landing.footer.trackComplaint')}</Link>
+              <Link to="/map" className={s.footerLink}>{t('landing.nav.liveCityMap')}</Link>
+              <Link to="/login/authority" className={s.footerLink}>{t('landing.footer.municipalLogin')}</Link>
               <button
                 type="button"
                 className={s.footerLink}
                 onClick={() => { setRoleModalMode('login'); setRoleModalOpen(true); }}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', font: 'inherit' }}
               >
-                Role Portals ↗
+                {t('landing.footer.rolePortals')}
               </button>
             </div>
           </div>
@@ -860,13 +926,13 @@ export default function Landing() {
             className={s.giantWordmarkRow}
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             style={{ cursor: 'pointer' }}
-            title="Scroll to top"
+            title={t('landing.footer.scrollTop')}
           >
             <div className={s.giantLogoBridge}>
               <img
                 src="/civicsetu-logo.png"
                 onError={(e) => { e.currentTarget.src = '/static/civicsetu-logo.png'; }}
-                alt="CivicSetu Official Logo"
+                alt={t('landing.footer.officialLogoAlt')}
                 className={s.giantLogoImg}
               />
             </div>

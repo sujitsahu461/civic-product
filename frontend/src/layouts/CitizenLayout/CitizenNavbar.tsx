@@ -35,7 +35,7 @@ export const CitizenNavbar: React.FC = () => {
           <span>{t('nav.reportIssue')}</span>
         </Link>
 
-        <LanguageSelector />
+        <LanguageSelector theme="dark" />
         <PortalSwitcher />
 
         {isAuthenticated && (

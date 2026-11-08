@@ -8,9 +8,9 @@
   flex-direction: row;
   min-height: calc(100vh - 64px);
   width: 100%;
-  background-color: #f8fafc;
+  background-color: var(--cs-ivory);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color: #1e293b;
+  color: var(--cs-text-strong);
   box-sizing: border-box;
 }
 
@@ -41,14 +41,14 @@
 .headerTitle {
   font-size: 26px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--cs-text-strong);
   letter-spacing: -0.025em;
   margin: 0 0 3px 0;
 }
 
 .headerSubtitle {
   font-size: 13.5px;
-  color: #64748b;
+  color: var(--cs-text-muted);
   margin: 0;
 }
 
@@ -62,28 +62,28 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
   border-radius: 10px;
   padding: 8px 14px;
   font-size: 12.5px;
   font-weight: 600;
-  color: #334155;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  color: var(--cs-text);
+  box-shadow: 0 1px 2px rgba(var(--cs-shadow-rgb), 0.04);
   cursor: pointer;
   transition: border-color 0.15s ease;
 }
 
 .dateRangePicker:hover {
-  border-color: #cbd5e1;
+  border-color: var(--cs-border-strong);
 }
 
 .btnExportReport {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #1877f2;
-  color: #ffffff;
+  background: var(--cs-kesari);
+  color: var(--cs-text-strong);
   border: none;
   border-radius: 10px;
   padding: 9px 18px;
@@ -91,11 +91,11 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.18s ease;
-  box-shadow: 0 2px 8px rgba(24, 119, 242, 0.28);
+  box-shadow: 0 2px 8px rgba(255, 119, 34, 0.28);
 }
 
 .btnExportReport:hover {
-  background: #166fe5;
+  background: var(--cs-kesari-hover);
   transform: translateY(-1px);
 }
 
@@ -109,22 +109,22 @@
 }
 
 .kpiCard {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
   border-radius: 14px;
   padding: 16px 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+  box-shadow: 0 1px 3px rgba(var(--cs-shadow-rgb), 0.03);
   cursor: pointer;
   transition: all 0.18s ease;
 }
 
 .kpiCard:hover {
   transform: translateY(-2px);
-  border-color: #cbd5e1;
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+  border-color: var(--cs-border-strong);
+  box-shadow: 0 6px 16px rgba(var(--cs-shadow-rgb), 0.06);
 }
 
 .kpiLeft {
@@ -151,7 +151,7 @@
 .kpiLabel {
   font-size: 11.5px;
   font-weight: 700;
-  color: #64748b;
+  color: var(--cs-text-muted);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   margin-bottom: 2px;
@@ -166,7 +166,7 @@
 .kpiValue {
   font-size: 24px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--cs-text-strong);
   line-height: 1.1;
   letter-spacing: -0.02em;
 }
@@ -177,12 +177,12 @@
   gap: 2px;
   font-size: 11.5px;
   font-weight: 700;
-  color: #10b981;
+  color: var(--cs-success);
 }
 
 .kpiFootnote {
   font-size: 11px;
-  color: #94a3b8;
+  color: var(--cs-text-faint);
   margin-top: 2px;
 }
 
@@ -202,11 +202,11 @@
 }
 
 .chartCard {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
   border-radius: 14px;
   padding: 18px 20px;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+  box-shadow: 0 1px 3px rgba(var(--cs-shadow-rgb), 0.03);
   display: flex;
   flex-direction: column;
 }
@@ -221,29 +221,29 @@
 .cardTitle {
   font-size: 15px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--cs-text-strong);
   margin: 0 0 2px 0;
 }
 
 .cardSubtitle {
   font-size: 12px;
-  color: #64748b;
+  color: var(--cs-text-muted);
   margin: 0;
 }
 
 .toggleButtonGroup {
   display: flex;
-  background: #f1f5f9;
+  background: var(--cs-sand);
   padding: 3px;
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--cs-border);
 }
 
 .btnToggle {
   padding: 4px 10px;
   font-size: 11.5px;
   font-weight: 600;
-  color: #64748b;
+  color: var(--cs-text-muted);
   background: transparent;
   border: none;
   border-radius: 6px;
@@ -252,9 +252,9 @@
 }
 
 .btnToggleActive {
-  background: #2563eb;
-  color: #ffffff;
-  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25);
+  background: var(--cs-kesari);
+  color: var(--cs-text-strong);
+  box-shadow: 0 1px 3px rgba(255, 119, 34, 0.25);
 }
 
 .legendGroup {
@@ -269,7 +269,7 @@
   gap: 5px;
   font-size: 12px;
   font-weight: 600;
-  color: #334155;
+  color: var(--cs-text);
 }
 
 .legendDot {
@@ -286,7 +286,7 @@
   height: 220px;
   padding: 10px 10px 0;
   position: relative;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--cs-border);
 }
 
 .gridLines {
@@ -306,7 +306,7 @@
 
 .gridLineText {
   font-size: 10.5px;
-  color: #94a3b8;
+  color: var(--cs-text-faint);
   width: 28px;
   text-align: right;
   padding-right: 8px;
@@ -315,7 +315,7 @@
 .gridLineDash {
   flex: 1;
   height: 1px;
-  background: #f1f5f9;
+  background: var(--cs-sand);
 }
 
 .barCol {
@@ -333,7 +333,7 @@
 .barTopVal {
   font-size: 13px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--cs-text-strong);
   margin-bottom: 6px;
   transition: transform 0.15s ease;
 }
@@ -355,11 +355,11 @@
 
 .barCol:hover .barTopVal {
   transform: translateY(-2px);
-  color: #2563eb;
+  color: var(--cs-maroon);
 }
 
 .barPillarIcon {
-  color: #ffffff;
+  color: var(--cs-white);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -368,7 +368,7 @@
 .barLabel {
   font-size: 11.5px;
   font-weight: 600;
-  color: #475569;
+  color: var(--cs-text);
   text-align: center;
   margin-top: 10px;
   line-height: 1.25;
@@ -395,11 +395,11 @@
   top: 15px;
   left: 65%;
   transform: translateX(-50%);
-  background: #ffffff;
-  border: 1px solid #bfdbfe;
+  background: var(--cs-white);
+  border: 1px solid var(--cs-kesari-light);
   border-radius: 10px;
   padding: 8px 12px;
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 8px 20px rgba(255, 119, 34, 0.15);
   font-size: 11.5px;
   z-index: 5;
   pointer-events: none;
@@ -407,7 +407,7 @@
 
 .tooltipDate {
   font-weight: 700;
-  color: #0f172a;
+  color: var(--cs-text-strong);
   margin-bottom: 4px;
 }
 
@@ -416,7 +416,7 @@
   align-items: center;
   gap: 6px;
   margin-top: 2px;
-  color: #334155;
+  color: var(--cs-text);
   font-weight: 600;
 }
 
@@ -425,7 +425,7 @@
   justify-content: space-between;
   margin-top: 8px;
   font-size: 11px;
-  color: #94a3b8;
+  color: var(--cs-text-faint);
   padding: 0 8px;
 }
 
@@ -452,20 +452,20 @@
 
 .deptTable th {
   padding: 8px 10px;
-  background: #f8fafc;
-  color: #64748b;
+  background: var(--cs-ivory);
+  color: var(--cs-text-muted);
   font-size: 10.5px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--cs-border);
   text-align: left;
 }
 
 .deptTable td {
   padding: 9px 10px;
-  border-bottom: 1px solid #f1f5f9;
-  color: #334155;
+  border-bottom: 1px solid var(--cs-sand);
+  color: var(--cs-text);
   vertical-align: middle;
 }
 
@@ -478,13 +478,13 @@
   justify-content: center;
   font-size: 11px;
   font-weight: 700;
-  background: #f1f5f9;
-  color: #475569;
+  background: var(--cs-sand);
+  color: var(--cs-text);
 }
 
 .deptNumBadgeGold {
-  background: #fef3c7;
-  color: #d97706;
+  background: var(--cs-haldi-tint);
+  color: var(--cs-haldi-text);
 }
 
 .deptNameCell {
@@ -492,11 +492,11 @@
   align-items: center;
   gap: 8px;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--cs-text-strong);
 }
 
 .deptIcon {
-  color: #2563eb;
+  color: var(--cs-maroon);
   flex-shrink: 0;
 }
 
@@ -506,8 +506,8 @@
   border-radius: 6px;
   font-size: 11px;
   font-weight: 700;
-  background: #ecfdf5;
-  color: #059669;
+  background: var(--cs-success-tint);
+  color: var(--cs-success-text);
 }
 
 .pillSlaRed {
@@ -516,14 +516,14 @@
   border-radius: 6px;
   font-size: 11px;
   font-weight: 700;
-  background: #fee2e2;
-  color: #dc2626;
+  background: var(--cs-danger-tint);
+  color: var(--cs-danger);
 }
 
 .viewAllLink {
   font-size: 12px;
   font-weight: 600;
-  color: #2563eb;
+  color: var(--cs-maroon);
   text-decoration: none;
   cursor: pointer;
 }
@@ -567,13 +567,13 @@
 .donutCenterNum {
   font-size: 20px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--cs-text-strong);
   line-height: 1.1;
 }
 
 .donutCenterLabel {
   font-size: 11px;
-  color: #64748b;
+  color: var(--cs-text-muted);
   font-weight: 500;
 }
 
@@ -595,12 +595,12 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #475569;
+  color: var(--cs-text);
 }
 
 .donutLegendVal {
   font-weight: 700;
-  color: #0f172a;
+  color: var(--cs-text-strong);
 }
 
 /* Card 3: Citizen Satisfaction */
@@ -610,20 +610,20 @@
   gap: 14px;
   margin-top: 8px;
   padding-bottom: 12px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--cs-sand);
 }
 
 .starBadgeBig {
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: #fffbeb;
+  background: var(--cs-haldi-tint);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 26px;
-  color: #f59e0b;
-  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.15);
+  color: var(--cs-haldi-text);
+  box-shadow: 0 2px 6px rgba(244, 196, 48, 0.15);
 }
 
 .ratingInfoCol {
@@ -640,11 +640,11 @@
 .ratingNum {
   font-size: 24px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--cs-text-strong);
 }
 
 .ratingStarsRow {
-  color: #f59e0b;
+  color: var(--cs-haldi-text);
   font-size: 14px;
   margin-top: 1px;
 }
@@ -665,27 +665,27 @@
 
 .starBarLabel {
   width: 24px;
-  color: #475569;
+  color: var(--cs-text);
   font-weight: 600;
 }
 
 .starBarTrack {
   flex: 1;
   height: 7px;
-  background: #f1f5f9;
+  background: var(--cs-sand);
   border-radius: 9999px;
   overflow: hidden;
 }
 
 .starBarFill {
   height: 100%;
-  background: #f59e0b;
+  background: var(--cs-haldi);
   border-radius: 9999px;
 }
 
 .starBarVal {
   font-size: 10.5px;
-  color: #64748b;
+  color: var(--cs-text-muted);
   width: 48px;
   text-align: right;
 }
@@ -719,7 +719,7 @@
   gap: 8px;
   font-size: 12px;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--cs-text-strong);
   width: 175px;
 }
 
@@ -738,7 +738,7 @@
   flex: 1;
   height: 10px;
   border-radius: 5px;
-  background: #f1f5f9;
+  background: var(--cs-sand);
   overflow: hidden;
 }
 
@@ -750,7 +750,7 @@
 .recurringVal {
   font-size: 11.5px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--cs-text-strong);
   width: 28px;
   text-align: right;
 }
@@ -760,9 +760,9 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: #f5f3ff;
-  border: 1px solid #ddd6fe;
-  color: #7c3aed;
+  background: var(--cs-maroon-tint);
+  border: 1px solid var(--cs-maroon-light);
+  color: var(--cs-maroon);
   font-size: 11px;
   font-weight: 700;
   padding: 3px 8px;
@@ -788,21 +788,21 @@
 }
 
 .predictionCardRed {
-  background: #fff1f2;
-  border-color: #fecdd3;
-  color: #9f1239;
+  background: var(--cs-danger-tint);
+  border-color: var(--cs-danger-light);
+  color: var(--cs-danger-dark);
 }
 
 .predictionCardGreen {
-  background: #f0fdf4;
-  border-color: #bbf7d0;
-  color: #166534;
+  background: var(--cs-success-tint);
+  border-color: var(--cs-success-light);
+  color: var(--cs-success-text);
 }
 
 .predictionCardAmber {
-  background: #fffbeb;
-  border-color: #fde68a;
-  color: #92400e;
+  background: var(--cs-haldi-tint);
+  border-color: var(--cs-haldi-light);
+  color: var(--cs-haldi-text);
 }
 
 .predictionIconBox {
@@ -818,18 +818,18 @@
 }
 
 .predIconRed {
-  background: #fee2e2;
-  color: #ef4444;
+  background: var(--cs-danger-tint);
+  color: var(--cs-danger);
 }
 
 .predIconGreen {
-  background: #ecfdf5;
-  color: #10b981;
+  background: var(--cs-success-tint);
+  color: var(--cs-success-text);
 }
 
 .predIconAmber {
-  background: #fef3c7;
-  color: #d97706;
+  background: var(--cs-haldi-tint);
+  color: var(--cs-haldi-text);
 }
 
 /* ============================================================

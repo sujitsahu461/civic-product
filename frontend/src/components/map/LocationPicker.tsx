@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, ZoomControl, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import Button from '../ui/Button';
+import { useTranslation } from 'react-i18next';
+import { placeLabel } from '../../i18n/placeLabels';
 import Icon from '../ui/Icon';
 import { showToast } from '../ui/Toast';
 import useAuthStore from '../../store/authStore';
@@ -92,6 +93,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
   height = '380px',
 }) => {
   const { user } = useAuthStore();
+  const { t, i18n } = useTranslation();
 
   const hasValidInitial =
     initialLat != null &&
@@ -254,15 +256,6 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
     }
   };
 
-  // Reset to Whole India view
-  const handleWholeIndia = () => {
-    setSelectedPreset('🇮🇳 Whole India');
-    setPosition(INDIA_MAP_CENTER);
-    setMapZoom(INDIA_DEFAULT_ZOOM);
-    setAddressPreview('Republic of India');
-    setFlyTarget({ center: INDIA_MAP_CENTER, zoom: INDIA_DEFAULT_ZOOM, key: Date.now() });
-    onLocationSelect(INDIA_MAP_CENTER[0], INDIA_MAP_CENTER[1], 'Republic of India');
-  };
 
   // Place search by text across India
   const handleSearchSubmit = async (e?: React.FormEvent) => {
@@ -333,9 +326,9 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
         }
       }
 
-      showToast(`Could not find "${query}". Please click directly on the India map to place the pin.`, 'warning');
+      showToast(t('map.picker.notFound', { query }), 'warning');
     } catch {
-      showToast('Geocoding search failed. Please click directly on the map.', 'error');
+      showToast(t('map.picker.searchFailed'), 'error');
     } finally {
       setIsSearching(false);
     }
@@ -355,78 +348,15 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
 
   return (
     <div className={s.wrapper}>
-      {/* Top Bar: Lat/Lng Display + Whole India Button + Live GPS Detect + Layer Toggle */}
-      <div className={s.topBar}>
-        <div className={s.topBarLeft}>
-          <div className={s.coordsBox}>
-            <Icon name="pin_drop" size={16} style={{ color: '#10b981' }} />
-            <span className={s.coordsText}>
-              Lat: {position[0].toFixed(6)}, Lng: {position[1].toFixed(6)}
-            </span>
-          </div>
-
-          <button
-            type="button"
-            className={s.indiaBtn}
-            onClick={handleWholeIndia}
-            title="Show Whole India Map View"
-          >
-            <span>🇮🇳 Whole India</span>
-          </button>
-
-          <button
-            type="button"
-            className={s.myWardBtn}
-            onClick={handleLocateMyWard}
-            title={`Teleport to registered ward: ${user?.address || 'Modipara, Sambalpur'}`}
-          >
-            <Icon name="home_pin" size={14} />
-            <span>📍 My Ward: {userWardName}</span>
-          </button>
-        </div>
-
-        <div className={s.topBarRight}>
-          <button
-            type="button"
-            className={s.layerToggleBtn}
-            onClick={() =>
-              setActiveTileLayer((prev) =>
-                prev === 'osm' ? 'esri' : prev === 'esri' ? 'satellite' : 'osm'
-              )
-            }
-            title="Switch Map Tile Provider"
-          >
-            <Icon name="layers" size={14} />
-            <span>
-              {activeTileLayer === 'osm'
-                ? 'OSM Standard HD'
-                : activeTileLayer === 'esri'
-                ? 'Esri Street Map'
-                : 'Satellite View'}
-            </span>
-          </button>
-
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={detectGps}
-            isLoading={isLocating}
-            leftIcon={<Icon name="my_location" size={14} />}
-          >
-            Auto-Detect GPS
-          </Button>
-        </div>
-      </div>
-
-      {/* Place Search Bar across India */}
+      {/* Search + use my location */}
       <div className={s.searchRow}>
-        <div className={s.searchInputWrapper}>
-          <Icon name="search" size={16} className={s.searchIcon} />
+        <div className={s.searchBox}>
+          <Icon name="search" size={18} className={s.searchIcon} />
           <input
             type="text"
             className={s.searchInput}
-            placeholder="Search any Indian city, landmark, or street (e.g. GIET Gunupur, Sakhipara, Connaught Place)..."
+            placeholder={t('submit.wizard.searchPlaceholder')}
+            aria-label={t('submit.wizard.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={(e) => {
@@ -439,54 +369,67 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
           {searchQuery && (
             <button
               type="button"
-              className={s.searchClearBtn}
+              className={s.clearBtn}
               onClick={() => setSearchQuery('')}
-              title="Clear search"
+              aria-label={t('map.picker.clearSearch')}
             >
-              <Icon name="close" size={14} />
+              <Icon name="close" size={16} />
             </button>
           )}
+          <button
+            type="button"
+            onClick={() => handleSearchSubmit()}
+            className={s.searchBtn}
+            disabled={isSearching || !searchQuery.trim()}
+          >
+            {isSearching ? <span className={s.spinner} aria-hidden="true" /> : null}
+            <span>{t('submit.wizard.search')}</span>
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => handleSearchSubmit()}
-          className={s.searchBtn}
-          disabled={isSearching || !searchQuery.trim()}
-        >
-          {isSearching ? <span className={s.statusSpinner}></span> : <Icon name="explore" size={14} />}
-          <span>Locate</span>
+
+        <button type="button" className={s.gpsBtn} onClick={detectGps} disabled={isLocating}>
+          {isLocating ? (
+            <span className={s.spinner} aria-hidden="true" />
+          ) : (
+            <Icon name="my_location" size={17} />
+          )}
+          <span>{t('submit.wizard.useMyLocation')}</span>
         </button>
       </div>
 
-      {/* Locality & City Quick Presets */}
-      <div className={s.presetsRow}>
-        <span className={s.presetLabel}>
-          <Icon name="near_me" size={12} />
-          <span>Hubs:</span>
-        </span>
-        {KNOWN_LOCALITIES.map((loc) => {
-          const isActive = selectedPreset === loc.name;
-          return (
-            <button
-              key={loc.name}
-              type="button"
-              className={`${s.presetPill} ${isActive ? s.presetPillActive : ''}`}
-              onClick={() => handleSelectPreset(loc)}
-            >
-              {loc.name}
-            </button>
-          );
-        })}
+      {/* Quick places: my ward first, then known localities (incl. Whole India) */}
+      <div className={s.chipsRow}>
+        <button
+          type="button"
+          className={`${s.chip} ${s.chipWard} ${selectedPreset && userWardName && selectedPreset.includes(userWardName) ? s.chipOn : ''}`}
+          onClick={handleLocateMyWard}
+          title={t('map.picker.myWardTitle', { address: user?.address || `${placeLabel('Modipara', t)}, ${t('map.places.sambalpur')}` })}
+        >
+          <Icon name="home_pin" size={15} />
+          <span>{placeLabel(userWardName, t)}</span>
+        </button>
+        {KNOWN_LOCALITIES.map((loc) => (
+          <button
+            key={loc.name}
+            type="button"
+            className={`${s.chip} ${selectedPreset === loc.name ? s.chipOn : ''}`}
+            onClick={() => handleSelectPreset(loc)}
+          >
+            {placeLabel(loc.name, t)}
+          </button>
+        ))}
       </div>
 
-      {/* Interactive Leaflet Map Frame */}
+      {/* Map */}
       <div className={s.mapFrame} style={{ height }}>
         <MapContainer
           center={position}
           zoom={mapZoom}
           scrollWheelZoom={true}
+          zoomControl={false}
           className={s.map}
         >
+          <ZoomControl key={i18n.language} position="topleft" zoomInTitle={t('map.zoomIn')} zoomOutTitle={t('map.zoomOut')} />
           <TileLayer
             key={activeTileLayer}
             attribution={currentTileConfig.attribution}
@@ -494,12 +437,8 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
             maxZoom={currentTileConfig.maxZoom}
             subdomains={currentTileConfig.subdomains || 'abc'}
           />
-
           <MapController flyTarget={flyTarget} />
-
           <MapEvents onMapClick={handlePositionChange} />
-
-
           <Marker
             draggable={true}
             eventHandlers={{ dragend: handleDragEnd }}
@@ -509,26 +448,48 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
           />
         </MapContainer>
 
-        <div className={s.tipOverlay}>
-          <Icon name="touch_app" size={14} />
-          <span>Click anywhere in India or drag pin to pinpoint exact site</span>
-        </div>
-      </div>
+        <button
+          type="button"
+          className={s.layerBtn}
+          onClick={() =>
+            setActiveTileLayer((prev) =>
+              prev === 'osm' ? 'esri' : prev === 'esri' ? 'satellite' : 'osm'
+            )
+          }
+          title={t('map.tiles.switchTitle')}
+          aria-label={t('submit.wizard.mapStyle')}
+        >
+          <Icon name="layers" size={16} />
+          <span>
+            {activeTileLayer === 'osm'
+              ? t('map.tiles.osm')
+              : activeTileLayer === 'esri'
+              ? t('map.tiles.esri')
+              : t('map.tiles.satellite')}
+          </span>
+        </button>
 
-      {/* Geocoded Address Preview */}
-      <div className={s.addressBox}>
-        <Icon name="location_on" size={16} style={{ color: '#38bdf8', marginTop: '2px' }} />
-        <span className={s.addressText}>
-          {isGeocoding ? (
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-              <span className={s.statusSpinner}></span>
-              <span>Resolving street address & jurisdiction...</span>
-            </span>
-          ) : (
-            addressPreview || 'Click anywhere on map or search above to set precise address'
-          )}
+        <span className={s.coordsBadge}>
+          {position[0].toFixed(5)}, {position[1].toFixed(5)}
         </span>
       </div>
+
+      {/* Resolved address */}
+      <p className={s.addressLine} aria-live="polite">
+        <Icon name="location_on" size={17} className={s.addressIcon} />
+        {isGeocoding ? (
+          <span className={s.resolving}>
+            <span className={s.spinner} aria-hidden="true" />
+            <span>{t('map.picker.resolving')}</span>
+          </span>
+        ) : (
+          <span>
+            {addressPreview === INDIA_DEFAULT_ADDRESS
+              ? t('map.picker.republicOfIndia')
+              : addressPreview || t('map.picker.addressPrompt')}
+          </span>
+        )}
+      </p>
     </div>
   );
 };

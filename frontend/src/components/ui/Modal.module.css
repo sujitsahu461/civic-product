@@ -1,7 +1,7 @@
 .backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.45);
+  background: rgba(var(--cs-shadow-rgb), 0.45);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   display: flex;
@@ -13,11 +13,11 @@
 }
 
 .modal {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
   border-radius: 14px;
   width: 100%;
-  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 20px 40px -10px rgba(var(--cs-shadow-rgb), 0.18), 0 0 0 1px rgba(var(--cs-shadow-rgb), 0.03);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -29,21 +29,21 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid #e2e8f0;
-  background: #ffffff;
+  border-bottom: 1px solid var(--cs-border);
+  background: var(--cs-white);
 }
 
 .title {
   margin: 0;
   font-size: 17px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--cs-maroon);
 }
 
 .closeBtn {
   background: transparent;
   border: none;
-  color: #64748b;
+  color: var(--cs-text-muted);
   font-size: 20px;
   line-height: 1;
   cursor: pointer;
@@ -56,16 +56,16 @@
 }
 
 .closeBtn:hover {
-  color: #0f172a;
-  background: #f1f5f9;
+  color: var(--cs-text-strong);
+  background: var(--cs-sand);
 }
 
 .content {
   padding: 20px;
   max-height: 80vh;
   overflow-y: auto;
-  background: #ffffff;
-  color: #334155;
+  background: var(--cs-white);
+  color: var(--cs-text);
 }
 
 @keyframes fadeIn {

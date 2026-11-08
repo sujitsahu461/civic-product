@@ -7,54 +7,111 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import './citizenTheme.css';
 
-/* ---- Color Tokens ---- */
+/* ---- Brand Palette (Kesari + Maroon + Haldi) ----
+   The single source of truth for colors. Every other color token
+   below (and in citizenTheme.css) points back to these.
+   Rule: kesari and haldi are background colors only; never use them
+   for text. Text on kesari uses --cs-text-strong (dark). */
 :root {
-  --background:                #f8fafc;
-  --surface-dim:               #f1f5f9;
-  --surface:                   #ffffff;
-  --surface-container-lowest:  #ffffff;
-  --surface-container-low:     #f8fafc;
-  --surface-container:         #ffffff;
-  --surface-container-high:    #f1f5f9;
-  --surface-container-highest: #e2e8f0;
-  --surface-variant:           #e2e8f0;
-  --surface-bright:            #ffffff;
+  /* Kesari: main actions, progress, focus */
+  --cs-kesari:          #FF7722;
+  --cs-kesari-hover:    #E8620F;
+  --cs-kesari-deep:     #B93E0C;  /* text-safe kesari: 4.7:1 on kesari tint, 5.6:1 under white text */
+  --cs-kesari-light:    #FFC9A3;  /* borders */
+  --cs-kesari-tint:     #FFE8D6;  /* soft backgrounds */
+  --cs-kesari-wash:     #FFF4EC;  /* hover backgrounds */
 
-  --primary:            #2563eb;
-  --on-primary:         #ffffff;
-  --primary-container:  #eff6ff;
-  --on-primary-container:#1d4ed8;
-  --primary-fixed:      #dbeafe;
-  --primary-fixed-dim:  #bfdbfe;
+  /* Maroon: brand, headings, links, active states */
+  --cs-maroon:          #7A1F2B;
+  --cs-maroon-dark:     #5E1620;
+  --cs-maroon-light:    #E4BCC1;  /* borders */
+  --cs-maroon-tint:     #F6E3E5;  /* soft backgrounds */
+  --cs-maroon-wash:     #FBF1F2;
 
-  --secondary:           #16a34a;
-  --on-secondary:        #ffffff;
-  --secondary-container: #dcfce7;
-  --on-secondary-container:#15803d;
-  --secondary-fixed:     #bbf7d0;
-  --secondary-fixed-dim: #86efac;
+  /* Haldi: "needs attention" (submitted, medium priority) */
+  --cs-haldi:           #F4C430;
+  --cs-haldi-light:     #F6DC85;
+  --cs-haldi-tint:      #FDF0C4;
+  --cs-haldi-text:      #6B4E00;
 
-  --tertiary:           #d97706;
-  --on-tertiary:        #ffffff;
-  --tertiary-container: #fef3c7;
-  --tertiary-fixed:     #fde68a;
-  --tertiary-fixed-dim: #fcd34d;
+  /* Neutrals: ivory backgrounds, cocoa text */
+  --cs-ivory:           #FFFBF2;  /* page background */
+  --cs-white:           #FFFFFF;  /* cards */
+  --cs-sand:            #F7EFE1;  /* subtle panels, sidebars */
+  --cs-sand-dark:       #F3E9D8;  /* tracks, pressed states */
+  --cs-border:          #EADFCB;
+  --cs-border-strong:   #DCCDB5;
+  --cs-text-strong:     #3B2418;  /* headings, input text */
+  --cs-text:            #5A4033;  /* body text */
+  --cs-text-muted:      #7D6657;  /* helper text, captions */
+  --cs-text-faint:      #857060;  /* captions, placeholders; 4.6:1 on white */
 
-  --error:           #dc2626;
-  --on-error:        #ffffff;
-  --error-container: #fee2e2;
+  /* Status colors: kept as green and red on purpose so success and
+     errors stay obvious. The red is brighter than maroon so the two
+     never get confused. */
+  --cs-success:         #2E7D4F;
+  --cs-success-text:    #1F6B3F;
+  --cs-success-light:   #B7DEC3;
+  --cs-success-tint:    #E6F4EA;
+  --cs-danger:          #B42318;
+  --cs-danger-dark:     #912018;
+  --cs-danger-light:    #F5C2BC;
+  --cs-danger-tint:     #FDECEA;
+  --cs-neutral-tint:    #F3EEE8;
+  --cs-neutral-light:   #E3D8CB;
 
-  --on-background:     #0f172a;
-  --on-surface:        #0f172a;
-  --on-surface-variant:#475569;
+  /* Shadow tint (warm cocoa instead of slate) */
+  --cs-shadow-rgb:      59, 36, 24;
+}
 
-  --outline:         #cbd5e1;
-  --outline-variant: #e2e8f0;
+/* ---- Color Tokens (mapped to the brand palette) ---- */
+:root {
+  --background:                var(--cs-ivory);
+  --surface-dim:               var(--cs-sand);
+  --surface:                   var(--cs-white);
+  --surface-container-lowest:  var(--cs-white);
+  --surface-container-low:     var(--cs-ivory);
+  --surface-container:         var(--cs-white);
+  --surface-container-high:    var(--cs-sand);
+  --surface-container-highest: var(--cs-border);
+  --surface-variant:           var(--cs-border);
+  --surface-bright:            var(--cs-white);
 
-  --inverse-surface:   #0f172a;
-  --inverse-on-surface:#ffffff;
-  --inverse-primary:   #93c5fd;
-  --surface-tint:      #2563eb;
+  --primary:            var(--cs-kesari);
+  --on-primary:         var(--cs-text-strong);
+  --primary-container:  var(--cs-kesari-tint);
+  --on-primary-container:var(--cs-maroon);
+  --primary-fixed:      var(--cs-kesari-tint);
+  --primary-fixed-dim:  var(--cs-kesari-light);
+
+  --secondary:           var(--cs-maroon);
+  --on-secondary:        var(--cs-white);
+  --secondary-container: var(--cs-maroon-tint);
+  --on-secondary-container:var(--cs-maroon);
+  --secondary-fixed:     var(--cs-maroon-tint);
+  --secondary-fixed-dim: var(--cs-maroon-light);
+
+  --tertiary:           var(--cs-haldi);
+  --on-tertiary:        var(--cs-text-strong);
+  --tertiary-container: var(--cs-haldi-tint);
+  --tertiary-fixed:     var(--cs-haldi-tint);
+  --tertiary-fixed-dim: var(--cs-haldi-light);
+
+  --error:           var(--cs-danger);
+  --on-error:        var(--cs-white);
+  --error-container: var(--cs-danger-tint);
+
+  --on-background:     var(--cs-text-strong);
+  --on-surface:        var(--cs-text-strong);
+  --on-surface-variant:var(--cs-text);
+
+  --outline:         var(--cs-border-strong);
+  --outline-variant: var(--cs-border);
+
+  --inverse-surface:   var(--cs-text-strong);
+  --inverse-on-surface:var(--cs-white);
+  --inverse-primary:   var(--cs-kesari-light);
+  --surface-tint:      var(--cs-kesari);
 
   /* Spacing */
   --space-xs: 4px;
@@ -83,8 +140,8 @@
 html, body {
   min-height: 100%;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: var(--background);
+  color: var(--on-surface);
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -120,15 +177,15 @@ html, body {
 /* ---- Scrollbar ---- */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+::-webkit-scrollbar-thumb { background: var(--cs-border-strong); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--cs-text-faint); }
 
 /* ---- Glass Panel ---- */
 .glass-panel {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--outline-variant);
 }
 
 /* ---- App Root Layout ---- */
@@ -136,7 +193,7 @@ html, body {
   display: flex;
   min-height: 100vh;
   width: 100%;
-  background-color: #f8fafc;
+  background-color: var(--background);
 }
 
 .main-with-sidebar {
@@ -153,7 +210,7 @@ html, body {
   display: flex;
   min-height: 100vh;
   width: 100%;
-  background-color: #f8fafc;
+  background-color: var(--background);
 }
 .gov-sidebar {
   width: 240px;
@@ -175,33 +232,33 @@ html, body {
   flex-direction: column;
   min-height: 100vh;
   width: 100%;
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: var(--background);
+  color: var(--on-surface);
 }
 .citizen-main {
   flex: 1;
-  background-color: #f8fafc;
+  background-color: var(--background);
 }
 
 /* Auth / full pages (login, signup) */
 .auth-layout {
   width: 100%;
   min-height: 100vh;
-  background-color: #f8fafc;
+  background-color: var(--background);
 }
 
 /* ---- Typography Scale ---- */
-.text-display    { font-size: 36px; line-height: 44px; letter-spacing: -0.02em; font-weight: 700; color: #0f172a; }
-.text-headline-lg{ font-size: 24px; line-height: 32px; letter-spacing: -0.01em; font-weight: 600; color: #0f172a; }
-.text-headline-md{ font-size: 20px; line-height: 28px; font-weight: 600; color: #0f172a; }
-.text-body-lg    { font-size: 16px; line-height: 24px; font-weight: 400; color: #334155; }
-.text-body-md    { font-size: 14px; line-height: 20px; font-weight: 400; color: #475569; }
-.text-body-sm    { font-size: 13px; line-height: 18px; font-weight: 400; color: #64748b; }
-.text-label-md   { font-size: 12px; line-height: 16px; letter-spacing: 0.05em; font-weight: 600; color: #64748b; }
+.text-display    { font-size: 36px; line-height: 44px; letter-spacing: -0.02em; font-weight: 700; color: var(--cs-maroon); }
+.text-headline-lg{ font-size: 24px; line-height: 32px; letter-spacing: -0.01em; font-weight: 600; color: var(--cs-maroon); }
+.text-headline-md{ font-size: 20px; line-height: 28px; font-weight: 600; color: var(--cs-text-strong); }
+.text-body-lg    { font-size: 16px; line-height: 24px; font-weight: 400; color: var(--cs-text); }
+.text-body-md    { font-size: 14px; line-height: 20px; font-weight: 400; color: var(--cs-text); }
+.text-body-sm    { font-size: 13px; line-height: 18px; font-weight: 400; color: var(--cs-text-muted); }
+.text-label-md   { font-size: 12px; line-height: 16px; letter-spacing: 0.05em; font-weight: 600; color: var(--cs-text-muted); }
 .text-code       { font-size: 13px; line-height: 20px; font-weight: 500; }
 
 /* ---- Linear Glow ---- */
-.linear-glow { box-shadow: 0 0 20px rgba(37, 99, 235, 0.15); }
+.linear-glow { box-shadow: 0 0 20px rgba(255, 119, 34, 0.15); }
 
 /* ---- Animations ---- */
 @keyframes float {

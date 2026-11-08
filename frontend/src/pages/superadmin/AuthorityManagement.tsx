@@ -129,7 +129,7 @@ export const AuthorityManagement: React.FC = () => {
         </div>
       ) : filteredOfficers.length === 0 ? (
         <div className={s.emptyBox}>
-          <Icon name="badge" size={40} style={{ color: '#64748b' }} />
+          <Icon name="badge" size={40} style={{ color: '#7D6657' }} />
           <h3>No Officers Found</h3>
           <p>Click "Provision New Officer" to enroll nodal staff.</p>
         </div>

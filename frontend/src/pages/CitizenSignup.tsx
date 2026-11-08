@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import useAuthStore from '../store/authStore';
 import { useToast } from '../components/ui/Toast';
 import Button from '../components/ui/Button';
@@ -38,25 +38,25 @@ export const CitizenSignup: React.FC = () => {
   };
 
   const strength = getPasswordStrength(password);
-  const strengthLabels = ['Weak', 'Fair', 'Good', 'Strong', 'Excellent'];
-  const strengthColors = ['#ef4444', '#f97316', '#eab308', '#10b981', '#059669'];
+  const strengthLabels = ['weak', 'fair', 'good', 'strong', 'excellent'].map((k) => t(`auth.signup.strength.${k}`));
+  const strengthColors = ['#B42318', '#FF7722', '#F4C430', '#2E7D4F', '#1F6B3F'];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
 
     if (!termsAgreed) {
-      setFormError('Please accept the Citizen Terms of Service and Privacy Policy to proceed.');
+      setFormError(t('auth.signup.errTerms'));
       return;
     }
 
     if (password !== confirmPassword) {
-      setFormError('Passwords do not match. Please verify both fields.');
+      setFormError(t('auth.signup.errMismatch'));
       return;
     }
 
     if (password.length < 8) {
-      setFormError('Password must be at least 8 characters long.');
+      setFormError(t('auth.common.passwordMinLength'));
       return;
     }
 
@@ -72,10 +72,10 @@ export const CitizenSignup: React.FC = () => {
         address: address.trim() || undefined,
       });
 
-      success(`Citizen account registered successfully! Welcome, ${fullName}.`);
+      success(t('auth.signup.success', { name: fullName }));
       navigate('/citizen/dashboard');
     } catch (err: any) {
-      const msg = err.message || 'Registration failed. Please check the entered information.';
+      const msg = err.message || t('auth.signup.errFailed');
       setFormError(msg);
       toastError(msg);
     } finally {
@@ -93,11 +93,11 @@ export const CitizenSignup: React.FC = () => {
           <div className={s.visualTopRow}>
             <Link to="/" className={s.brandHeader} style={{ textDecoration: 'none' }}>
               <div className={s.brandLogo}>
-                <img src="/logo-mark.png" alt="CivicSetu" className={s.brandLogoImg} />
+                <img src="/logo-mark.png" alt={t('landing.logoAlt')} className={s.brandLogoImg} />
               </div>
               <div className={s.brandMeta}>
                 <span className={s.brandName}>CivicSetu</span>
-                <span className={s.brandBadge}>CITIZEN REGISTRATION</span>
+                <span className={s.brandBadge}>{t('auth.signup.portalBadge')}</span>
               </div>
             </Link>
 
@@ -112,35 +112,35 @@ export const CitizenSignup: React.FC = () => {
           <div className={s.visualBody}>
             <div className={s.visualTagline}>
               <span className={s.taglineDot} />
-              <span>Join Your Local Civic Community</span>
+              <span>{t('auth.signup.tagline')}</span>
             </div>
 
             <h1 className={s.editorialHeading}>
-              Active Citizens.<br />
-              Accountable Cities.<br />
-              Smarter Solutions.
+              {t('auth.signup.headingLine1')}<br />
+              {t('auth.signup.headingLine2')}<br />
+              {t('auth.signup.headingLine3')}
             </h1>
 
             <p className={s.editorialSubheading}>
-              Creating your resident account gives you persistent tracking, live notifications on resolution progress, and direct satisfaction feedback.
+              {t('auth.signup.subheading')}
             </p>
 
             <div style={{ marginTop: '20px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <span style={{ background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#166534' }}>
-                ✓ Multilingual Citizen Portal
+              <span style={{ background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#1F6B3F' }}>
+                {t('auth.signup.chipPortal')}
               </span>
-              <span style={{ background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#166534' }}>
-                ✓ Voice, Photo & Video Evidence
+              <span style={{ background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#1F6B3F' }}>
+                {t('auth.signup.chipEvidence')}
               </span>
-              <span style={{ background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#166534' }}>
-                ✓ Redressal Verification
+              <span style={{ background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#1F6B3F' }}>
+                {t('auth.signup.chipVerification')}
               </span>
             </div>
           </div>
 
           <div className={s.visualFooter}>
-            <Link to="/" style={{ color: '#166534', fontSize: '13px', fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-              ← Return to Main Homepage
+            <Link to="/" style={{ color: '#1F6B3F', fontSize: '13px', fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              {t('auth.common.returnHome')}
             </Link>
           </div>
         </div>
@@ -149,7 +149,7 @@ export const CitizenSignup: React.FC = () => {
         <div className={s.rightPanel}>
           <div className={s.formWrapper}>
             <div className={s.headerContent}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#dcfce7', color: '#166534', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '8px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#E6F4EA', color: '#1F6B3F', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '8px' }}>
                 <Icon name="person_add" size={14} />
                 <span>{t('auth.citizenSignupTitle')}</span>
               </div>
@@ -220,7 +220,7 @@ export const CitizenSignup: React.FC = () => {
                   <Input
                     label={t('auth.passwordLabel')}
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Min 8 characters"
+                    placeholder={t('auth.signup.passwordPlaceholder')}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -230,9 +230,9 @@ export const CitizenSignup: React.FC = () => {
 
                 <div className={s.fieldGroup}>
                   <Input
-                    label="Confirm Password"
+                    label={t('auth.signup.confirmLabel')}
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Re-enter password"
+                    placeholder={t('auth.signup.confirmPlaceholder')}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
@@ -250,13 +250,13 @@ export const CitizenSignup: React.FC = () => {
                         key={level}
                         className={s.strengthSegment}
                         style={{
-                          backgroundColor: strength >= level ? strengthColors[strength] : '#e2e8f0',
+                          backgroundColor: strength >= level ? strengthColors[strength] : '#EADFCB',
                         }}
                       />
                     ))}
                   </div>
                   <span className={s.strengthText} style={{ color: strengthColors[strength] }}>
-                    Password Strength: {strengthLabels[strength]}
+                    {t('auth.signup.strengthLabel', { level: strengthLabels[strength] })}
                   </span>
                 </div>
               )}
@@ -269,7 +269,13 @@ export const CitizenSignup: React.FC = () => {
                   required
                 />
                 <span>
-                  I agree to the CivicSetu <a href="#terms" style={{ color: '#166534' }}>Terms of Service</a> and <a href="#privacy" style={{ color: '#166534' }}>Privacy Policy</a>.
+                  <Trans
+                    i18nKey="auth.signup.terms"
+                    components={{
+                      terms: <a href="#terms" style={{ color: '#1F6B3F' }} />,
+                      privacy: <a href="#privacy" style={{ color: '#1F6B3F' }} />,
+                    }}
+                  />
                 </span>
               </label>
 
@@ -280,7 +286,7 @@ export const CitizenSignup: React.FC = () => {
                 isLoading={loading}
                 rightIcon={<Icon name="arrow_forward" size={18} />}
                 className={s.submitBtn}
-                style={{ backgroundColor: '#16a34a' }}
+                style={{ backgroundColor: '#2E7D4F' }}
               >
                 {t('auth.signupButton')}
               </Button>
@@ -288,21 +294,21 @@ export const CitizenSignup: React.FC = () => {
 
             <div className={s.footerText} style={{ marginTop: '16px' }}>
               {t('auth.alreadyAccount')}{' '}
-              <Link to="/login/citizen" className={s.signupLink} style={{ color: '#16a34a' }}>
+              <Link to="/login/citizen" className={s.signupLink} style={{ color: '#2E7D4F' }}>
                 {t('auth.loginLink')}
               </Link>
             </div>
 
             {/* Other Portals Switcher */}
-            <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '12px' }}>
-              <Link to="/signup/authority" style={{ color: '#2563eb', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #F7EFE1', display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '12px' }}>
+              <Link to="/signup/authority" style={{ color: '#7A1F2B', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                 <Icon name="badge" size={14} />
-                <span>Authority Registration</span>
+                <span>{t('auth.signup.authorityRegistration')}</span>
               </Link>
-              <span style={{ color: '#cbd5e1' }}>•</span>
-              <Link to="/signup/superadmin" style={{ color: '#7c3aed', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ color: '#DCCDB5' }}>•</span>
+              <Link to="/signup/superadmin" style={{ color: '#7A1F2B', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                 <Icon name="admin_panel_settings" size={14} />
-                <span>Super Admin Setup</span>
+                <span>{t('auth.signup.adminSetup')}</span>
               </Link>
             </div>
           </div>

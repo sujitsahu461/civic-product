@@ -147,7 +147,7 @@ export const SystemAnalytics: React.FC = () => {
       {
         key: 'ROAD',
         label: 'Roads & Infra',
-        gradient: 'linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%)',
+        gradient: 'linear-gradient(180deg, #FF7722 0%, #B93E0C 100%)',
         icon: (
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M4 19 L8 5 L16 5 L20 19" />
@@ -159,7 +159,7 @@ export const SystemAnalytics: React.FC = () => {
       {
         key: 'DRAINAGE',
         label: 'Drainage & Sewage',
-        gradient: 'linear-gradient(180deg, #a855f7 0%, #7c3aed 100%)',
+        gradient: 'linear-gradient(180deg, #7A1F2B 0%, #5E1620 100%)',
         icon: (
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
@@ -169,7 +169,7 @@ export const SystemAnalytics: React.FC = () => {
       {
         key: 'WATER',
         label: 'Water Supply',
-        gradient: 'linear-gradient(180deg, #22d3ee 0%, #0891b2 100%)',
+        gradient: 'linear-gradient(180deg, #D88A96 0%, #A33B4A 100%)',
         icon: (
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M6 12h12M12 6v12M9 19h6" />
@@ -179,7 +179,7 @@ export const SystemAnalytics: React.FC = () => {
       {
         key: 'ELECTRICITY',
         label: 'Electricity',
-        gradient: 'linear-gradient(180deg, #fbbf24 0%, #d97706 100%)',
+        gradient: 'linear-gradient(180deg, #F4C430 0%, #B8860B 100%)',
         icon: (
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
@@ -189,7 +189,7 @@ export const SystemAnalytics: React.FC = () => {
       {
         key: 'GARBAGE',
         label: 'Sanitation & Solid Waste',
-        gradient: 'linear-gradient(180deg, #34d399 0%, #059669 100%)',
+        gradient: 'linear-gradient(180deg, #4E9E6E 0%, #2E7D4F 100%)',
         icon: (
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="3 6 5 6 21 6" />
@@ -200,7 +200,7 @@ export const SystemAnalytics: React.FC = () => {
       {
         key: 'OTHER',
         label: 'Others',
-        gradient: 'linear-gradient(180deg, #94a3b8 0%, #475569 100%)',
+        gradient: 'linear-gradient(180deg, #9C8778 0%, #5A4033 100%)',
         icon: (
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
             <circle cx="5" cy="12" r="2" />
@@ -289,7 +289,7 @@ export const SystemAnalytics: React.FC = () => {
         isSlaGood,
         tat,
         trend,
-        trendColor: isSlaGood ? '#10b981' : '#ef4444',
+        trendColor: isSlaGood ? '#2E7D4F' : '#B42318',
       };
     }).sort((a, b) => b.total - a.total).map((d, idx) => ({ ...d, rank: idx + 1 }));
   }, [complaints]);
@@ -316,11 +316,11 @@ export const SystemAnalytics: React.FC = () => {
   // Top 5 Recurring Issues
   const recurringIssues = useMemo(() => {
     const issuesMap: Record<string, { title: string; count: number; fill: string; badgeBg: string; badgeCol: string }> = {
-      pothole: { title: 'Potholes & Damaged Roads', count: 0, fill: '#f87171', badgeBg: '#fee2e2', badgeCol: '#ef4444' },
-      garbage: { title: 'Garbage & Waste Not Collected', count: 0, fill: '#fb923c', badgeBg: '#ffedd5', badgeCol: '#ea580c' },
-      drainage: { title: 'Drainage Blockage & Waterlogging', count: 0, fill: '#fbbf24', badgeBg: '#fef3c7', badgeCol: '#d97706' },
-      lights: { title: 'Street Lights Not Working', count: 0, fill: '#94a3b8', badgeBg: '#f1f5f9', badgeCol: '#475569' },
-      water: { title: 'Water Leakage & Supply Disruption', count: 0, fill: '#38bdf8', badgeBg: '#e0f2fe', badgeCol: '#0284c7' },
+      pothole: { title: 'Potholes & Damaged Roads', count: 0, fill: '#B42318', badgeBg: '#FDECEA', badgeCol: '#B42318' },
+      garbage: { title: 'Garbage & Waste Not Collected', count: 0, fill: '#FF7722', badgeBg: '#FFE8D6', badgeCol: '#B93E0C' },
+      drainage: { title: 'Drainage Blockage & Waterlogging', count: 0, fill: '#F4C430', badgeBg: '#FDF0C4', badgeCol: '#6B4E00' },
+      lights: { title: 'Street Lights Not Working', count: 0, fill: '#9C8778', badgeBg: '#F7EFE1', badgeCol: '#5A4033' },
+      water: { title: 'Water Leakage & Supply Disruption', count: 0, fill: '#7A1F2B', badgeBg: '#F6E3E5', badgeCol: '#7A1F2B' },
     };
 
     complaints.forEach((c) => {
@@ -365,7 +365,7 @@ export const SystemAnalytics: React.FC = () => {
 
     const entries = Object.entries(areaCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
     const maxVal = Math.max(...entries.map((e) => e[1]), 1);
-    const colors = ['#3b82f6', '#0ea5e9', '#14b8a6', '#f59e0b', '#64748b'];
+    const colors = ['#FF7722', '#7A1F2B', '#2E7D4F', '#F4C430', '#7D6657'];
 
     return entries.map(([area, val], idx) => ({
       area,
@@ -402,9 +402,9 @@ export const SystemAnalytics: React.FC = () => {
               className={s.dateRangePicker}
               onClick={() => showToast(`Active reporting cycle: ${dateRange}`, 'info')}
             >
-              <Icon name="calendar_today" size={15} style={{ color: '#2563eb' }} />
+              <Icon name="calendar_today" size={15} style={{ color: '#7A1F2B' }} />
               <span>{dateRange}</span>
-              <Icon name="expand_more" size={16} style={{ color: '#94a3b8' }} />
+              <Icon name="expand_more" size={16} style={{ color: '#857060' }} />
             </div>
 
             <button
@@ -426,13 +426,13 @@ export const SystemAnalytics: React.FC = () => {
             onClick={() => showToast(`City-Wide SLA Compliance: ${slaCompliance} adherence across municipal sectors.`, 'success')}
           >
             <div className={s.kpiLeft}>
-              <div className={s.kpiIconBox} style={{ background: '#ecfdf5', color: '#10b981' }}>
+              <div className={s.kpiIconBox} style={{ background: '#E6F4EA', color: '#1F6B3F' }}>
                 <Icon name="verified_user" size={22} />
               </div>
               <div className={s.kpiInfo}>
                 <span className={s.kpiLabel}>CITY-WIDE SLA COMPLIANCE</span>
                 <div className={s.kpiValueRow}>
-                  <span className={s.kpiValue} style={{ color: '#059669' }}>
+                  <span className={s.kpiValue} style={{ color: '#2E7D4F' }}>
                     {slaCompliance}
                   </span>
                   <span className={s.trendBadge}>Active</span>
@@ -455,8 +455,8 @@ export const SystemAnalytics: React.FC = () => {
                       ]
                     : [0, 0, 0, 0, 0, 0, 0]
                 }
-                color="#10b981"
-                fillColor="#86efac"
+                color="#2E7D4F"
+                fillColor="#B7DEC3"
               />
             </div>
           </div>
@@ -467,7 +467,7 @@ export const SystemAnalytics: React.FC = () => {
             onClick={() => showToast(`Average City TAT Velocity: ${avgTatHours} (Target: < 24 hrs).`, 'info')}
           >
             <div className={s.kpiLeft}>
-              <div className={s.kpiIconBox} style={{ background: '#eff6ff', color: '#2563eb' }}>
+              <div className={s.kpiIconBox} style={{ background: '#FFF4EC', color: '#7A1F2B' }}>
                 <Icon name="schedule" size={22} />
               </div>
               <div className={s.kpiInfo}>
@@ -482,8 +482,8 @@ export const SystemAnalytics: React.FC = () => {
             <div className={s.sparklineWrap}>
               <Sparkline
                 data={[19.8, 19.1, 18.4, 17.5, 17.0, 16.5, 16.8]}
-                color="#2563eb"
-                fillColor="#93c5fd"
+                color="#E8620F"
+                fillColor="#FFC9A3"
               />
             </div>
           </div>
@@ -494,7 +494,7 @@ export const SystemAnalytics: React.FC = () => {
             onClick={() => showToast(`Total Complaints Processed: ${totalComplaints.toLocaleString()} issues triaged.`, 'info')}
           >
             <div className={s.kpiLeft}>
-              <div className={s.kpiIconBox} style={{ background: '#f5f3ff', color: '#8b5cf6' }}>
+              <div className={s.kpiIconBox} style={{ background: '#F6E3E5', color: '#7A1F2B' }}>
                 <Icon name="layers" size={22} />
               </div>
               <div className={s.kpiInfo}>
@@ -509,8 +509,8 @@ export const SystemAnalytics: React.FC = () => {
             <div className={s.sparklineWrap}>
               <Sparkline
                 data={[Math.max(1, totalComplaints - 3), Math.max(1, totalComplaints - 2), Math.max(1, totalComplaints - 1), totalComplaints]}
-                color="#8b5cf6"
-                fillColor="#c4b5fd"
+                color="#7A1F2B"
+                fillColor="#E4BCC1"
               />
             </div>
           </div>
@@ -521,7 +521,7 @@ export const SystemAnalytics: React.FC = () => {
             onClick={() => showToast(`${departments.length} Municipal Departments active in system.`, 'info')}
           >
             <div className={s.kpiLeft}>
-              <div className={s.kpiIconBox} style={{ background: '#fffbeb', color: '#f59e0b' }}>
+              <div className={s.kpiIconBox} style={{ background: '#FDF0C4', color: '#6B4E00' }}>
                 <Icon name="account_tree" size={22} />
               </div>
               <div className={s.kpiInfo}>
@@ -536,8 +536,8 @@ export const SystemAnalytics: React.FC = () => {
             <div className={s.sparklineWrap}>
               <Sparkline
                 data={[departments.length || 6, departments.length || 6, departments.length || 6]}
-                color="#f59e0b"
-                fillColor="#fde68a"
+                color="#B8860B"
+                fillColor="#F6DC85"
               />
             </div>
           </div>
@@ -621,11 +621,11 @@ export const SystemAnalytics: React.FC = () => {
 
               <div className={s.legendGroup}>
                 <div className={s.legendItem}>
-                  <span className={s.legendDot} style={{ background: '#2563eb' }} />
+                  <span className={s.legendDot} style={{ background: '#FF7722' }} />
                   <span>Total Influx ({totalComplaints})</span>
                 </div>
                 <div className={s.legendItem}>
-                  <span className={s.legendDot} style={{ background: '#10b981' }} />
+                  <span className={s.legendDot} style={{ background: '#2E7D4F' }} />
                   <span>Resolved ({resolvedComplaints})</span>
                 </div>
               </div>
@@ -637,11 +637,11 @@ export const SystemAnalytics: React.FC = () => {
               <div className={s.tooltipBox}>
                 <div className={s.tooltipDate}>Current Telemetry Cycle</div>
                 <div className={s.tooltipRow}>
-                  <span className={s.legendDot} style={{ background: '#2563eb' }} />
+                  <span className={s.legendDot} style={{ background: '#FF7722' }} />
                   <span>New Complaints: {totalComplaints}</span>
                 </div>
                 <div className={s.tooltipRow}>
-                  <span className={s.legendDot} style={{ background: '#10b981' }} />
+                  <span className={s.legendDot} style={{ background: '#2E7D4F' }} />
                   <span>Resolved: {resolvedComplaints}</span>
                 </div>
               </div>
@@ -652,23 +652,23 @@ export const SystemAnalytics: React.FC = () => {
                 preserveAspectRatio="none"
               >
                 {/* Horizontal Dashed Gridlines */}
-                <line x1="0" y1="20" x2="500" y2="20" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="4 4" />
-                <line x1="0" y1="75" x2="500" y2="75" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="4 4" />
-                <line x1="0" y1="130" x2="500" y2="130" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="4 4" />
-                <line x1="0" y1="185" x2="500" y2="185" stroke="#e2e8f0" strokeWidth="1" />
+                <line x1="0" y1="20" x2="500" y2="20" stroke="#F7EFE1" strokeWidth="1" strokeDasharray="4 4" />
+                <line x1="0" y1="75" x2="500" y2="75" stroke="#F7EFE1" strokeWidth="1" strokeDasharray="4 4" />
+                <line x1="0" y1="130" x2="500" y2="130" stroke="#F7EFE1" strokeWidth="1" strokeDasharray="4 4" />
+                <line x1="0" y1="185" x2="500" y2="185" stroke="#EADFCB" strokeWidth="1" />
 
                 {/* Vertical Dotted Guide Line */}
-                <line x1="330" y1="20" x2="330" y2="185" stroke="#bfdbfe" strokeWidth="1.5" strokeDasharray="3 3" />
+                <line x1="330" y1="20" x2="330" y2="185" stroke="#FFC9A3" strokeWidth="1.5" strokeDasharray="3 3" />
 
                 {/* Blue Wave: New Complaints */}
                 <path
                   d="M0 130 C40 120, 60 100, 80 102 C110 105, 130 85, 160 88 C190 92, 210 110, 240 100 C270 90, 290 105, 310 98 C325 90, 330 65, 340 70 C360 80, 380 65, 410 70 C440 75, 470 60, 500 65 L500 185 L0 185 Z"
-                  fill="rgba(37, 99, 235, 0.12)"
+                  fill="rgba(255, 119, 34, 0.12)"
                 />
                 <path
                   d="M0 130 C40 120, 60 100, 80 102 C110 105, 130 85, 160 88 C190 92, 210 110, 240 100 C270 90, 290 105, 310 98 C325 90, 330 65, 340 70 C360 80, 380 65, 410 70 C440 75, 470 60, 500 65"
                   fill="none"
-                  stroke="#2563eb"
+                  stroke="#E8620F"
                   strokeWidth="2.5"
                   strokeLinecap="round"
                 />
@@ -676,19 +676,19 @@ export const SystemAnalytics: React.FC = () => {
                 {/* Green Wave: Resolved Complaints */}
                 <path
                   d="M0 160 C40 150, 70 145, 90 148 C120 152, 140 138, 170 140 C200 142, 220 155, 250 145 C280 135, 300 145, 320 135 C328 128, 330 95, 340 102 C360 115, 380 110, 410 115 C440 120, 470 95, 500 100 L500 185 L0 185 Z"
-                  fill="rgba(16, 185, 129, 0.2)"
+                  fill="rgba(46, 125, 79, 0.2)"
                 />
                 <path
                   d="M0 160 C40 150, 70 145, 90 148 C120 152, 140 138, 170 140 C200 142, 220 155, 250 145 C280 135, 300 145, 320 135 C328 128, 330 95, 340 102 C360 115, 380 110, 410 115 C440 120, 470 95, 500 100"
                   fill="none"
-                  stroke="#10b981"
+                  stroke="#2E7D4F"
                   strokeWidth="2.5"
                   strokeLinecap="round"
                 />
 
                 {/* Highlight Anchor Dots */}
-                <circle cx="330" cy="70" r="5" fill="#2563eb" stroke="#ffffff" strokeWidth="2" />
-                <circle cx="330" cy="102" r="5" fill="#10b981" stroke="#ffffff" strokeWidth="2" />
+                <circle cx="330" cy="70" r="5" fill="#FF7722" stroke="#FFFFFF" strokeWidth="2" />
+                <circle cx="330" cy="102" r="5" fill="#2E7D4F" stroke="#FFFFFF" strokeWidth="2" />
               </svg>
 
               <div className={s.xAxisLabels}>
@@ -780,7 +780,7 @@ export const SystemAnalytics: React.FC = () => {
               <div className={s.donutSvgWrap}>
                 <svg className={s.donutSvg} viewBox="0 0 100 100">
                   {/* Background Track */}
-                  <circle cx="50" cy="50" r="38" fill="none" stroke="#f1f5f9" strokeWidth="15" />
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="#F7EFE1" strokeWidth="15" />
                   {/* Resolved */}
                   {resolvedPct > 0 && (
                     <circle
@@ -788,7 +788,7 @@ export const SystemAnalytics: React.FC = () => {
                       cy="50"
                       r="38"
                       fill="none"
-                      stroke="#10b981"
+                      stroke="#2E7D4F"
                       strokeWidth="15"
                       strokeDasharray={`${resolvedDash} ${cCircumference}`}
                       strokeDashoffset="0"
@@ -801,7 +801,7 @@ export const SystemAnalytics: React.FC = () => {
                       cy="50"
                       r="38"
                       fill="none"
-                      stroke="#8b5cf6"
+                      stroke="#7A1F2B"
                       strokeWidth="15"
                       strokeDasharray={`${inProgressDash} ${cCircumference}`}
                       strokeDashoffset={inProgressOffset}
@@ -814,7 +814,7 @@ export const SystemAnalytics: React.FC = () => {
                       cy="50"
                       r="38"
                       fill="none"
-                      stroke="#f59e0b"
+                      stroke="#B8860B"
                       strokeWidth="15"
                       strokeDasharray={`${assignedDash} ${cCircumference}`}
                       strokeDashoffset={assignedOffset}
@@ -827,7 +827,7 @@ export const SystemAnalytics: React.FC = () => {
                       cy="50"
                       r="38"
                       fill="none"
-                      stroke="#2563eb"
+                      stroke="#E8620F"
                       strokeWidth="15"
                       strokeDasharray={`${pendingDash} ${cCircumference}`}
                       strokeDashoffset={pendingOffset}
@@ -840,7 +840,7 @@ export const SystemAnalytics: React.FC = () => {
                       cy="50"
                       r="38"
                       fill="none"
-                      stroke="#ef4444"
+                      stroke="#B42318"
                       strokeWidth="15"
                       strokeDasharray={`${rejectedDash} ${cCircumference}`}
                       strokeDashoffset={rejectedOffset}
@@ -856,7 +856,7 @@ export const SystemAnalytics: React.FC = () => {
               <div className={s.donutLegendList}>
                 <div className={s.donutLegendRow}>
                   <div className={s.donutLegendLeft}>
-                    <span className={s.legendDot} style={{ background: '#2563eb' }} />
+                    <span className={s.legendDot} style={{ background: '#FF7722' }} />
                     <span>Pending</span>
                   </div>
                   <span className={s.donutLegendVal}>
@@ -866,7 +866,7 @@ export const SystemAnalytics: React.FC = () => {
 
                 <div className={s.donutLegendRow}>
                   <div className={s.donutLegendLeft}>
-                    <span className={s.legendDot} style={{ background: '#f59e0b' }} />
+                    <span className={s.legendDot} style={{ background: '#F4C430' }} />
                     <span>Assigned</span>
                   </div>
                   <span className={s.donutLegendVal}>
@@ -876,7 +876,7 @@ export const SystemAnalytics: React.FC = () => {
 
                 <div className={s.donutLegendRow}>
                   <div className={s.donutLegendLeft}>
-                    <span className={s.legendDot} style={{ background: '#8b5cf6' }} />
+                    <span className={s.legendDot} style={{ background: '#7A1F2B' }} />
                     <span>In Progress</span>
                   </div>
                   <span className={s.donutLegendVal}>
@@ -886,7 +886,7 @@ export const SystemAnalytics: React.FC = () => {
 
                 <div className={s.donutLegendRow}>
                   <div className={s.donutLegendLeft}>
-                    <span className={s.legendDot} style={{ background: '#10b981' }} />
+                    <span className={s.legendDot} style={{ background: '#2E7D4F' }} />
                     <span>Resolved</span>
                   </div>
                   <span className={s.donutLegendVal}>
@@ -896,7 +896,7 @@ export const SystemAnalytics: React.FC = () => {
 
                 <div className={s.donutLegendRow}>
                   <div className={s.donutLegendLeft}>
-                    <span className={s.legendDot} style={{ background: '#ef4444' }} />
+                    <span className={s.legendDot} style={{ background: '#B42318' }} />
                     <span>Rejected</span>
                   </div>
                   <span className={s.donutLegendVal}>
@@ -921,7 +921,7 @@ export const SystemAnalytics: React.FC = () => {
               <div className={s.ratingInfoCol}>
                 <div className={s.ratingNumRow}>
                   <span className={s.ratingNum}>{satisfactionScore}</span>
-                  <span style={{ fontSize: 16, color: '#64748b' }}>/ 5.0</span>
+                  <span style={{ fontSize: 16, color: '#7D6657' }}>/ 5.0</span>
                   <span className={s.trendBadge} style={{ marginLeft: 6 }}>
                     High SLA
                   </span>

@@ -44,7 +44,7 @@ export const CitizenProfile: React.FC = () => {
       });
       success(t('profile.updatedSuccess'));
     } catch (err: any) {
-      toastError(err.message || 'Failed to update profile.');
+      toastError(err.message || t('profile.updateFailed'));
     } finally {
       setProfileLoading(false);
     }
@@ -53,23 +53,23 @@ export const CitizenProfile: React.FC = () => {
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      toastError('New passwords do not match.');
+      toastError(t('profile.pwMismatch'));
       return;
     }
     if (newPassword.length < 8) {
-      toastError('Password must be at least 8 characters long.');
+      toastError(t('auth.common.passwordMinLength'));
       return;
     }
 
     setPasswordLoading(true);
     try {
       await authService.changePassword(oldPassword, newPassword);
-      success('Password changed successfully.');
+      success(t('profile.pwChanged'));
       setOldPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (err: any) {
-      toastError(err.message || 'Failed to change password. Verify old password.');
+      toastError(err.message || t('profile.pwChangeFailed'));
     } finally {
       setPasswordLoading(false);
     }
@@ -94,11 +94,11 @@ export const CitizenProfile: React.FC = () => {
             </div>
           </div>
 
-          <h2 className={s.userName}>{user?.full_name || 'Citizen User'}</h2>
+          <h2 className={s.userName}>{user?.full_name || t('profile.userFallback')}</h2>
           <p className={s.userEmail}>{user?.email}</p>
 
           <div className={s.badgeRow}>
-            <span className={s.citizenBadge}>Verified Citizen</span>
+            <span className={s.citizenBadge}>{t('profile.verifiedBadge')}</span>
           </div>
 
           {/* Language Preference Section */}
@@ -116,15 +116,15 @@ export const CitizenProfile: React.FC = () => {
               <span className={s.statSmallLabel}>{t('dashboard.statTotal')}</span>
             </div>
             <div className={s.statSmallCard}>
-              <span className={s.statSmallVal} style={{ color: '#c25e00' }}>{pendingCount}</span>
+              <span className={s.statSmallVal} style={{ color: '#B93E0C' }}>{pendingCount}</span>
               <span className={s.statSmallLabel}>{t('dashboard.statPending')}</span>
             </div>
             <div className={s.statSmallCard}>
-              <span className={s.statSmallVal} style={{ color: '#2c6e97' }}>{inProgressCount}</span>
+              <span className={s.statSmallVal} style={{ color: '#7A1F2B' }}>{inProgressCount}</span>
               <span className={s.statSmallLabel}>{t('dashboard.statInProgress')}</span>
             </div>
             <div className={s.statSmallCard}>
-              <span className={s.statSmallVal} style={{ color: '#236b43' }}>{resolvedCount}</span>
+              <span className={s.statSmallVal} style={{ color: '#1F6B3F' }}>{resolvedCount}</span>
               <span className={s.statSmallLabel}>{t('dashboard.statResolved')}</span>
             </div>
           </div>
@@ -155,7 +155,7 @@ export const CitizenProfile: React.FC = () => {
                     className={s.input}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="e.g. +91 98765 43210"
+                    placeholder={t('profile.phonePlaceholder')}
                   />
                 </div>
 
@@ -171,13 +171,13 @@ export const CitizenProfile: React.FC = () => {
                 </div>
 
                 <div className={`${s.inputGroup} ${s.fullWidth}`}>
-                  <label className={s.label}>Community Bio</label>
+                  <label className={s.label}>{t('profile.bioLabel')}</label>
                   <textarea
                     rows={2}
                     className={s.input}
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
-                    placeholder="Active resident and community volunteer..."
+                    placeholder={t('profile.bioPlaceholder')}
                   />
                 </div>
               </div>
@@ -195,11 +195,11 @@ export const CitizenProfile: React.FC = () => {
 
           {/* Account Security */}
           <div className={s.card}>
-            <h3 className={s.cardTitle}>Change Password</h3>
+            <h3 className={s.cardTitle}>{t('profile.changePassword')}</h3>
             <form onSubmit={handlePasswordChange}>
               <div className={s.formGrid}>
                 <div className={`${s.inputGroup} ${s.fullWidth}`}>
-                  <label className={s.label}>Current Password</label>
+                  <label className={s.label}>{t('profile.currentPassword')}</label>
                   <input
                     type="password"
                     className={s.input}
@@ -210,7 +210,7 @@ export const CitizenProfile: React.FC = () => {
                 </div>
 
                 <div className={s.inputGroup}>
-                  <label className={s.label}>New Password</label>
+                  <label className={s.label}>{t('auth.reset.newPasswordLabel')}</label>
                   <input
                     type="password"
                     className={s.input}
@@ -221,7 +221,7 @@ export const CitizenProfile: React.FC = () => {
                 </div>
 
                 <div className={s.inputGroup}>
-                  <label className={s.label}>Confirm New Password</label>
+                  <label className={s.label}>{t('auth.reset.confirmNewLabel')}</label>
                   <input
                     type="password"
                     className={s.input}
@@ -236,10 +236,10 @@ export const CitizenProfile: React.FC = () => {
                 type="submit"
                 disabled={passwordLoading}
                 className={s.btnSave}
-                style={{ background: 'var(--cz-secondary-light-blue, #eaf6fc)', color: 'var(--cz-accent-blue-dark, #2c6e97)', borderColor: 'var(--cz-primary-light-blue, #dceffd)' }}
+                style={{ background: 'var(--cs-maroon-wash)', color: 'var(--cs-maroon)', borderColor: 'var(--cs-maroon-light)' }}
               >
                 <Icon name="lock_reset" size={16} />
-                <span>{passwordLoading ? t('common.loading') : 'Update Password'}</span>
+                <span>{passwordLoading ? t('common.loading') : t('profile.updatePassword')}</span>
               </button>
             </form>
           </div>

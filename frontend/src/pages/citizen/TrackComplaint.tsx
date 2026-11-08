@@ -9,7 +9,7 @@ import { formatDate, formatTimeAgo } from '../../utils/formatters';
 import s from './TrackComplaint.module.css';
 
 export const TrackComplaint: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialCode = searchParams.get('code') || '';
 
@@ -98,7 +98,7 @@ export const TrackComplaint: React.FC = () => {
       title: t('track.stepInProgress'),
       desc: selectedComplaint?.status === 'IN_PROGRESS'
         ? t('track.stepInProgressDesc')
-        : 'Awaiting field crew dispatch.',
+        : t('track.stepAwaitingDesc'),
       icon: 'engineering',
     },
     {
@@ -142,7 +142,7 @@ export const TrackComplaint: React.FC = () => {
       success(t('track.feedbackThanks'));
       setFeedbackSubmitted(true);
     } catch {
-      toastError('Could not submit feedback.');
+      toastError(t('track.feedbackError'));
     } finally {
       setIsSubmittingFeedback(false);
     }
@@ -237,10 +237,10 @@ export const TrackComplaint: React.FC = () => {
                 style={{
                   color:
                     selectedComplaint.priority === 'HIGH' || selectedComplaint.priority === 'URGENT'
-                      ? '#b91c1c'
+                      ? '#912018'
                       : selectedComplaint.priority === 'LOW'
-                      ? '#1e6f9f'
-                      : '#c25e00',
+                      ? '#5A4033'
+                      : '#B93E0C',
                 }}
               >
                 {t(`priorities.${selectedComplaint.priority}`) || selectedComplaint.priority}
@@ -249,7 +249,7 @@ export const TrackComplaint: React.FC = () => {
 
             <div className={s.metaItem}>
               <span className={s.metaLabel}>{t('common.created')}</span>
-              <span className={s.metaVal}>{formatDate(selectedComplaint.created_at)}</span>
+              <span className={s.metaVal}>{formatDate(selectedComplaint.created_at, i18n.language)}</span>
             </div>
           </div>
 
@@ -274,7 +274,7 @@ export const TrackComplaint: React.FC = () => {
                         href={img.attachment_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        title="View Full Photo Evidence"
+                        title={t('track.viewPhoto')}
                       >
                         <img
                           src={img.attachment_url}
@@ -360,10 +360,10 @@ export const TrackComplaint: React.FC = () => {
                           {st.title}
                         </span>
                         {index === 0 && (
-                          <span className={s.stepTime}>{formatTimeAgo(selectedComplaint.created_at)}</span>
+                          <span className={s.stepTime}>{formatTimeAgo(selectedComplaint.created_at, i18n.language)}</span>
                         )}
                         {index === 3 && selectedComplaint.resolved_at && (
-                          <span className={s.stepTime}>{formatDate(selectedComplaint.resolved_at)}</span>
+                          <span className={s.stepTime}>{formatDate(selectedComplaint.resolved_at, i18n.language)}</span>
                         )}
                       </div>
 
@@ -379,7 +379,7 @@ export const TrackComplaint: React.FC = () => {
           {selectedComplaint.status === 'RESOLVED' && !feedbackSubmitted && (
             <div className={s.feedbackCard}>
               <h4 className={s.feedbackTitle}>{t('track.rateTitle')}</h4>
-              <p style={{ margin: 0, fontSize: 13, color: 'var(--cz-secondary-text, #64748b)' }}>
+              <p style={{ margin: 0, fontSize: 13, color: 'var(--cs-text-muted)' }}>
                 {t('track.rateDesc')}
               </p>
 
@@ -394,7 +394,7 @@ export const TrackComplaint: React.FC = () => {
                         background: 'none',
                         border: 'none',
                         cursor: 'pointer',
-                        color: star <= rating ? '#e8a64a' : '#cbd5e1',
+                        color: star <= rating ? '#F4C430' : '#DCCDB5',
                         fontSize: 22,
                         padding: 2,
                       }}
@@ -402,7 +402,7 @@ export const TrackComplaint: React.FC = () => {
                       ★
                     </button>
                   ))}
-                  <span style={{ fontSize: 12.5, fontWeight: 700, color: '#0f172a', marginLeft: 6 }}>
+                  <span style={{ fontSize: 12.5, fontWeight: 700, color: '#3B2418', marginLeft: 6 }}>
                     {rating} / 5
                   </span>
                 </div>
@@ -411,7 +411,7 @@ export const TrackComplaint: React.FC = () => {
                   className={s.trackingInput}
                   rows={2}
                   style={{ fontFamily: 'inherit', fontWeight: 'normal', fontSize: 13.5 }}
-                  placeholder="Feedback..."
+                  placeholder={t('track.feedbackPlaceholder')}
                   value={feedbackNotes}
                   onChange={(e) => setFeedbackNotes(e.target.value)}
                 />

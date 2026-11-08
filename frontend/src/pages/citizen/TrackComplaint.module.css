@@ -20,23 +20,23 @@
   font-size: 28px;
   font-weight: 800;
   letter-spacing: -0.025em;
-  color: #0f172a;
+  color: var(--cs-text-strong);
   margin: 0 0 6px 0;
 }
 
 .subtitle {
   font-size: 14px;
-  color: var(--cz-secondary-text, #64748b);
+  color: var(--cs-text-muted);
   margin: 0;
 }
 
 /* Search Box Card */
 .searchCard {
-  background: #ffffff;
-  border: 1px solid var(--cz-border, #e2e8f0);
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
   border-radius: var(--cz-radius-xl, 16px);
   padding: 22px 24px;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 4px 16px rgba(var(--cs-shadow-rgb), 0.04);
 }
 
 .searchForm {
@@ -55,7 +55,7 @@
 .searchIcon {
   position: absolute;
   left: 14px;
-  color: var(--cz-muted-text, #94a3b8);
+  color: var(--cs-text-faint);
   pointer-events: none;
 }
 
@@ -63,9 +63,9 @@
   width: 100%;
   padding: 12px 14px 12px 42px;
   border-radius: var(--cz-radius-md, 10px);
-  border: 1px solid var(--cz-border, #e2e8f0);
-  background: var(--cz-main-bg, #f8fafc);
-  color: var(--cz-primary-text, #1e293b);
+  border: 1px solid var(--cs-border);
+  background: var(--cs-ivory);
+  color: var(--cs-text-strong);
   font-family: 'JetBrains Mono', monospace;
   font-size: 14.5px;
   font-weight: 700;
@@ -76,9 +76,9 @@
 }
 
 .trackingInput:focus {
-  background: #ffffff;
-  border-color: var(--cz-accent-blue, #5b9fcb);
-  box-shadow: 0 0 0 3px rgba(91, 159, 203, 0.15);
+  background: var(--cs-white);
+  border-color: var(--cs-maroon);
+  box-shadow: 0 0 0 3px rgba(122, 31, 43, 0.15);
 }
 
 .trackBtn {
@@ -87,32 +87,32 @@
   gap: 8px;
   padding: 12px 24px;
   border-radius: var(--cz-radius-md, 10px);
-  background: var(--cz-accent-orange, #e89a5b);
-  border: 1px solid var(--cz-primary-orange, #f8cfa8);
-  color: #ffffff;
+  background: var(--cs-kesari);
+  border: 1px solid var(--cs-kesari-light);
+  color: var(--cs-text-strong);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(232, 154, 91, 0.28);
+  box-shadow: 0 4px 14px rgba(255, 119, 34, 0.28);
   transition: all 0.2s ease;
   flex-shrink: 0;
 }
 
 .trackBtn:hover {
-  background: var(--cz-accent-orange-dark, #b86b2f);
+  background: var(--cs-kesari-deep);
   transform: translateY(-1px);
 }
 
 /* Tracking Result Card */
 .resultCard {
-  background: #ffffff;
-  border: 1px solid var(--cz-border, #e2e8f0);
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
   border-radius: var(--cz-radius-xl, 16px);
   padding: 28px;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 4px 20px rgba(var(--cs-shadow-rgb), 0.04);
 }
 
 .resultTop {
@@ -122,7 +122,7 @@
   flex-wrap: wrap;
   gap: 16px;
   padding-bottom: 20px;
-  border-bottom: 1px solid var(--cz-border-subtle, #edf2f7);
+  border-bottom: 1px solid var(--cs-sand-dark);
 }
 
 .codeBox {
@@ -134,7 +134,7 @@
 .codeLabel {
   font-size: 11px;
   font-weight: 700;
-  color: var(--cz-secondary-text, #64748b);
+  color: var(--cs-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -143,14 +143,14 @@
   font-family: 'JetBrains Mono', monospace;
   font-size: 22px;
   font-weight: 800;
-  color: var(--cz-accent-blue-dark, #2c6e97);
+  color: var(--cs-maroon);
   letter-spacing: 0.02em;
 }
 
 .complaintTitle {
   font-size: 18px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--cs-text-strong);
   margin: 0;
   line-height: 1.35;
 }
@@ -158,7 +158,7 @@
 .complaintDesc {
   font-size: 13.5px;
   line-height: 1.55;
-  color: var(--cz-secondary-text, #64748b);
+  color: var(--cs-text-muted);
   margin: 0;
 }
 
@@ -169,8 +169,8 @@
   gap: 12px;
   padding: 14px 18px;
   border-radius: var(--cz-radius-lg, 14px);
-  background: var(--cz-secondary-light-blue, #eaf6fc);
-  border: 1px solid var(--cz-primary-light-blue, #dceffd);
+  background: var(--cs-maroon-wash);
+  border: 1px solid var(--cs-maroon-light);
 }
 
 .metaItem {
@@ -182,14 +182,14 @@
 .metaLabel {
   font-size: 11px;
   font-weight: 600;
-  color: var(--cz-secondary-text, #64748b);
+  color: var(--cs-text-muted);
   text-transform: uppercase;
 }
 
 .metaVal {
   font-size: 13px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--cs-text-strong);
 }
 
 /* ================= VERTICAL TIMELINE (SECTION 16) ================= */
@@ -202,7 +202,7 @@
 .timelineTitle {
   font-size: 16px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--cs-text-strong);
   margin: 0;
 }
 
@@ -232,11 +232,11 @@
   top: 34px;
   bottom: 0;
   width: 2px;
-  background: var(--cz-border, #e2e8f0);
+  background: var(--cs-border);
 }
 
 .timelineStepCompleted:not(:last-child)::before {
-  background: var(--cz-accent-blue, #5b9fcb);
+  background: var(--cs-kesari);
 }
 
 /* Step Circle */
@@ -253,28 +253,28 @@
 }
 
 .stepCircleCompleted {
-  background: var(--cz-secondary-light-blue, #eaf6fc);
-  border: 2px solid var(--cz-accent-blue, #5b9fcb);
-  color: var(--cz-accent-blue-dark, #2c6e97);
+  background: var(--cs-maroon-wash);
+  border: 2px solid var(--cs-maroon);
+  color: var(--cs-maroon);
 }
 
 .stepCircleActive {
-  background: var(--cz-secondary-light-orange, #fff0e2);
-  border: 2px solid var(--cz-accent-orange, #e89a5b);
-  color: var(--cz-accent-orange-dark, #b86b2f);
-  box-shadow: 0 0 0 4px rgba(232, 154, 91, 0.15);
+  background: var(--cs-kesari-tint);
+  border: 2px solid var(--cs-kesari);
+  color: var(--cs-kesari-deep);
+  box-shadow: 0 0 0 4px rgba(255, 119, 34, 0.15);
 }
 
 .stepCirclePending {
-  background: #f1f5f9;
-  border: 2px solid var(--cz-border, #e2e8f0);
-  color: var(--cz-muted-text, #94a3b8);
+  background: var(--cs-sand);
+  border: 2px solid var(--cs-border);
+  color: var(--cs-text-faint);
 }
 
 .stepCircleRejected {
-  background: var(--cz-danger-bg, #fdeeee);
-  border: 2px solid var(--cz-danger, #d96b6b);
-  color: var(--cz-danger-text, #9c3232);
+  background: var(--cs-danger-tint);
+  border: 2px solid var(--cs-danger);
+  color: var(--cs-danger);
 }
 
 .stepContent {
@@ -295,29 +295,29 @@
 .stepName {
   font-size: 14px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--cs-text-strong);
 }
 
 .stepNameActive {
-  color: var(--cz-accent-orange-dark, #b86b2f);
+  color: var(--cs-kesari-deep);
 }
 
 .stepTime {
   font-size: 11.5px;
-  color: var(--cz-muted-text, #94a3b8);
+  color: var(--cs-text-faint);
 }
 
 .stepDesc {
   font-size: 12.5px;
-  color: var(--cz-secondary-text, #64748b);
+  color: var(--cs-text-muted);
   margin: 0;
   line-height: 1.45;
 }
 
 /* Feedback Section for Resolved Grievance */
 .feedbackCard {
-  background: var(--cz-secondary-light-orange, #fff0e2);
-  border: 1px solid var(--cz-primary-orange, #f8cfa8);
+  background: var(--cs-kesari-tint);
+  border: 1px solid var(--cs-kesari-light);
   border-radius: var(--cz-radius-lg, 14px);
   padding: 20px;
   display: flex;
@@ -328,15 +328,15 @@
 .feedbackTitle {
   font-size: 15px;
   font-weight: 800;
-  color: var(--cz-accent-orange-dark, #b86b2f);
+  color: var(--cs-kesari-deep);
   margin: 0;
 }
 
 /* Status Badges */
 .statusBadgePending {
-  background: var(--cz-warning-bg, #fef6eb);
-  color: var(--cz-warning-text, #9c6315);
-  border: 1px solid var(--cz-warning-border, #fce4be);
+  background: var(--cs-haldi-tint);
+  color: var(--cs-haldi-text);
+  border: 1px solid var(--cs-haldi-light);
   padding: 4px 12px;
   border-radius: 9999px;
   font-size: 11.5px;
@@ -345,9 +345,9 @@
 }
 
 .statusBadgeProgress {
-  background: var(--cz-secondary-light-blue, #eaf6fc);
-  color: var(--cz-accent-blue-dark, #2c6e97);
-  border: 1px solid var(--cz-primary-light-blue, #dceffd);
+  background: var(--cs-maroon-wash);
+  color: var(--cs-maroon);
+  border: 1px solid var(--cs-maroon-light);
   padding: 4px 12px;
   border-radius: 9999px;
   font-size: 11.5px;
@@ -356,9 +356,9 @@
 }
 
 .statusBadgeResolved {
-  background: var(--cz-success-bg, #ebf8f1);
-  color: var(--cz-success-text, #236b43);
-  border: 1px solid var(--cz-success-border, #c2edd5);
+  background: var(--cs-success-tint);
+  color: var(--cs-success-text);
+  border: 1px solid var(--cs-success-light);
   padding: 4px 12px;
   border-radius: 9999px;
   font-size: 11.5px;
@@ -367,9 +367,9 @@
 }
 
 .statusBadgeRejected {
-  background: var(--cz-danger-bg, #fdeeee);
-  color: var(--cz-danger-text, #9c3232);
-  border: 1px solid var(--cz-danger-border, #facccc);
+  background: var(--cs-danger-tint);
+  color: var(--cs-danger);
+  border: 1px solid var(--cs-danger-light);
   padding: 4px 12px;
   border-radius: 9999px;
   font-size: 11.5px;
@@ -381,13 +381,13 @@
 .evidenceSection {
   margin-top: 24px;
   padding-top: 20px;
-  border-top: 1px solid var(--cz-border, #e2e8f0);
+  border-top: 1px solid var(--cs-border);
 }
 
 .evidenceHeading {
   font-size: 16px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--cs-text-strong);
   margin: 0 0 14px 0;
   display: flex;
   align-items: center;
@@ -406,7 +406,7 @@
   height: 100px;
   object-fit: cover;
   border-radius: 8px;
-  border: 1px solid var(--cz-border, #e2e8f0);
+  border: 1px solid var(--cs-border);
   transition: transform 0.15s ease;
 }
 
@@ -415,8 +415,8 @@
 }
 
 .audioBlock {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--cs-ivory);
+  border: 1px solid var(--cs-border);
   border-radius: 10px;
   padding: 12px 14px;
   margin-bottom: 14px;
@@ -428,7 +428,7 @@
   gap: 8px;
   font-size: 12px;
   font-weight: 700;
-  color: #334155;
+  color: var(--cs-text);
   margin-bottom: 8px;
 }
 
@@ -438,7 +438,7 @@
 }
 
 .videoBlock {
-  background: #0f172a;
+  background: var(--cs-text-strong);
   border-radius: 10px;
   overflow: hidden;
   margin-bottom: 14px;

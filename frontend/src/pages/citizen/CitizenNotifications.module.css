@@ -23,13 +23,13 @@
   font-size: 28px;
   font-weight: 800;
   letter-spacing: -0.025em;
-  color: #0f172a;
+  color: var(--cs-text-strong);
   margin: 0 0 6px 0;
 }
 
 .subtitle {
   font-size: 14px;
-  color: var(--cz-secondary-text, #64748b);
+  color: var(--cs-text-muted);
   margin: 0;
 }
 
@@ -39,9 +39,9 @@
   gap: 6px;
   padding: 8px 16px;
   border-radius: var(--cz-radius-md, 10px);
-  background: var(--cz-secondary-light-blue, #eaf6fc);
-  border: 1px solid var(--cz-primary-light-blue, #dceffd);
-  color: var(--cz-accent-blue-dark, #2c6e97);
+  background: var(--cs-maroon-wash);
+  border: 1px solid var(--cs-maroon-light);
+  color: var(--cs-maroon);
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
@@ -49,7 +49,7 @@
 }
 
 .markAllBtn:hover {
-  background: var(--cz-primary-light-blue, #dceffd);
+  background: var(--cs-maroon-light);
 }
 
 .notificationsList {
@@ -59,26 +59,26 @@
 }
 
 .notifItem {
-  background: #ffffff;
-  border: 1px solid var(--cz-border, #e2e8f0);
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
   border-radius: var(--cz-radius-xl, 16px);
   padding: 18px 20px;
   display: flex;
   align-items: flex-start;
   gap: 16px;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+  box-shadow: 0 2px 8px rgba(var(--cs-shadow-rgb), 0.03);
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .notifItem:hover {
-  border-color: var(--cz-primary-light-blue, #dceffd);
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+  border-color: var(--cs-maroon-light);
+  box-shadow: 0 6px 18px rgba(var(--cs-shadow-rgb), 0.06);
 }
 
 .unread {
-  background: var(--cz-secondary-light-blue, #eaf6fc);
-  border-left: 4px solid var(--cz-accent-orange, #e89a5b);
+  background: var(--cs-maroon-wash);
+  border-left: 4px solid var(--cs-kesari);
 }
 
 .read {
@@ -89,9 +89,9 @@
   width: 42px;
   height: 42px;
   border-radius: 12px;
-  background: #ffffff;
-  border: 1px solid var(--cz-border, #e2e8f0);
-  color: var(--cz-accent-blue-dark, #2c6e97);
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
+  color: var(--cs-maroon);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -99,9 +99,9 @@
 }
 
 .unread .notifIconWrapper {
-  background: var(--cz-secondary-light-orange, #fff0e2);
-  border-color: var(--cz-primary-orange, #f8cfa8);
-  color: var(--cz-accent-orange-dark, #b86b2f);
+  background: var(--cs-kesari-tint);
+  border-color: var(--cs-kesari-light);
+  color: var(--cs-kesari-deep);
 }
 
 .notifBody {
@@ -121,20 +121,20 @@
 .notifTitle {
   font-size: 14.5px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--cs-text-strong);
   margin: 0;
 }
 
 .notifTime {
   font-size: 11.5px;
-  color: var(--cz-muted-text, #94a3b8);
+  color: var(--cs-text-faint);
   white-space: nowrap;
 }
 
 .notifMsg {
   font-size: 13px;
   line-height: 1.5;
-  color: var(--cz-secondary-text, #64748b);
+  color: var(--cs-text-muted);
   margin: 0;
 }
 
@@ -151,7 +151,7 @@
   gap: 4px;
   font-size: 12px;
   font-weight: 700;
-  color: var(--cz-accent-blue-dark, #2c6e97);
+  color: var(--cs-maroon);
   text-decoration: none;
 }
 
@@ -160,8 +160,8 @@
 }
 
 .emptyBox {
-  background: #ffffff;
-  border: 1px solid var(--cz-border, #e2e8f0);
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
   border-radius: var(--cz-radius-xl, 16px);
   padding: 60px 20px;
   text-align: center;
@@ -175,8 +175,8 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: var(--cz-secondary-light-blue, #eaf6fc);
-  color: var(--cz-accent-blue, #5b9fcb);
+  background: var(--cs-maroon-wash);
+  color: var(--cs-maroon);
   display: flex;
   align-items: center;
   justify-content: center;

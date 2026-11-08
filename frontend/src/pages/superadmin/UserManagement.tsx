@@ -133,8 +133,8 @@ const mapBackendUserToDirectoryUser = (
             : log.action?.includes('COMPLAINT')
             ? 'assignment'
             : 'history',
-          dot_color: '#10b981',
-          dot_bg: '#ecfdf5',
+          dot_color: '#2E7D4F',
+          dot_bg: '#E6F4EA',
         }))
       : [
           {
@@ -142,8 +142,8 @@ const mapBackendUserToDirectoryUser = (
             title: 'Account active on platform',
             time: 'Recently',
             icon: 'verified_user',
-            dot_color: '#2563eb',
-            dot_bg: '#eff6ff',
+            dot_color: '#FF7722',
+            dot_bg: '#FFF4EC',
           },
         ];
 
@@ -166,7 +166,7 @@ const mapBackendUserToDirectoryUser = (
     joined_time: formattedTime,
     last_active: 'Active',
     initials: (backendUser.full_name ? backendUser.full_name[0] : 'U').toUpperCase(),
-    avatar_bg: role === 'SUPER_ADMIN' ? '#2563eb' : role === 'AUTHORITY' ? '#7c3aed' : '#059669',
+    avatar_bg: role === 'SUPER_ADMIN' ? '#FF7722' : role === 'AUTHORITY' ? '#7A1F2B' : '#2E7D4F',
     permissions,
     recent_activity: recentActivity,
   };
@@ -426,7 +426,7 @@ export const UserManagement: React.FC = () => {
 
             <div className={s.headerActions}>
               <div className={s.dateTimeBadge}>
-                <Icon name="calendar_today" size={15} style={{ color: '#2563eb' }} />
+                <Icon name="calendar_today" size={15} style={{ color: '#7A1F2B' }} />
                 <span>
                   {currentDateTime.toLocaleDateString('en-GB', {
                     weekday: 'short',
@@ -496,7 +496,7 @@ export const UserManagement: React.FC = () => {
             title="Click to view all enrolled users"
           >
             <div className={s.kpiLeft}>
-              <div className={s.kpiIconBox} style={{ background: '#eff6ff', color: '#2563eb' }}>
+              <div className={s.kpiIconBox} style={{ background: '#FFF4EC', color: '#7A1F2B' }}>
                 <Icon name="group" size={22} />
               </div>
               <div className={s.kpiInfo}>
@@ -511,8 +511,8 @@ export const UserManagement: React.FC = () => {
             <div className={s.sparklineWrap}>
               <Sparkline
                 data={[10, 11, 12, 13, 14, 15, Math.max(usersList.length, 1)]}
-                color="#2563eb"
-                fillColor="#93c5fd"
+                color="#E8620F"
+                fillColor="#FFC9A3"
               />
             </div>
           </div>
@@ -524,7 +524,7 @@ export const UserManagement: React.FC = () => {
             title="Click to filter citizen users"
           >
             <div className={s.kpiLeft}>
-              <div className={s.kpiIconBox} style={{ background: '#f0fdf4', color: '#16a34a' }}>
+              <div className={s.kpiIconBox} style={{ background: '#E6F4EA', color: '#1F6B3F' }}>
                 <Icon name="person" size={22} />
               </div>
               <div className={s.kpiInfo}>
@@ -548,8 +548,8 @@ export const UserManagement: React.FC = () => {
             <div className={s.sparklineWrap}>
               <Sparkline
                 data={[4, 5, 6, 7, 8, Math.max(usersList.filter((u) => u.role === 'CITIZEN').length, 1)]}
-                color="#16a34a"
-                fillColor="#86efac"
+                color="#2E7D4F"
+                fillColor="#B7DEC3"
               />
             </div>
           </div>
@@ -561,7 +561,7 @@ export const UserManagement: React.FC = () => {
             title="Click to filter authority personnel"
           >
             <div className={s.kpiLeft}>
-              <div className={s.kpiIconBox} style={{ background: '#f5f3ff', color: '#8b5cf6' }}>
+              <div className={s.kpiIconBox} style={{ background: '#F6E3E5', color: '#7A1F2B' }}>
                 <Icon name="shield" size={22} />
               </div>
               <div className={s.kpiInfo}>
@@ -585,8 +585,8 @@ export const UserManagement: React.FC = () => {
             <div className={s.sparklineWrap}>
               <Sparkline
                 data={[2, 2, 3, 3, 3, Math.max(usersList.filter((u) => u.role === 'AUTHORITY').length, 1)]}
-                color="#8b5cf6"
-                fillColor="#c4b5fd"
+                color="#7A1F2B"
+                fillColor="#E4BCC1"
               />
             </div>
           </div>
@@ -598,7 +598,7 @@ export const UserManagement: React.FC = () => {
             title="Click to filter platform administrators"
           >
             <div className={s.kpiLeft}>
-              <div className={s.kpiIconBox} style={{ background: '#fffbeb', color: '#f59e0b' }}>
+              <div className={s.kpiIconBox} style={{ background: '#FDF0C4', color: '#6B4E00' }}>
                 <Icon name="workspace_premium" size={22} />
               </div>
               <div className={s.kpiInfo}>
@@ -622,8 +622,8 @@ export const UserManagement: React.FC = () => {
             <div className={s.sparklineWrap}>
               <Sparkline
                 data={[1, 1, 2, 2, 3, Math.max(usersList.filter((u) => u.role === 'SUPER_ADMIN').length, 1)]}
-                color="#f59e0b"
-                fillColor="#fde68a"
+                color="#B8860B"
+                fillColor="#F6DC85"
               />
             </div>
           </div>
@@ -782,7 +782,7 @@ export const UserManagement: React.FC = () => {
                           ) : (
                             <div
                               className={s.avatarCircle}
-                              style={{ background: u.avatar_bg || '#2563eb' }}
+                              style={{ background: u.avatar_bg || '#FF7722' }}
                             >
                               {u.initials}
                             </div>
@@ -807,10 +807,10 @@ export const UserManagement: React.FC = () => {
                           <span className={`${s.badgeRole} ${roleBadgeClass}`}>
                             {u.role === 'SUPER_ADMIN' ? 'SUPER ADMIN' : u.role}
                           </span>
-                          <span style={{ fontSize: 11, color: '#94a3b8' }}>ID: {u.id}</span>
+                          <span style={{ fontSize: 11, color: '#857060' }}>ID: {u.id}</span>
                         </div>
                         <div className={s.gridMetaRow}>
-                          <Icon name="domain" size={13} style={{ color: '#94a3b8' }} />
+                          <Icon name="domain" size={13} style={{ color: '#857060' }} />
                           <span>
                             {u.department && u.department !== '—'
                               ? `${u.department} ${u.ward ? `/ ${u.ward}` : ''}`
@@ -818,13 +818,13 @@ export const UserManagement: React.FC = () => {
                           </span>
                         </div>
                         <div className={s.gridMetaRow}>
-                          <Icon name="call" size={13} style={{ color: '#94a3b8' }} />
+                          <Icon name="call" size={13} style={{ color: '#857060' }} />
                           <span>{u.phone}</span>
                         </div>
                       </div>
 
                       <div className={s.gridCardFooter}>
-                        <span style={{ fontSize: 11, color: '#94a3b8' }}>{u.joined_date}</span>
+                        <span style={{ fontSize: 11, color: '#857060' }}>{u.joined_date}</span>
                         <button
                           type="button"
                           className={s.btnInspectAction}
@@ -898,7 +898,7 @@ export const UserManagement: React.FC = () => {
                               ) : (
                                 <div
                                   className={s.avatarCircle}
-                                  style={{ background: u.avatar_bg || '#2563eb' }}
+                                  style={{ background: u.avatar_bg || '#FF7722' }}
                                 >
                                   {u.initials}
                                 </div>
@@ -1093,7 +1093,7 @@ export const UserManagement: React.FC = () => {
                       ) : (
                         <div
                           className={s.inspectorAvatar}
-                          style={{ background: selectedUser.avatar_bg || '#2563eb' }}
+                          style={{ background: selectedUser.avatar_bg || '#FF7722' }}
                         >
                           {selectedUser.initials}
                         </div>
@@ -1115,7 +1115,7 @@ export const UserManagement: React.FC = () => {
                       </div>
 
                       <div className={s.inspectorEmailRow}>
-                        <Icon name="mail" size={14} style={{ color: '#94a3b8' }} />
+                        <Icon name="mail" size={14} style={{ color: '#857060' }} />
                         <span>{selectedUser.email}</span>
                       </div>
 
@@ -1371,12 +1371,12 @@ export const UserManagement: React.FC = () => {
                 {activeInspectorTab === 'Complaints' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: '8px 0' }}>
                     <h4 className={s.sectionHeading}>Associated Civic Grievances</h4>
-                    <div style={{ background: '#f8fafc', padding: 14, borderRadius: 10, border: '1px solid #e2e8f0' }}>
-                      <div style={{ fontWeight: 600, fontSize: 13, color: '#0f172a' }}>
+                    <div style={{ background: '#FFFBF2', padding: 14, borderRadius: 10, border: '1px solid #EADFCB' }}>
+                      <div style={{ fontWeight: 600, fontSize: 13, color: '#3B2418' }}>
                         #ROA-2026-0892: Pothole on Ward 12 Main Highway
                       </div>
-                      <div style={{ fontSize: 11.5, color: '#64748b', marginTop: 4 }}>
-                        Status: <span style={{ color: '#059669', fontWeight: 600 }}>Resolved</span> • Priority: High • Assigned: Roads &amp; Infra
+                      <div style={{ fontSize: 11.5, color: '#7D6657', marginTop: 4 }}>
+                        Status: <span style={{ color: '#2E7D4F', fontWeight: 600 }}>Resolved</span> • Priority: High • Assigned: Roads &amp; Infra
                       </div>
                     </div>
                   </div>
@@ -1388,7 +1388,7 @@ export const UserManagement: React.FC = () => {
                     <h4 className={s.sectionHeading}>Account Security &amp; Credentials</h4>
                     <div className={s.infoRow}>
                       <span className={s.infoLabel}>Two-Factor Authentication (2FA)</span>
-                      <span className={s.infoValue} style={{ color: '#059669' }}>Enforced (TOTP)</span>
+                      <span className={s.infoValue} style={{ color: '#2E7D4F' }}>Enforced (TOTP)</span>
                     </div>
                     <div className={s.infoRow}>
                       <span className={s.infoLabel}>Last Password Rotation</span>
@@ -1412,7 +1412,7 @@ export const UserManagement: React.FC = () => {
                         height: 80,
                         padding: 10,
                         borderRadius: 8,
-                        border: '1px solid #e2e8f0',
+                        border: '1px solid #EADFCB',
                         fontSize: 12.5,
                         fontFamily: 'inherit',
                       }}
@@ -1437,7 +1437,7 @@ export const UserManagement: React.FC = () => {
                     onClick={handleChangeRole}
                     title="Change User Role Tier"
                   >
-                    <Icon name="swap_horiz" size={15} style={{ color: '#2563eb' }} />
+                    <Icon name="swap_horiz" size={15} style={{ color: '#7A1F2B' }} />
                     <span>Change Role</span>
                   </button>
 
@@ -1447,7 +1447,7 @@ export const UserManagement: React.FC = () => {
                     onClick={handleResetPassword}
                     title="Dispatch Password Reset"
                   >
-                    <Icon name="lock_reset" size={15} style={{ color: '#0284c7' }} />
+                    <Icon name="lock_reset" size={15} style={{ color: '#7A1F2B' }} />
                     <span>Reset Password</span>
                   </button>
 
@@ -1457,7 +1457,7 @@ export const UserManagement: React.FC = () => {
                     onClick={() => setIsAuditLogsModalOpen(true)}
                     title="Inspect Security Audit Events"
                   >
-                    <Icon name="receipt_long" size={15} style={{ color: '#7c3aed' }} />
+                    <Icon name="receipt_long" size={15} style={{ color: '#7A1F2B' }} />
                     <span>View Audit Logs</span>
                   </button>
 
@@ -1735,12 +1735,12 @@ export const UserManagement: React.FC = () => {
           <div className={s.modalCard} style={{ width: 620 }} onClick={(e) => e.stopPropagation()}>
             <div className={s.modalHeader}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{ width: 34, height: 34, borderRadius: 8, background: '#f5f3ff', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: 34, height: 34, borderRadius: 8, background: '#F6E3E5', color: '#7A1F2B', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Icon name="receipt_long" size={18} />
                 </div>
                 <div>
                   <h3 className={s.modalTitle}>System Security Audit Logs</h3>
-                  <span style={{ fontSize: 11, color: '#64748b' }}>Immutable cryptographic administrative ledger</span>
+                  <span style={{ fontSize: 11, color: '#7D6657' }}>Immutable cryptographic administrative ledger</span>
                 </div>
               </div>
               <button
@@ -1761,12 +1761,12 @@ export const UserManagement: React.FC = () => {
                   { event: 'Cryptographic Audit Trail Initialized', time: 'System Check', ip: 'Internal Ledger', status: 'Success' },
                 ].map((log, idx) => (
                   <div key={idx} className={s.timelineItem}>
-                    <div className={s.timelineDot} style={{ background: '#ecfdf5', color: '#059669' }}>
+                    <div className={s.timelineDot} style={{ background: '#E6F4EA', color: '#1F6B3F' }}>
                       <Icon name="lock" size={11} />
                     </div>
                     <div>
-                      <div style={{ fontWeight: 600, color: '#0f172a', fontSize: 12.5 }}>{log.event}</div>
-                      <div style={{ fontSize: 11, color: '#64748b' }}>IP: {log.ip} • Status: {log.status}</div>
+                      <div style={{ fontWeight: 600, color: '#3B2418', fontSize: 12.5 }}>{log.event}</div>
+                      <div style={{ fontSize: 11, color: '#7D6657' }}>IP: {log.ip} • Status: {log.status}</div>
                     </div>
                     <span className={s.timelineTime}>{log.time}</span>
                   </div>

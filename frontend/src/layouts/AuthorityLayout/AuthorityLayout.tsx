@@ -6,14 +6,23 @@ import Icon from '../../components/ui/Icon';
 import s from './AuthorityLayout.module.css';
 
 export const AuthorityLayout: React.FC = () => {
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const location = useLocation();
   const navigate = useNavigate();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Soft shadow under the pinned header once the page moves
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 4);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const fetchUnread = () => {
     authorityService
@@ -57,9 +66,16 @@ export const AuthorityLayout: React.FC = () => {
     { label: 'Profile', path: '/authority/profile', icon: 'person' },
   ];
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login/authority');
+  // Top bar shows the work pages; the bell covers Notifications and the
+  // avatar menu covers Profile. The mobile menu still lists everything.
+  const barLinks = navLinks.filter(
+    (item) => item.path !== '/authority/notifications' && item.path !== '/authority/profile'
+  );
+
+  // Sign out to the landing page. The landing page finishes signing out once
+  // it's on screen, so this protected page's "go to login" guard can't win.
+  const handleLogout = () => {
+    navigate('/', { replace: true, state: { signOut: true } });
   };
 
   const displayName = user?.full_name ? user.full_name.split(' ')[0] : 'Officer';
@@ -68,42 +84,29 @@ export const AuthorityLayout: React.FC = () => {
   return (
     <div className={s.layoutContainer}>
       {/* ================= TOP NAVBAR ================= */}
-      <header className={s.navbar}>
+      <header className={`${s.navbar} ${scrolled ? s.navbarScrolled : ''}`}>
         <div className={s.navInner}>
-          {/* Left: Brand & Slogan */}
+          {/* Left: Brand */}
           <Link to="/authority/dashboard" className={s.brandGroup} title="CivicSetu Authority Portal">
             <div className={s.brandLogo}>
               <img src="/logo-mark.png" alt="CivicSetu Logo" className={s.brandLogoImg} />
             </div>
-            <div className={s.brandText}>
-              <div className={s.brandTitleRow}>
-                <span className={s.brandName}>CivicSetu</span>
-                <span className={s.brandBadge}>
-                  <span className={s.pulseDot}></span>
-                  Authority Portal
-                </span>
-              </div>
-              <span className={s.brandSubtitle}>Municipal Grievance Management System</span>
-            </div>
+            <span className={s.brandName}>CivicSetu</span>
           </Link>
 
-          {/* Center: Navigation Links */}
+          {/* Center: one slim segmented bar */}
           <nav className={s.navLinks}>
-            {navLinks.map((item) => {
+            {barLinks.map((item) => {
               const isActive = location.pathname === item.path;
               return (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`${s.navLink} ${isActive ? s.activeNavLink : ''} ${
-                    item.isHighlight && !isActive ? s.highlightNavLink : ''
-                  }`}
+                  className={`${s.navLink} ${isActive ? s.activeNavLink : ''}`}
+                  aria-current={isActive ? 'page' : undefined}
                 >
-                  <Icon name={item.icon} size={18} />
+                  <Icon name={item.icon} size={17} className={s.navIcon} />
                   <span>{item.label}</span>
-                  {item.icon === 'notifications' && unreadCount > 0 && (
-                    <span className={s.navNotifDot}></span>
-                  )}
                 </Link>
               );
             })}
@@ -195,7 +198,8 @@ export const AuthorityLayout: React.FC = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={s.mobileNavLink}
+                className={`${s.mobileNavLink} ${location.pathname === item.path ? s.mobileNavLinkActive : ''}`}
+                aria-current={location.pathname === item.path ? 'page' : undefined}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <Icon name={item.icon} size={18} />
@@ -229,7 +233,7 @@ export const AuthorityLayout: React.FC = () => {
                 <div className={s.brandLogo} style={{ width: 28, height: 28 }}>
                   <img src="/logo-mark.png" alt="CivicSetu" className={s.brandLogoImg} />
                 </div>
-                <strong style={{ fontSize: 16, color: '#0f172a' }}>CivicSetu</strong>
+                <strong style={{ fontSize: 16, color: 'var(--cs-text-strong)' }}>CivicSetu</strong>
               </div>
               <p className={s.footerDesc}>
                 Municipal Authority Grievance Management — AI-powered triage,
@@ -241,11 +245,11 @@ export const AuthorityLayout: React.FC = () => {
               <span className={s.helplineTitle}>Authority Support Helplines</span>
               <div className={s.helplineNumbers}>
                 <div className={s.helplineItem}>
-                  <Icon name="call" size={15} style={{ color: '#2563eb' }} />
+                  <Icon name="call" size={15} style={{ color: 'var(--cs-kesari-deep)' }} />
                   <span>Municipal Control: <strong>1913</strong></span>
                 </div>
                 <div className={s.helplineItem}>
-                  <Icon name="local_police" size={15} style={{ color: '#16a36a' }} />
+                  <Icon name="local_police" size={15} style={{ color: 'var(--cs-maroon)' }} />
                   <span>Emergency: <strong>112</strong></span>
                 </div>
               </div>

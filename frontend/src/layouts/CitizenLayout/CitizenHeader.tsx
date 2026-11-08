@@ -65,7 +65,7 @@ export const CitizenHeader: React.FC = () => {
       </nav>
 
       <div className="flex items-center gap-3">
-        <LanguageSelector />
+        <LanguageSelector theme="dark" />
         <PortalSwitcher />
         {isAuthenticated ? (
           <div className="flex items-center gap-3">

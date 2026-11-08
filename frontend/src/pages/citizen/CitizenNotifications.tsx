@@ -7,7 +7,7 @@ import { formatTimeAgo } from '../../utils/formatters';
 import s from './CitizenNotifications.module.css';
 
 export const CitizenNotifications: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     notifications,
     unreadNotificationsCount,
@@ -47,7 +47,7 @@ export const CitizenNotifications: React.FC = () => {
         <div>
           <h1 className={s.title}>{t('nav.notifications')}</h1>
           <p className={s.subtitle}>
-            Real-time status alerts, department assignments, and resolution updates.
+            {t('notificationsPage.subtitle')}
           </p>
         </div>
 
@@ -58,7 +58,7 @@ export const CitizenNotifications: React.FC = () => {
             onClick={() => markAllNotificationsAsRead()}
           >
             <Icon name="done_all" size={16} />
-            <span>Mark All as Read</span>
+            <span>{t('notificationsPage.markAllRead')}</span>
           </button>
         )}
       </div>
@@ -68,9 +68,9 @@ export const CitizenNotifications: React.FC = () => {
           <div className={s.emptyIcon}>
             <Icon name="notifications_off" size={28} />
           </div>
-          <h3 style={{ fontSize: 17, fontWeight: 800, color: '#0f172a', margin: 0 }}>All Caught Up!</h3>
-          <p style={{ fontSize: 13, color: 'var(--cz-secondary-text, #64748b)', margin: 0 }}>
-            You don't have any unread status updates or departmental alerts right now.
+          <h3 style={{ fontSize: 17, fontWeight: 800, color: '#3B2418', margin: 0 }}>{t('notificationsPage.emptyTitle')}</h3>
+          <p style={{ fontSize: 13, color: 'var(--cs-text-muted)', margin: 0 }}>
+            {t('notificationsPage.emptyText')}
           </p>
         </div>
       ) : (
@@ -92,7 +92,7 @@ export const CitizenNotifications: React.FC = () => {
               <div className={s.notifBody}>
                 <div className={s.notifTop}>
                   <h4 className={s.notifTitle}>{notif.title}</h4>
-                  <span className={s.notifTime}>{formatTimeAgo(notif.created_at)}</span>
+                  <span className={s.notifTime}>{formatTimeAgo(notif.created_at, i18n.language)}</span>
                 </div>
 
                 <p className={s.notifMsg}>{notif.message}</p>

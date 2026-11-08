@@ -377,6 +377,10 @@ export const smartDetectGps = async (
   address: string;
   zoom: number;
   message: string;
+  /** Key under map.gps.* in the locale files, for showing the message in the user's language. */
+  messageKey: string;
+  /** Ward/place name the message refers to, when it falls back to a ward. */
+  name?: string;
   source: 'device_gps' | 'calibrated_ward';
 }> => {
   // If user has a registered address outside Jajpur, resolve that first as our calibration baseline
@@ -387,6 +391,7 @@ export const smartDetectGps = async (
       resolve({
         ...wardFallback,
         message: `GPS not supported by browser. Located your registered ward: ${wardFallback.name}`,
+        messageKey: 'notSupported',
         source: 'calibrated_ward',
       });
       return;
@@ -401,6 +406,7 @@ export const smartDetectGps = async (
         resolve({
           ...wardFallback,
           message: `Location service timed out. Calibrated to your registered ward: ${wardFallback.name}`,
+          messageKey: 'timedOut',
           source: 'calibrated_ward',
         });
       }
@@ -425,6 +431,7 @@ export const smartDetectGps = async (
           resolve({
             ...wardFallback,
             message: `Broadband ISP gateway filtered. Calibrated to your registered ward: ${wardFallback.name}`,
+            messageKey: 'ispFiltered',
             source: 'calibrated_ward',
           });
           return;
@@ -435,6 +442,7 @@ export const smartDetectGps = async (
           resolve({
             ...wardFallback,
             message: `Coarse network position detected. Calibrated to your registered ward: ${wardFallback.name}`,
+            messageKey: 'coarse',
             source: 'calibrated_ward',
           });
           return;
@@ -448,6 +456,7 @@ export const smartDetectGps = async (
           address: resolvedAddress,
           zoom: 16,
           message: 'Exact GPS location detected successfully.',
+          messageKey: 'exact',
           source: 'device_gps',
         });
       },
@@ -466,6 +475,7 @@ export const smartDetectGps = async (
         resolve({
           ...wardFallback,
           message: `${reason}. Calibrated to your registered ward: ${wardFallback.name}`,
+          messageKey: err.code === 1 ? 'permissionDenied' : err.code === 2 ? 'unavailable' : 'requestTimedOut',
           source: 'calibrated_ward',
         });
       },

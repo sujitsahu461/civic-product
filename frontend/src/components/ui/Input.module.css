@@ -9,35 +9,35 @@
 .label {
   font-size: 13px;
   font-weight: 600;
-  color: #334155;
+  color: var(--cs-text-strong);
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
 .requiredMark {
-  color: #ef4444;
+  color: var(--cs-danger);
 }
 
 .inputWrapper {
   position: relative;
   display: flex;
   align-items: center;
-  background: #ffffff;
-  border: 1.5px solid #e2e8f0;
+  background: var(--cs-white);
+  border: 1.5px solid var(--cs-border-strong);
   border-radius: 8px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .inputWrapper:focus-within {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-  background: #ffffff;
+  border-color: var(--cs-kesari);
+  box-shadow: 0 0 0 3px var(--cs-kesari-tint);
+  background: var(--cs-white);
 }
 
 .inputWrapper.hasError {
-  border-color: #ef4444;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+  border-color: var(--cs-danger);
+  box-shadow: 0 0 0 3px var(--cs-danger-tint);
 }
 
 .input {
@@ -46,14 +46,14 @@
   padding: 0 14px;
   background: transparent;
   border: none;
-  color: #0f172a;
+  color: var(--cs-text-strong);
   font-size: 14px;
   font-family: inherit;
   outline: none;
 }
 
 .input::placeholder {
-  color: #94a3b8;
+  color: var(--cs-text-faint);
 }
 
 .input.withLeftIcon {
@@ -69,7 +69,7 @@
   left: 12px;
   display: flex;
   align-items: center;
-  color: #64748b;
+  color: var(--cs-text-muted);
   pointer-events: none;
 }
 
@@ -78,7 +78,7 @@
   right: 12px;
   display: flex;
   align-items: center;
-  color: #64748b;
+  color: var(--cs-text-muted);
 }
 
 .rightIcon button {
@@ -92,17 +92,17 @@
 }
 
 .rightIcon button:hover {
-  color: #0f172a;
+  color: var(--cs-text-strong);
 }
 
 .errorMessage {
   font-size: 12px;
-  color: #dc2626;
+  color: var(--cs-danger);
   margin: 0;
 }
 
 .helperText {
   font-size: 12px;
-  color: #64748b;
+  color: var(--cs-text-muted);
   margin: 0;
 }

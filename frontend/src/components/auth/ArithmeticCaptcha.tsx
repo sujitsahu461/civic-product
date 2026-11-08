@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import authService from '../../services/auth.service';
 import Icon from '../ui/Icon';
 import s from './ArithmeticCaptcha.module.css';
@@ -12,6 +13,7 @@ export const ArithmeticCaptcha: React.FC<ArithmeticCaptchaProps> = ({
   onVerify,
   required = true,
 }) => {
+  const { t } = useTranslation();
   const [question, setQuestion] = useState('7 + 5 = ?');
   const [expectedAnswer, setExpectedAnswer] = useState<number>(12);
   const [captchaKey, setCaptchaKey] = useState<string>('local');
@@ -30,15 +32,15 @@ export const ArithmeticCaptcha: React.FC<ArithmeticCaptchaProps> = ({
     return `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="48" viewBox="0 0 200 48" style="border-radius: 8px; user-select: none;">
       <defs>
         <linearGradient id="mathGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#0f172a" />
-          <stop offset="100%" stop-color="#1e293b" />
+          <stop offset="0%" stop-color="#3B2418" />
+          <stop offset="100%" stop-color="#3B2418" />
         </linearGradient>
       </defs>
-      <rect width="200" height="48" rx="8" fill="url(#mathGrad)" stroke="#334155" stroke-width="1"/>
-      <line x1="12" y1="14" x2="188" y2="34" stroke="#475569" stroke-width="1.2" stroke-dasharray="4,4" opacity="0.4"/>
-      <circle cx="25" cy="12" r="1.5" fill="#38bdf8" opacity="0.6"/>
-      <circle cx="175" cy="36" r="1.5" fill="#34d399" opacity="0.6"/>
-      <text x="100" y="27" fill="#38bdf8" font-family="'JetBrains Mono', 'Fira Code', monospace, Courier" font-weight="900" font-size="21" text-anchor="middle" dominant-baseline="central" letter-spacing="2" style="filter: drop-shadow(0 2px 5px rgba(0,0,0,0.7));">${expr}</text>
+      <rect width="200" height="48" rx="8" fill="url(#mathGrad)" stroke="#5A4033" stroke-width="1"/>
+      <line x1="12" y1="14" x2="188" y2="34" stroke="#5A4033" stroke-width="1.2" stroke-dasharray="4,4" opacity="0.4"/>
+      <circle cx="25" cy="12" r="1.5" fill="#FF7722" opacity="0.6"/>
+      <circle cx="175" cy="36" r="1.5" fill="#2E7D4F" opacity="0.6"/>
+      <text x="100" y="27" fill="#FF7722" font-family="'JetBrains Mono', 'Fira Code', monospace, Courier" font-weight="900" font-size="21" text-anchor="middle" dominant-baseline="central" letter-spacing="2" style="filter: drop-shadow(0 2px 5px rgba(0,0,0,0.7));">${expr}</text>
     </svg>`;
   };
 
@@ -125,11 +127,13 @@ export const ArithmeticCaptcha: React.FC<ArithmeticCaptchaProps> = ({
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const readable = question
-        .replace('+', 'plus')
-        .replace('-', 'minus')
-        .replace('×', 'multiplied by')
-        .replace('= ?', '');
-      const utterance = new SpeechSynthesisUtterance(`Security math verification. What is ${readable}?`);
+        .replace('+', t('captcha.speech.plus'))
+        .replace('-', t('captcha.speech.minus'))
+        .replace('×', t('captcha.speech.times'))
+        .replace('= ?', '')
+        .trim();
+      const utterance = new SpeechSynthesisUtterance(t('captcha.speech.prompt', { expr: readable }));
+      utterance.lang = t('captcha.speech.voiceLang');
       utterance.rate = 0.88;
       window.speechSynthesis.speak(utterance);
     }
@@ -143,20 +147,20 @@ export const ArithmeticCaptcha: React.FC<ArithmeticCaptchaProps> = ({
       <div className={s.headerRow}>
         <div className={s.label}>
           <Icon name="calculate" size={16} className={s.labelIcon} />
-          <span>Arithmetic Security Verification</span>
+          <span>{t('captcha.title')}</span>
         </div>
-        <span className={s.badge}>Human Check</span>
+        <span className={s.badge}>{t('captcha.badge')}</span>
       </div>
 
       <p className={s.instruction}>
-        Solve the math equation below to verify you are a genuine human user:
+        {t('captcha.instruction')}
       </p>
 
       <div className={s.challengeRow}>
         <div
           className={s.svgWrapper}
           dangerouslySetInnerHTML={{ __html: captchaSvg }}
-          title={`Calculate: ${question}`}
+          title={t('captcha.calculateTitle', { question })}
         />
 
         <div className={s.actionButtons}>
@@ -165,8 +169,8 @@ export const ArithmeticCaptcha: React.FC<ArithmeticCaptchaProps> = ({
             className={s.iconButton}
             onClick={loadCaptcha}
             disabled={loading}
-            title="Generate new arithmetic equation"
-            aria-label="Refresh Math Captcha"
+            title={t('captcha.refreshTitle')}
+            aria-label={t('captcha.refreshLabel')}
           >
             <Icon name="refresh" size={18} className={loading ? s.spin : ''} />
           </button>
@@ -175,8 +179,8 @@ export const ArithmeticCaptcha: React.FC<ArithmeticCaptchaProps> = ({
             type="button"
             className={s.iconButton}
             onClick={handleSpeak}
-            title="Read out math problem aloud"
-            aria-label="Listen to Math Problem"
+            title={t('captcha.listenTitle')}
+            aria-label={t('captcha.listenLabel')}
           >
             <Icon name="volume_up" size={18} />
           </button>
@@ -185,13 +189,13 @@ export const ArithmeticCaptcha: React.FC<ArithmeticCaptchaProps> = ({
 
       <div className={s.inputRow}>
         <div className={s.inputWrapper}>
-          <span className={s.inputPrefix}>Answer:</span>
+          <span className={s.inputPrefix}>{t('captcha.answer')}</span>
           <input
             type="text"
             inputMode="numeric"
             pattern="[0-9\-]*"
             className={`${s.answerInput} ${isAnswerCorrect ? s.inputSuccess : ''} ${isAnswerWrong ? s.inputError : ''}`}
-            placeholder="Type result (e.g. 19)"
+            placeholder={t('captcha.placeholder')}
             value={userInput}
             onChange={handleInputChange}
             required={required}
@@ -202,14 +206,14 @@ export const ArithmeticCaptcha: React.FC<ArithmeticCaptchaProps> = ({
         {isAnswerCorrect && (
           <div className={s.statusSuccess}>
             <Icon name="check_circle" size={16} />
-            <span>Verified</span>
+            <span>{t('captcha.verified')}</span>
           </div>
         )}
 
         {isAnswerWrong && (
           <div className={s.statusError}>
             <Icon name="close" size={14} />
-            <span>Incorrect</span>
+            <span>{t('captcha.incorrect')}</span>
           </div>
         )}
       </div>

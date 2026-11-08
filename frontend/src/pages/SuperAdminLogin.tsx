@@ -78,19 +78,19 @@ export const SuperAdminLogin: React.FC = () => {
 
   return (
     <div className={s.container}>
-      <div className={s.authCard} style={{ borderColor: '#cbd5e1' }}>
+      <div className={s.authCard} style={{ borderColor: '#DCCDB5' }}>
         {/* Left Visual Panel: Super Admin High-Security Terminal */}
-        <div className={s.leftPanel} style={{ background: 'linear-gradient(165deg, #0f172a 0%, #1e1b4b 55%, #172554 100%)', color: '#f8fafc' }}>
-          <div className={s.leftGlow} style={{ background: 'radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%)' }} />
+        <div className={s.leftPanel} style={{ background: 'linear-gradient(165deg, #3B2418 0%, #5E1620 55%, #7A1F2B 100%)', color: '#FFFBF2' }}>
+          <div className={s.leftGlow} style={{ background: 'radial-gradient(circle, rgba(122, 31, 43, 0.25) 0%, transparent 70%)' }} />
 
           <div className={s.visualTopRow}>
             <Link to="/" className={s.brandHeader} style={{ textDecoration: 'none' }}>
-              <div className={s.brandLogo} style={{ background: '#1e293b', borderColor: '#334155' }}>
+              <div className={s.brandLogo} style={{ background: '#3B2418', borderColor: '#5A4033' }}>
                 <img src="/logo-mark.png" alt="CivicSetu" className={s.brandLogoImg} />
               </div>
               <div className={s.brandMeta}>
-                <span className={s.brandName} style={{ color: '#ffffff' }}>CivicSetu</span>
-                <span className={s.brandBadge} style={{ background: '#312e81', color: '#a5b4fc', borderColor: '#4338ca' }}>
+                <span className={s.brandName} style={{ color: '#FFFFFF' }}>CivicSetu</span>
+                <span className={s.brandBadge} style={{ background: '#7A1F2B', color: '#FFE8D6', borderColor: '#A33B4A' }}>
                   CENTRAL COMMAND
                 </span>
               </div>
@@ -103,35 +103,35 @@ export const SuperAdminLogin: React.FC = () => {
 
           <div className={s.visualBody}>
             <div className={s.visualTagline}>
-              <span className={s.taglineDot} style={{ background: '#818cf8' }} />
-              <span style={{ color: '#cbd5e1' }}>Executive Administration</span>
+              <span className={s.taglineDot} style={{ background: '#7A1F2B' }} />
+              <span style={{ color: '#DCCDB5' }}>Executive Administration</span>
             </div>
 
-            <h1 className={s.editorialHeading} style={{ color: '#ffffff' }}>
+            <h1 className={s.editorialHeading} style={{ color: '#FFFFFF' }}>
               System Command.<br />
               Nodal Governance.<br />
               Total Telemetry.
             </h1>
 
-            <p className={s.editorialSubheading} style={{ color: '#94a3b8' }}>
+            <p className={s.editorialSubheading} style={{ color: 'rgba(255, 251, 242, 0.75)' }}>
               Master administrative control panel for municipal commissioners, system overseers, and audit directors across all ULB jurisdictions.
             </p>
 
             <div style={{ marginTop: '20px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <span style={{ background: 'rgba(255,255,255,0.1)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#c7d2fe', border: '1px solid rgba(255,255,255,0.15)' }}>
+              <span style={{ background: 'rgba(255,255,255,0.1)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#E4BCC1', border: '1px solid rgba(255,255,255,0.15)' }}>
                 ✓ Department Configuration
               </span>
-              <span style={{ background: 'rgba(255,255,255,0.1)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#c7d2fe', border: '1px solid rgba(255,255,255,0.15)' }}>
+              <span style={{ background: 'rgba(255,255,255,0.1)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#E4BCC1', border: '1px solid rgba(255,255,255,0.15)' }}>
                 ✓ Officer Access Control
               </span>
-              <span style={{ background: 'rgba(255,255,255,0.1)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#c7d2fe', border: '1px solid rgba(255,255,255,0.15)' }}>
+              <span style={{ background: 'rgba(255,255,255,0.1)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#E4BCC1', border: '1px solid rgba(255,255,255,0.15)' }}>
                 ✓ Immutable Security Audit Trail
               </span>
             </div>
           </div>
 
           <div className={s.visualFooter}>
-            <Link to="/" style={{ color: '#a5b4fc', fontSize: '13px', fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Link to="/" style={{ color: '#E4BCC1', fontSize: '13px', fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
               ← Return to Main Homepage
             </Link>
           </div>
@@ -141,7 +141,7 @@ export const SuperAdminLogin: React.FC = () => {
         <div className={s.rightPanel}>
           <div className={s.formWrapper}>
             <div className={s.headerContent}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#ede9fe', color: '#6d28d9', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '8px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#F6E3E5', color: '#7A1F2B', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '8px' }}>
                 <Icon name="admin_panel_settings" size={14} />
                 <span>Super Administrator Gateway</span>
               </div>
@@ -152,15 +152,15 @@ export const SuperAdminLogin: React.FC = () => {
             </div>
 
             {/* Quick Demo Fill Pill */}
-            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+            <div style={{ background: '#FFFBF2', border: '1px solid #EADFCB', borderRadius: '12px', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Icon name="bolt" size={18} style={{ color: '#7c3aed' }} />
-                <span style={{ fontSize: '12px', color: '#475569', fontWeight: 600 }}>Super Admin Demo:</span>
+                <Icon name="bolt" size={18} style={{ color: '#7A1F2B' }} />
+                <span style={{ fontSize: '12px', color: '#5A4033', fontWeight: 600 }}>Super Admin Demo:</span>
               </div>
               <button
                 type="button"
                 onClick={handleQuickFill}
-                style={{ background: '#ede9fe', color: '#6d28d9', border: '1px solid #ddd6fe', padding: '4px 10px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}
+                style={{ background: '#F6E3E5', color: '#7A1F2B', border: '1px solid #E4BCC1', padding: '4px 10px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}
               >
                 1-Click Fill Demo
               </button>
@@ -237,7 +237,7 @@ export const SuperAdminLogin: React.FC = () => {
                 isLoading={loading}
                 rightIcon={<Icon name="arrow_forward" size={18} />}
                 className={s.submitBtn}
-                style={{ backgroundColor: '#6366f1' }}
+                style={{ backgroundColor: '#7A1F2B' }}
               >
                 Authenticate Terminal
               </Button>
@@ -245,19 +245,19 @@ export const SuperAdminLogin: React.FC = () => {
 
             <div className={s.footerText} style={{ marginTop: '16px' }}>
               Need to provision a Super Admin key?{' '}
-              <Link to="/signup/superadmin" className={s.signupLink} style={{ color: '#6366f1' }}>
+              <Link to="/signup/superadmin" className={s.signupLink} style={{ color: '#7A1F2B' }}>
                 Admin Setup & Registration
               </Link>
             </div>
 
             {/* Other Portals Switcher */}
-            <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '12px' }}>
-              <Link to="/login/citizen" style={{ color: '#16a34a', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #F7EFE1', display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '12px' }}>
+              <Link to="/login/citizen" style={{ color: '#2E7D4F', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                 <Icon name="person" size={14} />
                 <span>Citizen Login</span>
               </Link>
-              <span style={{ color: '#cbd5e1' }}>•</span>
-              <Link to="/login/authority" style={{ color: '#2563eb', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ color: '#DCCDB5' }}>•</span>
+              <Link to="/login/authority" style={{ color: '#7A1F2B', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                 <Icon name="badge" size={14} />
                 <span>Authority Login</span>
               </Link>

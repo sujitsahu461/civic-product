@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useTranslation } from 'react-i18next';
+import { placeLabel } from '../../i18n/placeLabels';
 import { Complaint } from '../../types/complaint';
 import Badge from '../../components/ui/Badge';
 import Icon from '../../components/ui/Icon';
@@ -206,6 +208,7 @@ export const IncidentMap: React.FC<IncidentMapProps> = ({
   }, [zoom, geocodedComplaints]);
 
   const { user } = useAuthStore();
+  const { t, i18n } = useTranslation();
   const [mapCenter, setMapCenter] = useState<[number, number]>(defaultCenter);
   const [mapZoom, setMapZoom] = useState<number>(defaultZoom);
   const [activeCluster, setActiveCluster] = useState<string>(
@@ -241,9 +244,9 @@ export const IncidentMap: React.FC<IncidentMapProps> = ({
       setMapCenter(loc);
       setMapZoom(res.zoom || 15);
       setActiveCluster('user_gps');
-      showToast(res.message, 'success');
+      showToast(t(`map.gps.${res.messageKey}`, { ward: placeLabel(res.name, t) }), 'success');
     } catch {
-      showToast('Could not access current location.', 'warning');
+      showToast(t('map.gps.locateFailed'), 'warning');
     }
   };
 
@@ -279,49 +282,49 @@ export const IncidentMap: React.FC<IncidentMapProps> = ({
             type="button"
             className={`${s.clusterBtn} ${activeCluster === 'india' ? s.clusterBtnActive : ''}`}
             onClick={() => jumpToCluster('india', INDIA_MAP_CENTER[0], INDIA_MAP_CENTER[1], INDIA_DEFAULT_ZOOM)}
-            title="Whole India Country View"
+            title={t('map.placeTitles.wholeIndiaView')}
           >
-            🇮🇳 India
+            {t('map.places.india')}
           </button>
           <button
             type="button"
             className={`${s.clusterBtn} ${activeCluster === 'sambalpur' ? s.clusterBtnActive : ''}`}
             onClick={() => jumpToCluster('sambalpur', 21.4669, 83.9812, 14)}
-            title="Sambalpur Municipal Corporation"
+            title={t('map.placeTitles.sambalpurMc')}
           >
-            Sambalpur
+            {t('map.places.sambalpur')}
           </button>
           <button
             type="button"
             className={`${s.clusterBtn} ${activeCluster === 'bhubaneswar' ? s.clusterBtnActive : ''}`}
             onClick={() => jumpToCluster('bhubaneswar', 20.296059, 85.82454, 13)}
-            title="Bhubaneswar Municipal Corporation"
+            title={t('map.placeTitles.bhubaneswarMc')}
           >
-            Bhubaneswar
+            {t('map.places.bhubaneswar')}
           </button>
           <button
             type="button"
             className={`${s.clusterBtn} ${activeCluster === 'delhi' ? s.clusterBtnActive : ''}`}
             onClick={() => jumpToCluster('delhi', 28.6139, 77.209, 12)}
-            title="New Delhi Municipal Council"
+            title={t('map.placeTitles.ndmc')}
           >
-            New Delhi
+            {t('map.places.newDelhi')}
           </button>
           <button
             type="button"
             className={`${s.clusterBtn} ${activeCluster === 'mumbai' ? s.clusterBtnActive : ''}`}
             onClick={() => jumpToCluster('mumbai', 19.076, 72.8777, 12)}
-            title="Brihanmumbai Municipal Corporation"
+            title={t('map.placeTitles.bmc')}
           >
-            Mumbai
+            {t('map.places.mumbai')}
           </button>
           <button
             type="button"
             className={`${s.clusterBtn} ${activeCluster === 'gunupur' ? s.clusterBtnActive : ''}`}
             onClick={() => jumpToCluster('gunupur', 19.047644, 83.834461, 15)}
-            title="GIET University / Gunupur Ward"
+            title={t('map.placeTitles.giet')}
           >
-            Gunupur
+            {t('map.places.gunupur')}
           </button>
         </div>
 
@@ -333,15 +336,15 @@ export const IncidentMap: React.FC<IncidentMapProps> = ({
               prev === 'osm' ? 'esri' : prev === 'esri' ? 'satellite' : 'osm'
             )
           }
-          title="Switch Map Tile Provider"
+          title={t('map.tiles.switchTitle')}
         >
           <Icon name="layers" size={14} />
           <span>
             {activeTileLayer === 'osm'
-              ? 'OSM Standard HD'
+              ? t('map.tiles.osm')
               : activeTileLayer === 'esri'
-              ? 'Esri Street Map'
-              : 'Satellite View'}
+              ? t('map.tiles.esri')
+              : t('map.tiles.satellite')}
           </span>
         </button>
 
@@ -349,16 +352,16 @@ export const IncidentMap: React.FC<IncidentMapProps> = ({
           type="button"
           className={s.geoBtn}
           onClick={locateUser}
-          title="Center on My Live Device GPS Location"
+          title={t('map.incident.myGpsTitle')}
         >
           <Icon name="my_location" size={16} />
-          <span>My GPS</span>
+          <span>{t('map.incident.myGps')}</span>
         </button>
 
         <div className={s.legendPill}>
           <span className={s.legendCount}>
-            <Icon name="pin_drop" size={14} style={{ color: '#10b981' }} />
-            {geocodedComplaints.length} Geocoded
+            <Icon name="pin_drop" size={14} style={{ color: '#2E7D4F' }} />
+            {t('map.incident.geocodedCount', { n: geocodedComplaints.length })}
           </span>
         </div>
       </div>
@@ -368,8 +371,10 @@ export const IncidentMap: React.FC<IncidentMapProps> = ({
         zoom={mapZoom}
         scrollWheelZoom={interactive}
         dragging={interactive}
+        zoomControl={false}
         className={s.leafletContainer}
       >
+        <ZoomControl key={i18n.language} position="topleft" zoomInTitle={t('map.zoomIn')} zoomOutTitle={t('map.zoomOut')} />
         <TileLayer
           key={activeTileLayer}
           attribution={currentTileConfig.attribution}
@@ -397,7 +402,7 @@ export const IncidentMap: React.FC<IncidentMapProps> = ({
           >
             <Popup>
               <div className={s.userPopup}>
-                <strong>Your Current GPS Location</strong>
+                <strong>{t('map.incident.yourLocation')}</strong>
               </div>
             </Popup>
           </Marker>
@@ -424,7 +429,7 @@ export const IncidentMap: React.FC<IncidentMapProps> = ({
                 <div className={s.popupCard}>
                   <div className={s.popupHeader}>
                     <span className={s.trackingCode}>{c.tracking_code}</span>
-                    <Badge variant={getStatusVariant(c.status)}>{c.status}</Badge>
+                    <Badge variant={getStatusVariant(c.status)}>{t(`statuses.${c.status}`, { defaultValue: c.status })}</Badge>
                   </div>
 
                   <h4 className={s.popupTitle}>{c.title}</h4>
@@ -441,7 +446,7 @@ export const IncidentMap: React.FC<IncidentMapProps> = ({
                     </span>
                     <span className={s.metaItem}>
                       <Icon name="schedule" size={13} />
-                      {formatDate(c.created_at)}
+                      {formatDate(c.created_at, i18n.language)}
                     </span>
                   </div>
 
@@ -451,20 +456,20 @@ export const IncidentMap: React.FC<IncidentMapProps> = ({
                       style={{
                         color:
                           c.priority === 'URGENT'
-                            ? '#ef4444'
+                            ? '#B42318'
                             : c.priority === 'HIGH'
-                            ? '#fb923c'
-                            : '#38bdf8',
+                            ? '#B93E0C'
+                            : '#7D6657',
                       }}
                     >
-                      ● {c.priority} Priority
+                      ● {t(`priorities.${c.priority}`, { defaultValue: c.priority })}
                     </span>
 
                     <a
                       href={`/citizen/tracking?code=${c.tracking_code}`}
                       className={s.popupTrackBtn}
                     >
-                      <span>Track Details</span>
+                      <span>{t('map.incident.trackDetails')}</span>
                       <Icon name="arrow_forward" size={12} />
                     </a>
                   </div>

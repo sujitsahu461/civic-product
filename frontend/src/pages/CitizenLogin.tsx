@@ -45,12 +45,12 @@ export const CitizenLogin: React.FC = () => {
     setFormError('');
 
     if (!email || !password) {
-      setFormError('Please enter your email and password.');
+      setFormError(t('auth.login.errMissing'));
       return;
     }
 
     if (!isCaptchaValid) {
-      setFormError('Please solve the security calculation correctly.');
+      setFormError(t('auth.login.errCaptcha'));
       return;
     }
 
@@ -64,7 +64,7 @@ export const CitizenLogin: React.FC = () => {
         captcha_code: captchaCode,
       });
 
-      success(`Welcome back, ${user.full_name || 'Citizen'}!`);
+      success(t('auth.login.welcomeBack', { name: user.full_name || t('layout.citizenFallback') }));
 
       if (user.role === 'SUPER_ADMIN') {
         navigate('/superadmin/dashboard');
@@ -74,7 +74,7 @@ export const CitizenLogin: React.FC = () => {
         navigate('/citizen/dashboard');
       }
     } catch (err: any) {
-      const msg = err.message || 'Login failed. Please check your credentials.';
+      const msg = err.message || t('auth.login.errFailed');
       setFormError(msg);
       toastError(msg);
     } finally {
@@ -92,11 +92,11 @@ export const CitizenLogin: React.FC = () => {
           <div className={s.visualTopRow}>
             <Link to="/" className={s.brandHeader} style={{ textDecoration: 'none' }}>
               <div className={s.brandLogo}>
-                <img src="/logo-mark.png" alt="CivicSetu" className={s.brandLogoImg} />
+                <img src="/logo-mark.png" alt={t('landing.logoAlt')} className={s.brandLogoImg} />
               </div>
               <div className={s.brandMeta}>
                 <span className={s.brandName}>CivicSetu</span>
-                <span className={s.brandBadge}>CITIZEN PORTAL</span>
+                <span className={s.brandBadge}>{t('auth.login.portalBadge')}</span>
               </div>
             </Link>
 
@@ -111,35 +111,35 @@ export const CitizenLogin: React.FC = () => {
           <div className={s.visualBody}>
             <div className={s.visualTagline}>
               <span className={s.taglineDot} />
-              <span>Voice for Every Citizen</span>
+              <span>{t('auth.login.tagline')}</span>
             </div>
 
             <h1 className={s.editorialHeading}>
-              Lodge Complaints.<br />
-              Track in Real-Time.<br />
-              Verify Resolution.
+              {t('auth.login.headingLine1')}<br />
+              {t('auth.login.headingLine2')}<br />
+              {t('auth.login.headingLine3')}
             </h1>
 
             <p className={s.editorialSubheading}>
-              Direct municipal department routing, multilingual citizen access, and complete lifecycle accountability for civic issues.
+              {t('auth.login.subheading')}
             </p>
 
             <div style={{ marginTop: '20px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <span style={{ background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#166534' }}>
-                ✓ Multilingual (English · ଓଡ଼ିଆ · हिन्दी)
+              <span style={{ background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#1F6B3F' }}>
+                {t('auth.login.chipMultilingual')}
               </span>
-              <span style={{ background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#166534' }}>
-                ✓ Audio & Video Evidence
+              <span style={{ background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#1F6B3F' }}>
+                {t('auth.login.chipEvidence')}
               </span>
-              <span style={{ background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#166534' }}>
-                ✓ Live Tracking Code
+              <span style={{ background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#1F6B3F' }}>
+                {t('auth.login.chipTracking')}
               </span>
             </div>
           </div>
 
           <div className={s.visualFooter}>
-            <Link to="/" style={{ color: '#166534', fontSize: '13px', fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-              ← Return to Main Homepage
+            <Link to="/" style={{ color: '#1F6B3F', fontSize: '13px', fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              {t('auth.common.returnHome')}
             </Link>
           </div>
         </div>
@@ -148,7 +148,7 @@ export const CitizenLogin: React.FC = () => {
         <div className={s.rightPanel}>
           <div className={s.formWrapper}>
             <div className={s.headerContent}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#dcfce7', color: '#166534', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '8px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#E6F4EA', color: '#1F6B3F', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '8px' }}>
                 <Icon name="person" size={14} />
                 <span>{t('auth.citizenLoginTitle')}</span>
               </div>
@@ -159,17 +159,17 @@ export const CitizenLogin: React.FC = () => {
             </div>
 
             {/* Quick Demo Fill Pill */}
-            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+            <div style={{ background: '#FFFBF2', border: '1px solid #EADFCB', borderRadius: '12px', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Icon name="bolt" size={18} style={{ color: '#16a34a' }} />
-                <span style={{ fontSize: '12px', color: '#475569', fontWeight: 600 }}>Test Citizen Account:</span>
+                <Icon name="bolt" size={18} style={{ color: '#2E7D4F' }} />
+                <span style={{ fontSize: '12px', color: '#5A4033', fontWeight: 600 }}>{t('auth.login.testAccount')}</span>
               </div>
               <button
                 type="button"
                 onClick={handleQuickFill}
-                style={{ background: '#dcfce7', color: '#15803d', border: '1px solid #bbf7d0', padding: '4px 10px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}
+                style={{ background: '#E6F4EA', color: '#1F6B3F', border: '1px solid #B7DEC3', padding: '4px 10px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}
               >
-                1-Click Fill Demo
+                {t('auth.login.quickFill')}
               </button>
             </div>
 
@@ -207,7 +207,7 @@ export const CitizenLogin: React.FC = () => {
                       type="button"
                       className={s.iconToggleBtn}
                       onClick={() => setShowPassword(!showPassword)}
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      aria-label={showPassword ? t('auth.common.hidePassword') : t('auth.common.showPassword')}
                     >
                       <Icon name={showPassword ? 'visibility_off' : 'visibility'} size={18} />
                     </button>
@@ -226,7 +226,7 @@ export const CitizenLogin: React.FC = () => {
                     onChange={(e) => setRememberMe(e.target.checked)}
                     className={s.checkbox}
                   />
-                  <span>Remember me</span>
+                  <span>{t('auth.login.rememberMe')}</span>
                 </label>
 
                 <Link
@@ -244,7 +244,7 @@ export const CitizenLogin: React.FC = () => {
                 isLoading={loading}
                 rightIcon={<Icon name="arrow_forward" size={18} />}
                 className={s.submitBtn}
-                style={{ backgroundColor: '#16a34a' }}
+                style={{ backgroundColor: '#2E7D4F' }}
               >
                 {t('auth.loginButton')}
               </Button>
@@ -252,19 +252,19 @@ export const CitizenLogin: React.FC = () => {
 
             <div className={s.footerText} style={{ marginTop: '16px' }}>
               {t('auth.noAccount')}{' '}
-              <Link to="/signup/citizen" className={s.signupLink} style={{ color: '#16a34a' }}>
+              <Link to="/signup/citizen" className={s.signupLink} style={{ color: '#2E7D4F' }}>
                 {t('auth.registerLink')}
               </Link>
             </div>
 
             {/* Other Portals Switcher */}
-            <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '12px' }}>
-              <Link to="/login/authority" style={{ color: '#2563eb', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #F7EFE1', display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '12px' }}>
+              <Link to="/login/authority" style={{ color: '#7A1F2B', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                 <Icon name="badge" size={14} />
                 <span>{t('nav.authorityPortal')}</span>
               </Link>
-              <span style={{ color: '#cbd5e1' }}>•</span>
-              <Link to="/login/superadmin" style={{ color: '#7c3aed', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ color: '#DCCDB5' }}>•</span>
+              <Link to="/login/superadmin" style={{ color: '#7A1F2B', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                 <Icon name="admin_panel_settings" size={14} />
                 <span>{t('nav.adminPortal')}</span>
               </Link>

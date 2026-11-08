@@ -234,7 +234,7 @@ export const DepartmentManagement: React.FC = () => {
         </div>
       ) : filteredDepts.length === 0 ? (
         <div className={s.emptyBox}>
-          <Icon name="domain_disabled" size={40} style={{ color: '#64748b' }} />
+          <Icon name="domain_disabled" size={40} style={{ color: '#7D6657' }} />
           <h3>No Departments Found</h3>
           <p>Try adjusting your search query or create a new department above.</p>
         </div>

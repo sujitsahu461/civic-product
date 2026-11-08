@@ -71,14 +71,14 @@ export const CitizenDashboard: React.FC = () => {
     }
   };
 
-  const citizenName = user?.full_name ? user.full_name.split(' ')[0] : 'Citizen';
+  const citizenName = user?.full_name ? user.full_name.split(' ')[0] : t('layout.citizenFallback');
   const citizenId = user?.public_id?.slice(0, 8).toUpperCase() || 'CS-CITIZEN';
 
   const handleCopyId = (e: React.MouseEvent) => {
     e.preventDefault();
     if (navigator.clipboard) {
       navigator.clipboard.writeText(citizenId);
-      showToast(`Citizen ID ${citizenId} copied to clipboard!`, 'success');
+      showToast(t('dashboard.idCopied', { id: citizenId }), 'success');
     }
   };
 
@@ -88,20 +88,18 @@ export const CitizenDashboard: React.FC = () => {
       <section className={s.heroBanner}>
         <div className={s.heroBgWrapper}>
           <img
-            src="/green-eco-city.jpg"
-            alt="Cleaner Cities Greener Tomorrow"
+            src="/civic-street-scene.svg"
+            alt={t('dashboard.heroAlt')}
             className={s.heroBgImg}
           />
           <div className={s.heroBgOverlay} />
         </div>
 
         <div className={s.heroLeft}>
-          <div className={s.heroTag}>
-            <span className={s.leafIcon}>🌿</span>
-            <span>{t('common.tagline')}</span>
-          </div>
-
-          <h1 className={s.heroTitle}>{t('dashboard.welcome')}, {citizenName} 👋</h1>
+          <h1 className={s.heroTitle}>
+            {t('dashboard.greeting', { name: citizenName })}{' '}
+            <span className={s.heroWave} aria-hidden="true">🙏</span>
+          </h1>
 
           <p className={s.heroSubtitle}>
             {t('dashboard.welcomeSubtitle')}
@@ -129,7 +127,7 @@ export const CitizenDashboard: React.FC = () => {
             </div>
             <div className={s.infoContent}>
               <span className={s.infoLabel}>{t('common.location')}</span>
-              <span className={s.infoValue}>{user?.address || 'Central District'}</span>
+              <span className={s.infoValue}>{user?.address || t('dashboard.centralDistrict')}</span>
             </div>
             <Link to="/citizen/profile" className={s.editBtn}>
               {t('common.actions')}
@@ -143,10 +141,10 @@ export const CitizenDashboard: React.FC = () => {
               <Icon name="badge" size={20} />
             </div>
             <div className={s.infoContent}>
-              <span className={s.infoLabel}>Citizen ID</span>
+              <span className={s.infoLabel}>{t('dashboard.citizenId')}</span>
               <span className={s.infoValue}>{citizenId}</span>
             </div>
-            <button className={s.copyBtn} title="Copy ID" onClick={handleCopyId} type="button">
+            <button className={s.copyBtn} title={t('dashboard.copyId')} onClick={handleCopyId} type="button">
               <Icon name="content_copy" size={16} />
             </button>
           </div>
@@ -301,10 +299,10 @@ export const CitizenDashboard: React.FC = () => {
           <div className={s.slaCard}>
             <div className={s.slaHeader}>
               <Icon name="verified_user" size={18} className={s.slaIcon} />
-              <h3 className={s.slaTitle}>Civic Redressal SLA Commitments</h3>
+              <h3 className={s.slaTitle}>{t('dashboard.slaTitle')}</h3>
             </div>
             <p className={s.slaDesc}>
-              CivicSetu enforces deterministic service-level agreements across municipal nodal departments:
+              {t('dashboard.slaDesc')}
             </p>
             <div className={s.slaList}>
               <div className={s.slaItem}>
@@ -312,35 +310,35 @@ export const CitizenDashboard: React.FC = () => {
                   <span className={s.slaIconSmall}>🌱</span>
                   <span>{t('categories.ROAD')}</span>
                 </div>
-                <span className={s.slaBadge}>~24 Hours</span>
+                <span className={s.slaBadge}>{t('dashboard.approxHours', { n: 24 })}</span>
               </div>
               <div className={s.slaItem}>
                 <div className={s.slaItemLeft}>
                   <span className={s.slaIconSmall}>💧</span>
                   <span>{t('categories.WATER')}</span>
                 </div>
-                <span className={s.slaBadge}>~12 Hours</span>
+                <span className={s.slaBadge}>{t('dashboard.approxHours', { n: 12 })}</span>
               </div>
               <div className={s.slaItem}>
                 <div className={s.slaItemLeft}>
                   <span className={s.slaIconSmall}>⚡</span>
                   <span>{t('categories.ELECTRICITY')}</span>
                 </div>
-                <span className={s.slaBadge}>~6 Hours</span>
+                <span className={s.slaBadge}>{t('dashboard.approxHours', { n: 6 })}</span>
               </div>
               <div className={s.slaItem}>
                 <div className={s.slaItemLeft}>
                   <span className={s.slaIconSmall}>🗑️</span>
                   <span>{t('categories.SANITATION')}</span>
                 </div>
-                <span className={s.slaBadge}>~12 Hours</span>
+                <span className={s.slaBadge}>{t('dashboard.approxHours', { n: 12 })}</span>
               </div>
               <div className={s.slaItem}>
                 <div className={s.slaItemLeft}>
                   <span className={s.slaIconSmall}>🌊</span>
                   <span>{t('categories.DRAINAGE')}</span>
                 </div>
-                <span className={s.slaBadge}>~18 Hours</span>
+                <span className={s.slaBadge}>{t('dashboard.approxHours', { n: 18 })}</span>
               </div>
             </div>
           </div>

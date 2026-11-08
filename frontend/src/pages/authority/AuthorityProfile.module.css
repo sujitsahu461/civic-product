@@ -12,14 +12,14 @@
 .title {
   font-size: 26px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--cs-text-strong);
   margin: 0 0 6px 0;
   letter-spacing: -0.02em;
 }
 
 .subtitle {
   font-size: 14px;
-  color: #64748b;
+  color: var(--cs-text-muted);
   margin: 0;
 }
 
@@ -32,15 +32,15 @@
 
 /* Left Column: Summary Card */
 .summaryCard {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
   border-radius: 16px;
   padding: 28px 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 1px 3px rgba(var(--cs-shadow-rgb), 0.04);
 }
 
 .avatarWrapper {
@@ -52,15 +52,15 @@
   width: 88px;
   height: 88px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  border: 3px solid #bfdbfe;
+  background: var(--cs-maroon);
+  border: 3px solid var(--cs-kesari-light);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 34px;
   font-weight: 800;
-  color: #ffffff;
-  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.25);
+  color: var(--cs-white);
+  box-shadow: 0 8px 24px rgba(255, 119, 34, 0.25);
 }
 
 .verifiedIcon {
@@ -70,9 +70,9 @@
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: #2563eb;
-  border: 2px solid #ffffff;
-  color: #ffffff;
+  background: var(--cs-kesari);
+  border: 2px solid var(--cs-white);
+  color: var(--cs-text-strong);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -81,13 +81,13 @@
 .userName {
   font-size: 19px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--cs-text-strong);
   margin: 0 0 4px 0;
 }
 
 .userEmail {
   font-size: 13px;
-  color: #94a3b8;
+  color: var(--cs-text-faint);
   margin: 0 0 16px 0;
   word-break: break-all;
 }
@@ -102,7 +102,7 @@
 
 .metaList {
   width: 100%;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--cs-sand);
   padding-top: 20px;
   display: flex;
   flex-direction: column;
@@ -117,7 +117,7 @@
 }
 
 .metaIcon {
-  color: #2563eb;
+  color: var(--cs-maroon);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -128,13 +128,13 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #94a3b8;
+  color: var(--cs-text-faint);
 }
 
 .metaValue {
   font-size: 13px;
   font-weight: 600;
-  color: #334155;
+  color: var(--cs-text);
 }
 
 /* Right Column: Forms */
@@ -145,11 +145,11 @@
 }
 
 .card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
   border-radius: 16px;
   padding: 24px 28px;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 1px 3px rgba(var(--cs-shadow-rgb), 0.04);
 }
 
 .cardHeader {
@@ -158,16 +158,16 @@
   gap: 12px;
   margin-bottom: 20px;
   padding-bottom: 14px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--cs-sand);
 }
 
 .cardIcon {
   width: 38px;
   height: 38px;
   border-radius: 10px;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  color: #2563eb;
+  background: var(--cs-kesari-wash);
+  border: 1px solid var(--cs-kesari-light);
+  color: var(--cs-maroon);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -176,13 +176,13 @@
 .cardTitle {
   font-size: 17px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--cs-text-strong);
   margin: 0 0 2px 0;
 }
 
 .cardSub {
   font-size: 12.5px;
-  color: #94a3b8;
+  color: var(--cs-text-faint);
   margin: 0;
 }
 
@@ -200,7 +200,7 @@
 .cardActions {
   display: flex;
   justify-content: flex-end;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--cs-sand);
   padding-top: 18px;
 }
 

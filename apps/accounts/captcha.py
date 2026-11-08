@@ -46,19 +46,19 @@ def generate_captcha_svg(code: str, width: int = 200, height: int = 52) -> str:
     Designed for dark-glassmorphism theme with high readability for humans
     and disruption against basic OCR bots.
     """
-    colors = ["#34d399", "#60a5fa", "#fbbf24", "#f472b6", "#a78bfa", "#38bdf8", "#4ade80"]
+    colors = ["#FF7722", "#F4C430", "#FFC9A3", "#E4BCC1", "#F6DC85", "#B7DEC3", "#FFE8D6"]  # kesari/haldi/maroon palette
     
     # Background & container
     svg_parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
-        f'viewBox="0 0 {width} {height}" style="background: #0f172a; border-radius: 8px; user-select: none;">',
+        f'viewBox="0 0 {width} {height}" style="background: #3B2418; border-radius: 8px; user-select: none;">',
         '<defs>',
         '  <linearGradient id="cbg" x1="0%" y1="0%" x2="100%" y2="100%">',
-        '    <stop offset="0%" stop-color="#09101d" />',
-        '    <stop offset="100%" stop-color="#162238" />',
+        '    <stop offset="0%" stop-color="#2A1810" />',
+        '    <stop offset="100%" stop-color="#4A2C1E" />',
         '  </linearGradient>',
         '</defs>',
-        f'<rect width="{width}" height="{height}" rx="8" fill="url(#cbg)" stroke="#334155" stroke-width="1" />',
+        f'<rect width="{width}" height="{height}" rx="8" fill="url(#cbg)" stroke="#5A4033" stroke-width="1" />',
     ]
 
     # Random noise lines
@@ -85,7 +85,7 @@ def generate_captcha_svg(code: str, width: int = 200, height: int = 52) -> str:
 
     # Draw math equation with clean centering and vivid colors
     svg_parts.append(
-        f'<text x="{width / 2}" y="{height / 2 + 1}" fill="#38bdf8" '
+        f'<text x="{width / 2}" y="{height / 2 + 1}" fill="#FF7722" '
         f'font-family="monospace, Courier, ui-monospace, sans-serif" font-weight="900" font-size="22" '
         f'text-anchor="middle" dominant-baseline="central" letter-spacing="2" '
         f'style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));">{code}</text>'

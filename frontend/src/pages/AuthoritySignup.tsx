@@ -49,7 +49,7 @@ export const AuthoritySignup: React.FC = () => {
 
   const strength = getPasswordStrength(password);
   const strengthLabels = ['Weak', 'Fair', 'Good', 'Strong', 'Excellent'];
-  const strengthColors = ['#ef4444', '#f97316', '#eab308', '#10b981', '#059669'];
+  const strengthColors = ['#B42318', '#FF7722', '#F4C430', '#2E7D4F', '#1F6B3F'];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,8 +104,8 @@ export const AuthoritySignup: React.FC = () => {
     <div className={s.container}>
       <div className={s.authCard}>
         {/* Left Visual Panel */}
-        <div className={s.leftPanel} style={{ background: 'linear-gradient(165deg, #eff6ff 0%, #dbeafe 55%, #bfdbfe 100%)' }}>
-          <div className={s.leftGlow} style={{ background: 'radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, transparent 70%)' }} />
+        <div className={s.leftPanel} style={{ background: 'linear-gradient(165deg, #FFF4EC 0%, #FFE8D6 55%, #FFC9A3 100%)' }}>
+          <div className={s.leftGlow} style={{ background: 'radial-gradient(circle, rgba(255, 119, 34, 0.15) 0%, transparent 70%)' }} />
 
           <div className={s.visualTopRow}>
             <Link to="/" className={s.brandHeader} style={{ textDecoration: 'none' }}>
@@ -114,7 +114,7 @@ export const AuthoritySignup: React.FC = () => {
               </div>
               <div className={s.brandMeta}>
                 <span className={s.brandName}>CivicSetu</span>
-                <span className={s.brandBadge} style={{ background: '#dbeafe', color: '#1e40af' }}>AUTHORITY DESK</span>
+                <span className={s.brandBadge} style={{ background: '#FFE8D6', color: '#7A1F2B' }}>AUTHORITY DESK</span>
               </div>
             </Link>
 
@@ -125,35 +125,35 @@ export const AuthoritySignup: React.FC = () => {
 
           <div className={s.visualBody}>
             <div className={s.visualTagline}>
-              <span className={s.taglineDot} style={{ background: '#2563eb' }} />
+              <span className={s.taglineDot} style={{ background: '#FF7722' }} />
               <span>Municipal Officer Onboarding</span>
             </div>
 
-            <h1 className={s.editorialHeading} style={{ color: '#0f172a' }}>
+            <h1 className={s.editorialHeading} style={{ color: '#3B2418' }}>
               Urban Local Bodies.<br />
               Nodal Efficiency.<br />
               Automated Triage.
             </h1>
 
-            <p className={s.editorialSubheading} style={{ color: '#334155' }}>
+            <p className={s.editorialSubheading} style={{ color: '#5A4033' }}>
               Create your official municipal account to join department-scoped queues, coordinate field teams, and verify grievance resolutions.
             </p>
 
             <div style={{ marginTop: '20px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <span style={{ background: 'rgba(255,255,255,0.75)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#1d4ed8' }}>
+              <span style={{ background: 'rgba(255,255,255,0.75)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#7A1F2B' }}>
                 ✓ Zonal dispatch routing
               </span>
-              <span style={{ background: 'rgba(255,255,255,0.75)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#1d4ed8' }}>
+              <span style={{ background: 'rgba(255,255,255,0.75)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#7A1F2B' }}>
                 ✓ Official audit tracking
               </span>
-              <span style={{ background: 'rgba(255,255,255,0.75)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#1d4ed8' }}>
+              <span style={{ background: 'rgba(255,255,255,0.75)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#7A1F2B' }}>
                 ✓ SLA compliance metrics
               </span>
             </div>
           </div>
 
           <div className={s.visualFooter}>
-            <Link to="/" style={{ color: '#1d4ed8', fontSize: '13px', fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Link to="/" style={{ color: '#7A1F2B', fontSize: '13px', fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
               ← Return to Main Homepage
             </Link>
           </div>
@@ -163,7 +163,7 @@ export const AuthoritySignup: React.FC = () => {
         <div className={s.rightPanel}>
           <div className={s.formWrapper}>
             <div className={s.headerContent}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#dbeafe', color: '#1d4ed8', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '8px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#FFE8D6', color: '#7A1F2B', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '8px' }}>
                 <Icon name="badge" size={14} />
                 <span>Authority Registration</span>
               </div>
@@ -286,7 +286,7 @@ export const AuthoritySignup: React.FC = () => {
                         key={level}
                         className={s.strengthSegment}
                         style={{
-                          backgroundColor: strength >= level ? strengthColors[strength] : '#e2e8f0',
+                          backgroundColor: strength >= level ? strengthColors[strength] : '#EADFCB',
                         }}
                       />
                     ))}
@@ -316,7 +316,7 @@ export const AuthoritySignup: React.FC = () => {
                 isLoading={loading}
                 rightIcon={<Icon name="arrow_forward" size={18} />}
                 className={s.submitBtn}
-                style={{ backgroundColor: '#2563eb' }}
+                style={{ backgroundColor: '#FF7722' }}
               >
                 Register as Municipal Authority
               </Button>
@@ -324,19 +324,19 @@ export const AuthoritySignup: React.FC = () => {
 
             <div className={s.footerText} style={{ marginTop: '16px' }}>
               Already registered as an authority?{' '}
-              <Link to="/login/authority" className={s.signupLink} style={{ color: '#2563eb' }}>
+              <Link to="/login/authority" className={s.signupLink} style={{ color: '#7A1F2B' }}>
                 Officer Sign In
               </Link>
             </div>
 
             {/* Other Portals Switcher */}
-            <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '12px' }}>
-              <Link to="/signup/citizen" style={{ color: '#16a34a', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #F7EFE1', display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '12px' }}>
+              <Link to="/signup/citizen" style={{ color: '#2E7D4F', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                 <Icon name="person" size={14} />
                 <span>Citizen Registration</span>
               </Link>
-              <span style={{ color: '#cbd5e1' }}>•</span>
-              <Link to="/signup/superadmin" style={{ color: '#7c3aed', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ color: '#DCCDB5' }}>•</span>
+              <Link to="/signup/superadmin" style={{ color: '#7A1F2B', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                 <Icon name="admin_panel_settings" size={14} />
                 <span>Super Admin Setup</span>
               </Link>

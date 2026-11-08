@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import useComplaintStore from '../store/complaintStore';
 import IncidentMap from '../components/map/IncidentMap';
 import Input from '../components/ui/Input';
@@ -10,26 +11,14 @@ import { Complaint } from '../types/complaint';
 import { formatDate } from '../utils/formatters';
 import s from './MapView.module.css';
 
-const CATEGORY_OPTIONS = [
-  { value: '', label: 'All Municipal Categories' },
-  { value: 'ROAD', label: 'Road & Infrastructure' },
-  { value: 'WATER', label: 'Water Supply & Pipelines' },
-  { value: 'ELECTRICITY', label: 'Electricity & Street Lights' },
-  { value: 'SANITATION', label: 'Sanitation & Solid Waste' },
-  { value: 'DRAINAGE', label: 'Drainage & Sewerage' },
-  { value: 'PARKS', label: 'Parks & Environment' },
-  { value: 'TRAFFIC', label: 'Traffic & Public Safety' },
-  { value: 'OTHER', label: 'Municipal Administration' },
-];
-
-const STATUS_OPTIONS = [
-  { value: '', label: 'All Statuses' },
-  { value: 'PENDING', label: 'Pending Action' },
-  { value: 'IN_PROGRESS', label: 'Work In Progress' },
-  { value: 'RESOLVED', label: 'Resolved & Closed' },
-];
+// Filter values; labels come from map.view.categories / map.view.statuses ('' = all)
+const CATEGORY_VALUES = ['', 'ROAD', 'WATER', 'ELECTRICITY', 'SANITATION', 'DRAINAGE', 'PARKS', 'TRAFFIC', 'OTHER'];
+const STATUS_VALUES = ['', 'PENDING', 'IN_PROGRESS', 'RESOLVED'];
 
 export const MapView: React.FC = () => {
+  const { t, i18n } = useTranslation();
+  const CATEGORY_OPTIONS = CATEGORY_VALUES.map((value) => ({ value, label: t(`map.view.categories.${value || 'all'}`) }));
+  const STATUS_OPTIONS = STATUS_VALUES.map((value) => ({ value, label: t(`map.view.statuses.${value || 'all'}`) }));
   const [searchParams] = useSearchParams();
   const initialCategory = searchParams.get('category') || '';
 
@@ -124,9 +113,9 @@ export const MapView: React.FC = () => {
             <Icon name="explore" size={24} />
           </div>
           <div>
-            <h1 className={s.title}>City-Wide Incident GIS Radar & Map Insights</h1>
+            <h1 className={s.title}>{t('map.view.title')}</h1>
             <p className={s.subtitle}>
-              Live spatial map of citizen grievances, nodal dispatch units, and critical hazard hotspots.
+              {t('map.view.subtitle')}
             </p>
           </div>
         </div>
@@ -134,7 +123,7 @@ export const MapView: React.FC = () => {
         <div className={s.headerRight}>
           <Link to="/citizen/complaints/new" className={s.reportBtn}>
             <Icon name="add_location_alt" size={16} />
-            <span>Pin New Grievance</span>
+            <span>{t('map.view.pinNew')}</span>
           </Link>
         </div>
       </div>
@@ -142,52 +131,52 @@ export const MapView: React.FC = () => {
       {/* GIS Insights Metric Strip */}
       <div className={s.insightsBar}>
         <div className={s.insightCard}>
-          <div className={s.insightIcon} style={{ background: '#eff6ff', color: '#2563eb' }}>
+          <div className={s.insightIcon} style={{ background: '#FFF4EC', color: '#7A1F2B' }}>
             <Icon name="layers" size={20} />
           </div>
           <div className={s.insightInfo}>
             <span className={s.insightValue}>{stats.total}</span>
-            <span className={s.insightLabel}>Total Grievances</span>
+            <span className={s.insightLabel}>{t('map.view.statTotal')}</span>
           </div>
         </div>
 
         <div className={s.insightCard}>
-          <div className={s.insightIcon} style={{ background: '#ecfdf5', color: '#10b981' }}>
+          <div className={s.insightIcon} style={{ background: '#E6F4EA', color: '#1F6B3F' }}>
             <Icon name="pin_drop" size={20} />
           </div>
           <div className={s.insightInfo}>
             <span className={s.insightValue}>{stats.geocoded}</span>
-            <span className={s.insightLabel}>Geocoded on Radar</span>
+            <span className={s.insightLabel}>{t('map.view.statGeocoded')}</span>
           </div>
         </div>
 
         <div className={s.insightCard}>
-          <div className={s.insightIcon} style={{ background: '#fffbeb', color: '#d97706' }}>
+          <div className={s.insightIcon} style={{ background: '#FDF0C4', color: '#6B4E00' }}>
             <Icon name="pending_actions" size={20} />
           </div>
           <div className={s.insightInfo}>
             <span className={s.insightValue}>{stats.pending}</span>
-            <span className={s.insightLabel}>Pending Triage</span>
+            <span className={s.insightLabel}>{t('map.view.statPending')}</span>
           </div>
         </div>
 
         <div className={s.insightCard}>
-          <div className={s.insightIcon} style={{ background: '#f5f3ff', color: '#7c3aed' }}>
+          <div className={s.insightIcon} style={{ background: '#F6E3E5', color: '#7A1F2B' }}>
             <Icon name="engineering" size={20} />
           </div>
           <div className={s.insightInfo}>
             <span className={s.insightValue}>{stats.inProgress}</span>
-            <span className={s.insightLabel}>Work in Progress</span>
+            <span className={s.insightLabel}>{t('map.view.statInProgress')}</span>
           </div>
         </div>
 
         <div className={s.insightCard}>
-          <div className={s.insightIcon} style={{ background: '#f0fdf4', color: '#16a34a' }}>
+          <div className={s.insightIcon} style={{ background: '#E6F4EA', color: '#1F6B3F' }}>
             <Icon name="task_alt" size={20} />
           </div>
           <div className={s.insightInfo}>
             <span className={s.insightValue}>{stats.resolved}</span>
-            <span className={s.insightLabel}>Resolved & Closed</span>
+            <span className={s.insightLabel}>{t('map.view.statResolved')}</span>
           </div>
         </div>
 
@@ -195,21 +184,21 @@ export const MapView: React.FC = () => {
           className={`${s.insightCard} ${s.urgentClickable}`}
           style={{
             cursor: 'pointer',
-            borderColor: urgentOnly ? '#ef4444' : '#e2e8f0',
-            background: urgentOnly ? '#fef2f2' : '#ffffff',
+            borderColor: urgentOnly ? '#B42318' : '#EADFCB',
+            background: urgentOnly ? '#FDECEA' : '#FFFFFF',
           }}
           onClick={() => setUrgentOnly(!urgentOnly)}
-          title="Click to toggle urgent filter"
+          title={t('map.view.urgentToggleTitle')}
         >
-          <div className={s.insightIcon} style={{ background: '#fef2f2', color: '#ef4444' }}>
+          <div className={s.insightIcon} style={{ background: '#FDECEA', color: '#B42318' }}>
             <Icon name="warning" size={20} />
           </div>
           <div className={s.insightInfo}>
-            <span className={s.insightValue} style={{ color: '#dc2626' }}>
+            <span className={s.insightValue} style={{ color: '#B42318' }}>
               {stats.urgent}
             </span>
-            <span className={s.insightLabel} style={{ color: urgentOnly ? '#dc2626' : '#64748b' }}>
-              {urgentOnly ? 'Filtering Urgent' : 'Urgent Hazards'}
+            <span className={s.insightLabel} style={{ color: urgentOnly ? '#B42318' : '#7D6657' }}>
+              {urgentOnly ? t('map.view.filteringUrgent') : t('map.view.statUrgent')}
             </span>
           </div>
         </div>
@@ -219,7 +208,7 @@ export const MapView: React.FC = () => {
       <div className={s.filterRibbon}>
         <div className={s.searchBox}>
           <Input
-            placeholder="Search by street name, ward, tracking code..."
+            placeholder={t('map.view.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             leftIcon={<Icon name="search" size={16} />}
@@ -250,7 +239,7 @@ export const MapView: React.FC = () => {
             onClick={() => setUrgentOnly(!urgentOnly)}
           >
             <Icon name="warning" size={16} />
-            <span>Urgent Only</span>
+            <span>{t('map.view.urgentOnly')}</span>
           </button>
         </div>
       </div>
@@ -275,6 +264,7 @@ export const MapView: React.FC = () => {
                 type="button"
                 className={s.closeBtn}
                 onClick={() => setSelectedIncident(null)}
+                aria-label={t('map.view.close')}
               >
                 <Icon name="close" size={16} />
               </button>
@@ -283,20 +273,20 @@ export const MapView: React.FC = () => {
             <div className={s.inspectorBody}>
               <div className={s.badgeRow}>
                 <Badge variant={getStatusVariant(selectedIncident.status)}>
-                  {selectedIncident.status}
+                  {t(`statuses.${selectedIncident.status}`, { defaultValue: selectedIncident.status })}
                 </Badge>
                 <span
                   className={s.priorityPill}
                   style={{
                     color:
                       selectedIncident.priority === 'URGENT'
-                        ? '#ef4444'
+                        ? '#B42318'
                         : selectedIncident.priority === 'HIGH'
-                        ? '#fb923c'
-                        : '#38bdf8',
+                        ? '#B93E0C'
+                        : '#7D6657',
                   }}
                 >
-                  ● {selectedIncident.priority} Priority
+                  ● {t(`priorities.${selectedIncident.priority}`, { defaultValue: selectedIncident.priority })}
                 </span>
               </div>
 
@@ -305,18 +295,18 @@ export const MapView: React.FC = () => {
 
               <div className={s.metaList}>
                 <div className={s.metaItem}>
-                  <Icon name="domain" size={14} style={{ color: '#fbbf24' }} />
-                  <span>{selectedIncident.category_display || selectedIncident.category}</span>
+                  <Icon name="domain" size={14} style={{ color: '#6B4E00' }} />
+                  <span>{t(`categories.${selectedIncident.category}`, { defaultValue: selectedIncident.category_display || selectedIncident.category })}</span>
                 </div>
 
                 <div className={s.metaItem}>
-                  <Icon name="location_on" size={14} style={{ color: '#38bdf8' }} />
+                  <Icon name="location_on" size={14} style={{ color: '#7A1F2B' }} />
                   <span>{selectedIncident.location_address}</span>
                 </div>
 
                 {selectedIncident.latitude && selectedIncident.longitude && (
                   <div className={s.metaItem}>
-                    <Icon name="pin_drop" size={14} style={{ color: '#10b981' }} />
+                    <Icon name="pin_drop" size={14} style={{ color: '#2E7D4F' }} />
                     <span style={{ fontFamily: 'monospace' }}>
                       {Number(selectedIncident.latitude).toFixed(6)},{' '}
                       {Number(selectedIncident.longitude).toFixed(6)}
@@ -325,15 +315,15 @@ export const MapView: React.FC = () => {
                 )}
 
                 <div className={s.metaItem}>
-                  <Icon name="schedule" size={14} style={{ color: '#94a3b8' }} />
-                  <span>Reported {formatDate(selectedIncident.created_at)}</span>
+                  <Icon name="schedule" size={14} style={{ color: '#857060' }} />
+                  <span>{t('map.view.reported', { date: formatDate(selectedIncident.created_at, i18n.language) })}</span>
                 </div>
               </div>
 
               {/* Photo Evidence Preview */}
               {selectedIncident.images && selectedIncident.images.length > 0 && (
                 <div className={s.photosSection}>
-                  <span className={s.sectionLabel}>Attached Media Evidence</span>
+                  <span className={s.sectionLabel}>{t('map.view.mediaEvidence')}</span>
                   <div className={s.photosGrid}>
                     {selectedIncident.images.map((img, i) => (
                       <a
@@ -343,7 +333,7 @@ export const MapView: React.FC = () => {
                         rel="noopener noreferrer"
                         className={s.photoLink}
                       >
-                        <img src={img.image} alt="Incident" className={s.photoImg} />
+                        <img src={img.image} alt={t('map.view.incidentAlt')} className={s.photoImg} />
                       </a>
                     ))}
                   </div>
@@ -355,7 +345,7 @@ export const MapView: React.FC = () => {
                   to={`/citizen/tracking?code=${selectedIncident.tracking_code}`}
                   className={s.trackBtn}
                 >
-                  <span>Track Full Grievance Lifecycle</span>
+                  <span>{t('map.view.trackFull')}</span>
                   <Icon name="arrow_forward" size={14} />
                 </Link>
               </div>

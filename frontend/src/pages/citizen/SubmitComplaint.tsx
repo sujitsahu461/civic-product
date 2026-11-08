@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import useAuthStore from '../../store/authStore';
 import useComplaintStore from '../../store/complaintStore';
@@ -8,18 +8,18 @@ import { useToast } from '../../components/ui/Toast';
 import Icon from '../../components/ui/Icon';
 import LocationPicker from '../../components/map/LocationPicker';
 import AudioRecorder from '../../components/ui/AudioRecorder';
-import { smartDetectGps, resolveAddressToCoords } from '../../config/mapConfig';
 import s from './SubmitComplaint.module.css';
 
+// SLA values are hour ranges; the "hours" wording comes from the locale files.
 const DEPARTMENT_ROUTING: Record<string, { nameKey: string; defaultSla: string }> = {
-  ROAD: { nameKey: 'categories.ROAD', defaultSla: '24-48 hours' },
-  WATER: { nameKey: 'categories.WATER', defaultSla: '12-24 hours' },
-  ELECTRICITY: { nameKey: 'categories.ELECTRICITY', defaultSla: '6-12 hours' },
-  DRAINAGE: { nameKey: 'categories.DRAINAGE', defaultSla: '18-36 hours' },
-  SANITATION: { nameKey: 'categories.SANITATION', defaultSla: '12-24 hours' },
-  PARKS: { nameKey: 'categories.PARKS', defaultSla: '48-72 hours' },
-  NOISE: { nameKey: 'categories.NOISE', defaultSla: '12-24 hours' },
-  OTHER: { nameKey: 'categories.OTHER', defaultSla: '48 hours' },
+  ROAD: { nameKey: 'categories.ROAD', defaultSla: '24-48' },
+  WATER: { nameKey: 'categories.WATER', defaultSla: '12-24' },
+  ELECTRICITY: { nameKey: 'categories.ELECTRICITY', defaultSla: '6-12' },
+  DRAINAGE: { nameKey: 'categories.DRAINAGE', defaultSla: '18-36' },
+  SANITATION: { nameKey: 'categories.SANITATION', defaultSla: '12-24' },
+  PARKS: { nameKey: 'categories.PARKS', defaultSla: '48-72' },
+  NOISE: { nameKey: 'categories.NOISE', defaultSla: '12-24' },
+  OTHER: { nameKey: 'categories.OTHER', defaultSla: '48' },
 };
 
 const CATEGORIES: ComplaintCategory[] = [
@@ -43,35 +43,46 @@ const CATEGORY_METADATA: Record<ComplaintCategory, {
   bgLight: string;
   borderColor: string;
 }> = {
-  ROAD: { icon: 'add_road', deptKey: 'categories.ROAD', defaultSla: '24-48h', color: '#b45309', bgLight: '#fef3c7', borderColor: '#fde68a' },
-  WATER: { icon: 'water_drop', deptKey: 'categories.WATER', defaultSla: '12-24h', color: '#0369a1', bgLight: '#e0f2fe', borderColor: '#bae6fd' },
-  ELECTRICITY: { icon: 'electric_bolt', deptKey: 'categories.ELECTRICITY', defaultSla: '6-12h', color: '#b91c1c', bgLight: '#fee2e2', borderColor: '#fecaca' },
-  DRAINAGE: { icon: 'waves', deptKey: 'categories.DRAINAGE', defaultSla: '18-36h', color: '#0f766e', bgLight: '#ccfbf1', borderColor: '#99f6e4' },
-  SANITATION: { icon: 'delete_sweep', deptKey: 'categories.SANITATION', defaultSla: '12-24h', color: '#15803d', bgLight: '#dcfce7', borderColor: '#bbf7d0' },
-  PARKS: { icon: 'park', deptKey: 'categories.PARKS', defaultSla: '48-72h', color: '#047857', bgLight: '#d1fae5', borderColor: '#a7f3d0' },
-  NOISE: { icon: 'volume_up', deptKey: 'categories.NOISE', defaultSla: '12-24h', color: '#6d28d9', bgLight: '#ede9fe', borderColor: '#ddd6fe' },
-  OTHER: { icon: 'domain', deptKey: 'categories.OTHER', defaultSla: '48h', color: '#475569', bgLight: '#f1f5f9', borderColor: '#e2e8f0' },
+  ROAD: { icon: 'add_road', deptKey: 'categories.ROAD', defaultSla: '24-48', color: '#6B4E00', bgLight: '#FDF0C4', borderColor: '#F6DC85' },
+  WATER: { icon: 'water_drop', deptKey: 'categories.WATER', defaultSla: '12-24', color: '#B93E0C', bgLight: '#FFE8D6', borderColor: '#FFC9A3' },
+  ELECTRICITY: { icon: 'electric_bolt', deptKey: 'categories.ELECTRICITY', defaultSla: '6-12', color: '#912018', bgLight: '#FDECEA', borderColor: '#F5C2BC' },
+  DRAINAGE: { icon: 'waves', deptKey: 'categories.DRAINAGE', defaultSla: '18-36', color: '#5A4033', bgLight: '#F3EEE8', borderColor: '#E3D8CB' },
+  SANITATION: { icon: 'delete_sweep', deptKey: 'categories.SANITATION', defaultSla: '12-24', color: '#1F6B3F', bgLight: '#E6F4EA', borderColor: '#B7DEC3' },
+  PARKS: { icon: 'park', deptKey: 'categories.PARKS', defaultSla: '48-72', color: '#1F6B3F', bgLight: '#E6F4EA', borderColor: '#B7DEC3' },
+  NOISE: { icon: 'volume_up', deptKey: 'categories.NOISE', defaultSla: '12-24', color: '#7A1F2B', bgLight: '#F6E3E5', borderColor: '#E4BCC1' },
+  OTHER: { icon: 'domain', deptKey: 'categories.OTHER', defaultSla: '48', color: '#7D6657', bgLight: '#F7EFE1', borderColor: '#EADFCB' },
 };
 
 const PRIORITY_METADATA: Record<ComplaintPriority, {
   labelKey: string;
   sla: string;
-  desc: string;
   icon: string;
   color: string;
   bgActive: string;
   borderActive: string;
 }> = {
-  LOW: { labelKey: 'priorities.LOW', sla: '72h', desc: 'Routine civic defect', icon: 'check_circle', color: '#16a34a', bgActive: '#f0fdf4', borderActive: '#86efac' },
-  MEDIUM: { labelKey: 'priorities.MEDIUM', sla: '24-48h', desc: 'Standard neighborhood issue', icon: 'schedule', color: '#d97706', bgActive: '#fffbeb', borderActive: '#fde68a' },
-  HIGH: { labelKey: 'priorities.HIGH', sla: '12-24h', desc: 'Active supply or traffic disruption', icon: 'warning', color: '#ea580c', bgActive: '#fff7ed', borderActive: '#fdba74' },
-  URGENT: { labelKey: 'priorities.URGENT', sla: '6-12h', desc: 'Emergency hazard / safety threat', icon: 'error', color: '#dc2626', bgActive: '#fef2f2', borderActive: '#fca5a5' },
+  LOW: { labelKey: 'priorities.LOW', sla: '72', icon: 'check_circle', color: '#2E7D4F', bgActive: '#E6F4EA', borderActive: '#B7DEC3' },
+  MEDIUM: { labelKey: 'priorities.MEDIUM', sla: '24-48', icon: 'schedule', color: '#6B4E00', bgActive: '#FDF0C4', borderActive: '#F6DC85' },
+  HIGH: { labelKey: 'priorities.HIGH', sla: '12-24', icon: 'warning', color: '#B93E0C', bgActive: '#FFE8D6', borderActive: '#FFC9A3' },
+  URGENT: { labelKey: 'priorities.URGENT', sla: '6-12', icon: 'error', color: '#B42318', bgActive: '#FDECEA', borderActive: '#F5C2BC' },
 };
+
+// The guided flow: one focused screen at a time.
+const STEPS = ['what', 'where', 'proof', 'review'] as const;
+// A contextual tip for each step (reuses the filing guidelines).
+const STEP_TIPS = ['submit.guidelines.g1', 'submit.guidelines.g2', 'submit.guidelines.g4', 'submit.guidelines.g5'];
+
+type FieldErrors = { title?: string; description?: string; address?: string };
+
+// The "registered" pop-up closes itself after this long (paused while hovered/focused).
+const SUCCESS_AUTO_CLOSE_MS = 8000;
+
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export const SubmitComplaint: React.FC = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const { submitComplaint } = useComplaintStore();
   const { success, error: toastError } = useToast();
 
@@ -92,9 +103,16 @@ export const SubmitComplaint: React.FC = () => {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+
+  // Step flow
+  const [step, setStep] = useState(0);
+  const [maxStepReached, setMaxStepReached] = useState(0);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const cardRef = useRef<HTMLDivElement>(null);
+  const headingRefs = useRef<(HTMLHeadingElement | null)[]>([]);
 
   // UI / Status State
-  const [geoLoading, setGeoLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
 
@@ -120,48 +138,15 @@ export const SubmitComplaint: React.FC = () => {
     department_name: string;
     status: string;
   } | null>(null);
+  // After the pop-up closes, keep the tracking code on the page in a slim banner
+  const [lastFiled, setLastFiled] = useState<{ tracking_code: string } | null>(null);
 
-  const userWardName = useMemo(() => {
-    if (!user?.address) return 'Central Ward';
-    const addr = user.address.trim();
-    if (addr.toLowerCase().includes('modip')) return 'Modipara';
-    if (addr.toLowerCase().includes('sakhip')) return 'Sakhipara';
-    if (addr.toLowerCase().includes('budharaj')) return 'Budharaja';
-    if (addr.toLowerCase().includes('dhanupal')) return 'Dhanupali';
-    if (addr.toLowerCase().includes('gunupur') || addr.toLowerCase().includes('giet')) return 'GIET Gunupur';
-    if (addr.length > 20) return addr.slice(0, 18) + '...';
-    return addr;
-  }, [user?.address]);
-
-  const handleUseMyWard = async () => {
-    setGeoLoading(true);
-    try {
-      const res = await resolveAddressToCoords(user?.address || 'Modipara, Sambalpur');
-      setLatitude(res.lat);
-      setLongitude(res.lng);
-      setAddress(res.address);
-      success(`Applied registered ward: ${res.name}`);
-    } catch {
-      toastError('Could not resolve ward location.');
-    } finally {
-      setGeoLoading(false);
-    }
-  };
-
-  const handleLocationDetect = async () => {
-    setGeoLoading(true);
-    try {
-      const res = await smartDetectGps(user?.address);
-      setLatitude(res.lat);
-      setLongitude(res.lng);
-      setAddress(res.address);
-      success(res.message);
-    } catch {
-      await handleUseMyWard();
-    } finally {
-      setGeoLoading(false);
-    }
-  };
+  // The map lives in a step that starts hidden; nudge Leaflet to re-measure when it shows.
+  useEffect(() => {
+    if (step !== 1) return undefined;
+    const id = window.setTimeout(() => window.dispatchEvent(new Event('resize')), 60);
+    return () => window.clearTimeout(id);
+  }, [step]);
 
   const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -177,7 +162,7 @@ export const SubmitComplaint: React.FC = () => {
 
     files.forEach((file) => {
       if (file.size > 5 * 1024 * 1024) {
-        toastError(`File "${file.name}" exceeds 5MB limit.`);
+        toastError(t('submit.photoTooLarge', { name: file.name }));
         return;
       }
       validFiles.push(file);
@@ -199,7 +184,7 @@ export const SubmitComplaint: React.FC = () => {
     if (!file) return;
 
     if (file.size > 25 * 1024 * 1024) {
-      toastError('Video file exceeds 25MB limit.');
+      toastError(t('submit.videoTooLarge'));
       return;
     }
 
@@ -228,25 +213,51 @@ export const SubmitComplaint: React.FC = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // ---------- Step validation and navigation ----------
+  const errorsForStep = (i: number): FieldErrors => {
+    const errs: FieldErrors = {};
+    if (i === 0) {
+      if (title.trim().length < 5) errs.title = t('submit.errTitle');
+      if (description.trim().length < 10) errs.description = t('submit.errDesc');
+    }
+    if (i === 1 && address.trim().length < 3) errs.address = t('submit.errAddress');
+    return errs;
+  };
+
+  const showStep = (i: number) => {
+    setStep(i);
+    setMaxStepReached((m) => Math.max(m, i));
     setFormError('');
+    requestAnimationFrame(() => {
+      cardRef.current?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
+      headingRefs.current[i]?.focus({ preventScroll: true });
+    });
+  };
 
-    if (!title.trim() || title.trim().length < 5) {
-      setFormError('Please enter a descriptive complaint title (at least 5 characters).');
+  // Moving forward checks every step on the way; moving back never blocks.
+  const goToStep = (target: number) => {
+    if (target <= step) {
+      showStep(target);
       return;
     }
-
-    if (!description.trim() || description.trim().length < 10) {
-      setFormError('Please describe the issue in detail (at least 10 characters).');
-      return;
+    for (let i = step; i < target; i += 1) {
+      const errs = errorsForStep(i);
+      if (Object.keys(errs).length) {
+        setFieldErrors(errs);
+        if (i !== step) showStep(i);
+        return;
+      }
     }
+    setFieldErrors({});
+    showStep(target);
+  };
 
-    if (!address.trim() || address.trim().length < 3) {
-      setFormError('Please provide a specific street address or landmark.');
-      return;
-    }
+  const clearFieldError = (key: keyof FieldErrors) => {
+    if (fieldErrors[key]) setFieldErrors((prev) => ({ ...prev, [key]: undefined }));
+  };
 
+  const handleSubmit = async () => {
+    setFormError('');
     setIsSubmitting(true);
 
     const cleanLat = latitude != null && !isNaN(Number(latitude)) ? parseFloat(Number(latitude).toFixed(6)) : null;
@@ -276,9 +287,9 @@ export const SubmitComplaint: React.FC = () => {
         department_name: deptName,
         status: created.status || 'PENDING',
       });
-      success(`Grievance filed successfully! Tracking Code: ${created.tracking_code}`);
+      success(t('submit.successToast', { code: created.tracking_code }));
     } catch (err: any) {
-      const msg = err.message || 'Failed to submit grievance. Please verify all fields.';
+      const msg = err.message || t('submit.errSubmit');
       setFormError(msg);
       toastError(msg);
     } finally {
@@ -286,621 +297,688 @@ export const SubmitComplaint: React.FC = () => {
     }
   };
 
+  // Enter / the main button: continue on steps 1-3, submit on the review step.
+  const onFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isSubmitting) return;
+    if (step < STEPS.length - 1) {
+      goToStep(step + 1);
+      return;
+    }
+    for (const i of [0, 1]) {
+      const errs = errorsForStep(i);
+      if (Object.keys(errs).length) {
+        setFieldErrors(errs);
+        showStep(i);
+        return;
+      }
+    }
+    handleSubmit();
+  };
+
+  const resetForm = () => {
+    setSubmittedData(null);
+    setTitle('');
+    setDescription('');
+    setAddress('');
+    setSelectedFiles([]);
+    setPreviewUrls([]);
+    setAudioFile(null);
+    setVideoFile(null);
+    setVideoPreviewUrl(null);
+    setFieldErrors({});
+    setStep(0);
+    setMaxStepReached(0);
+  };
+
+  // Close the success pop-up: remember the code for the banner and start a fresh,
+  // empty form so the same report can't be sent twice.
+  const closeSuccess = () => {
+    if (submittedData) setLastFiled({ tracking_code: submittedData.tracking_code });
+    resetForm();
+  };
+
+  // Esc closes the pop-up
+  useEffect(() => {
+    if (!submittedData) return undefined;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeSuccess();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [submittedData]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const copyCode = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      success(t('submit.wizard.copied'));
+    } catch {
+      // Clipboard blocked (e.g. insecure context): the code stays visible to copy by hand
+    }
+  };
+
   const currentDept = DEPARTMENT_ROUTING[selectedCategory] || DEPARTMENT_ROUTING.OTHER;
+  const catMeta = CATEGORY_METADATA[selectedCategory];
+  const priMeta = PRIORITY_METADATA[selectedPriority];
+  const routeText = t('submit.wizard.routesTo', { dept: t(currentDept.nameKey), range: currentDept.defaultSla });
+
+  const proofParts = [
+    selectedFiles.length > 0 ? t('submit.chips.photos', { count: selectedFiles.length }) : null,
+    audioFile ? (audioDuration ? t('submit.chips.voiceSeconds', { n: audioDuration }) : t('submit.chips.voiceNote')) : null,
+    videoFile ? t('submit.chips.video') : null,
+  ].filter(Boolean) as string[];
+
+  const isLast = step === STEPS.length - 1;
+  const nextLabel = isLast
+    ? isSubmitting
+      ? t('common.submitting')
+      : t('submit.wizard.submit')
+    : step === STEPS.length - 2
+    ? t('submit.wizard.reviewBtn')
+    : t('submit.wizard.continue');
+
+  const headingRef = (i: number) => (el: HTMLHeadingElement | null) => {
+    headingRefs.current[i] = el;
+  };
 
   return (
     <div className={s.container}>
-      {/* Header */}
-      <div className={s.pageHeader}>
+      <header className={s.pageHeader}>
         <h1 className={s.title}>{t('submit.pageTitle')}</h1>
         <p className={s.subtitle}>{t('submit.pageSubtitle')}</p>
-      </div>
+      </header>
 
       {!isAuthenticated && (
-        <div className={s.anonNoticeBanner}>
-          <div className={s.anonBadge}>
-            <Icon name="visibility_off" size={17} />
-            <span>{t('submit.anonymousBannerTitle')}</span>
-          </div>
-          <p className={s.anonNoticeText}>
-            {t('submit.anonymousBannerDesc')}
+        <div className={s.anonNotice} role="note">
+          <Icon name="visibility_off" size={18} />
+          <p>
+            <strong>{t('submit.anonymousBannerTitle')}</strong> {t('submit.anonymousBannerDesc')}
           </p>
         </div>
       )}
 
-      <div className={s.formGrid}>
-        {/* Left Column: Form */}
-        <div className={s.formCard}>
-          {formError && (
-            <div className={s.errorBanner}>
-              <Icon name="error" size={18} />
-              <span>{formError}</span>
+      {/* After the success pop-up closes, the tracking code stays here */}
+      {lastFiled && !submittedData && (
+        <div className={s.filedBanner} role="status">
+          <Icon name="task_alt" size={20} className={s.filedIcon} />
+          <p className={s.filedText}>
+            {t('submit.wizard.filedBanner')} <strong className={s.filedCode}>{lastFiled.tracking_code}</strong>
+          </p>
+          <div className={s.filedActions}>
+            <button type="button" className={s.filedBtn} onClick={() => copyCode(lastFiled.tracking_code)}>
+              <Icon name="content_copy" size={15} />
+              <span>{t('submit.wizard.copy')}</span>
+            </button>
+            <Link to={`/citizen/tracking?code=${lastFiled.tracking_code}`} className={s.filedBtn}>
+              <Icon name="search" size={15} />
+              <span>{t('submit.trackNowBtn')}</span>
+            </Link>
+            <button
+              type="button"
+              className={s.filedClose}
+              onClick={() => setLastFiled(null)}
+              aria-label={t('submit.wizard.close')}
+            >
+              <Icon name="close" size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className={s.layout}>
+        {/* ================= GUIDED FORM ================= */}
+        <div className={s.wizardCard} ref={cardRef}>
+          {/* Stepper */}
+          <nav className={s.stepperWrap} aria-label={t('submit.pageTitle')}>
+            <ol className={s.stepper}>
+              {STEPS.map((key, i) => {
+                const isCurrent = i === step;
+                const isDone = !isCurrent && i <= maxStepReached && i < STEPS.length - 1 && (i < step || Object.keys(errorsForStep(i)).length === 0);
+                return (
+                  <li key={key} className={`${s.stepItem} ${isCurrent ? s.stepCurrent : ''} ${isDone ? s.stepDone : ''}`}>
+                    <button
+                      type="button"
+                      className={s.stepBtn}
+                      onClick={() => goToStep(i)}
+                      disabled={i > maxStepReached + 1 || (i > maxStepReached && i !== step + 1)}
+                      aria-current={isCurrent ? 'step' : undefined}
+                    >
+                      <span className={s.stepDot}>{isDone ? <Icon name="check" size={14} /> : i + 1}</span>
+                      <span className={s.stepLabel}>{t(`submit.wizard.steps.${key}`)}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+            <div className={s.progressTrack} aria-hidden="true">
+              <div className={s.progressFill} style={{ width: `${(step / (STEPS.length - 1)) * 100}%` }} />
             </div>
-          )}
+          </nav>
 
-          <form onSubmit={handleSubmit} className={s.form}>
-            {/* Step 1: Grievance Details */}
-            <div className={s.section}>
-              <h3 className={s.sectionHeading}>
-                <span className={s.stepNum}>1</span>
-                <span>{t('submit.descLabel')}</span>
-              </h3>
+          <form onSubmit={onFormSubmit} className={s.form} noValidate>
+            {/* ---------- STEP 1: WHAT ---------- */}
+            <section className={s.panel} hidden={step !== 0} aria-labelledby="cs-step-what">
+              <header className={s.panelHead}>
+                <h2 id="cs-step-what" className={s.panelTitle} tabIndex={-1} ref={headingRef(0)}>
+                  {t('submit.wizard.whatTitle')}
+                </h2>
+                <p className={s.panelHint}>{t('submit.wizard.whatHint')}</p>
+              </header>
 
-              <div className={s.fieldGroup}>
-                <div>
-                  <label className={s.inputLabel}>
-                    {t('submit.titleLabel')} <span className={s.req}>*</span>
-                  </label>
-                  <input
-                    type="text"
-                    className={s.textInput}
-                    placeholder={t('submit.titlePlaceholder')}
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    maxLength={200}
-                    required
-                  />
-                </div>
-
-                {/* Interactive Category Selector Grid */}
-                <div>
-                  <div className={s.categorySectionHeader}>
-                    <label className={s.inputLabel}>
-                      {t('submit.categoryLabel')} <span className={s.req}>*</span>
-                    </label>
-                    <span className="text-xs text-gray-500 font-medium">
-                      {t('submit.assignedDept')}: <strong className="text-blue-600 font-bold">{t(currentDept.nameKey)}</strong> ({currentDept.defaultSla})
-                    </span>
-                  </div>
-                  <div className={s.categoryGrid}>
-                    {CATEGORIES.map((cat) => {
-                      const meta = CATEGORY_METADATA[cat];
-                      const isSelected = selectedCategory === cat;
-                      return (
-                        <button
-                          key={cat}
-                          type="button"
-                          onClick={() => setSelectedCategory(cat)}
-                          className={`${s.categoryCard} ${isSelected ? s.categoryCardActive : ''}`}
-                          aria-pressed={isSelected}
-                        >
-                          <div className={s.categoryCardTop}>
-                            <div
-                              className={s.categoryIconWrap}
-                              style={{
-                                backgroundColor: isSelected ? meta.bgLight : '#f8fafc',
-                                color: isSelected ? meta.color : '#64748b',
-                              }}
-                            >
-                              <Icon name={meta.icon} size={20} />
-                            </div>
-                            {isSelected && (
-                              <span className={s.categoryCheck}>
-                                <Icon name="check_circle" size={18} />
-                              </span>
-                            )}
-                          </div>
-                          <div>
-                            <div className={s.categoryTitle}>{t(`categories.${cat}`)}</div>
-                          </div>
-                          <div className={s.categoryCardFooter}>
-                            <span className={s.categorySlaBadge}>
-                              {meta.defaultSla} SLA
-                            </span>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Interactive Priority Selector Pills */}
-                <div>
-                  <label className={s.inputLabel}>
-                    {t('submit.priorityLabel')} <span className={s.req}>*</span>
-                  </label>
-                  <div className={s.priorityGrid}>
-                    {PRIORITIES.map((p) => {
-                      const meta = PRIORITY_METADATA[p];
-                      const isSelected = selectedPriority === p;
-                      return (
-                        <button
-                          key={p}
-                          type="button"
-                          onClick={() => setSelectedPriority(p)}
-                          className={`${s.priorityCard} ${isSelected ? s.priorityCardActive : ''}`}
-                          style={{
-                            backgroundColor: isSelected ? meta.bgActive : '#ffffff',
-                            borderColor: isSelected ? meta.borderActive : undefined,
-                          }}
-                          aria-pressed={isSelected}
-                        >
-                          <div className={s.priorityCardHeader}>
-                            <span className={s.priorityCardTitle} style={{ color: meta.color }}>
-                              <Icon name={meta.icon} size={16} />
-                              <span>{t(meta.labelKey)}</span>
-                            </span>
-                            <span className={s.priorityCardSla}>{meta.sla}</span>
-                          </div>
-                          <span className={s.priorityCardDesc}>{meta.desc}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div>
-                  <label className={s.inputLabel}>
-                    {t('submit.descLabel')} <span className={s.req}>*</span>
-                  </label>
-                  <textarea
-                    className={s.textarea}
-                    rows={4}
-                    placeholder={t('submit.descPlaceholder')}
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    maxLength={3000}
-                    required
-                  />
-                </div>
+              <div className={s.categoryGrid} role="radiogroup" aria-label={t('submit.categoryLabel')}>
+                {CATEGORIES.map((cat) => {
+                  const meta = CATEGORY_METADATA[cat];
+                  const on = selectedCategory === cat;
+                  return (
+                    <button
+                      key={cat}
+                      type="button"
+                      role="radio"
+                      aria-checked={on}
+                      className={`${s.catTile} ${on ? s.catTileOn : ''}`}
+                      onClick={() => setSelectedCategory(cat)}
+                    >
+                      <span className={s.catIcon} style={{ color: meta.color, backgroundColor: meta.bgLight }}>
+                        <Icon name={meta.icon} size={20} />
+                      </span>
+                      <span className={s.catLabel}>{t(`categories.${cat}`)}</span>
+                      {on && (
+                        <span className={s.catCheck} aria-hidden="true">
+                          <Icon name="check" size={13} />
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
-            </div>
+              <p className={s.routeLine}>
+                <Icon name="alt_route" size={16} />
+                <span>{routeText}</span>
+              </p>
 
-            {/* Step 2: Location */}
-            <div className={s.section}>
-              <div className={s.locationHeaderRow}>
-                <h3 className={s.sectionHeading}>
-                  <span className={s.stepNum}>2</span>
-                  <span>{t('submit.locationSection')}</span>
-                </h3>
+              <div className={s.field}>
+                <label htmlFor="cs-title" className={s.label}>{t('submit.titleLabel')}</label>
+                <input
+                  id="cs-title"
+                  type="text"
+                  className={`${s.input} ${fieldErrors.title ? s.inputError : ''}`}
+                  placeholder={t('submit.titlePlaceholder')}
+                  value={title}
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                    clearFieldError('title');
+                  }}
+                  maxLength={200}
+                  aria-invalid={!!fieldErrors.title}
+                  aria-describedby="cs-title-msg"
+                />
+                <p id="cs-title-msg" className={fieldErrors.title ? s.fieldError : s.fieldHint}>
+                  {fieldErrors.title || t('submit.wizard.titleHint')}
+                </p>
+              </div>
 
-                <div className={s.locationActionGroup}>
-                  <button
-                    type="button"
-                    onClick={handleUseMyWard}
-                    disabled={geoLoading}
-                    className={`${s.locBtn} ${s.locBtnOrange}`}
-                    title={`Apply registered ward: ${user?.address || 'Central Ward'}`}
-                  >
-                    <Icon name="home_pin" size={15} />
-                    <span>{t('submit.useMyWardBtn')} ({userWardName})</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleLocationDetect}
-                    disabled={geoLoading}
-                    className={`${s.locBtn} ${s.locBtnBlue}`}
-                  >
-                    <Icon name={geoLoading ? 'hourglass_top' : 'my_location'} size={15} />
-                    <span>{geoLoading ? t('common.loading') : t('submit.detectGpsBtn')}</span>
-                  </button>
+              <div className={s.field}>
+                <label htmlFor="cs-desc" className={s.label}>{t('submit.descLabel')}</label>
+                <textarea
+                  id="cs-desc"
+                  className={`${s.input} ${s.textarea} ${fieldErrors.description ? s.inputError : ''}`}
+                  rows={4}
+                  placeholder={t('submit.descPlaceholder')}
+                  value={description}
+                  onChange={(e) => {
+                    setDescription(e.target.value);
+                    clearFieldError('description');
+                  }}
+                  maxLength={3000}
+                  aria-invalid={!!fieldErrors.description}
+                  aria-describedby="cs-desc-msg"
+                />
+                <div className={s.fieldFoot}>
+                  <p id="cs-desc-msg" className={fieldErrors.description ? s.fieldError : s.fieldHint}>
+                    {fieldErrors.description || t('submit.wizard.descHint')}
+                  </p>
+                  <span className={s.counter}>{description.length}/3000</span>
                 </div>
               </div>
 
-              <div className={s.fieldGroup}>
+              <div className={s.field}>
+                <span className={s.label} id="cs-urgency">{t('submit.wizard.urgencyTitle')}</span>
+                <div className={s.segmented} role="radiogroup" aria-labelledby="cs-urgency">
+                  {PRIORITIES.map((p) => {
+                    const meta = PRIORITY_METADATA[p];
+                    const on = selectedPriority === p;
+                    return (
+                      <button
+                        key={p}
+                        type="button"
+                        role="radio"
+                        aria-checked={on}
+                        className={`${s.segment} ${on ? s.segmentOn : ''}`}
+                        style={on ? { color: meta.color, backgroundColor: meta.bgActive, borderColor: meta.borderActive } : undefined}
+                        onClick={() => setSelectedPriority(p)}
+                      >
+                        <span className={s.segDot} style={{ backgroundColor: meta.color }} />
+                        <span>{t(`submit.wizard.urgency.${p}`)}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className={s.fieldHint}>
+                  {t(`submit.priorityDesc.${selectedPriority}`)} · {t('submit.slaHours', { range: priMeta.sla })}
+                </p>
+              </div>
+            </section>
+
+            {/* ---------- STEP 2: WHERE ---------- */}
+            <section className={s.panel} hidden={step !== 1} aria-labelledby="cs-step-where">
+              <header className={s.panelHead}>
+                <h2 id="cs-step-where" className={s.panelTitle} tabIndex={-1} ref={headingRef(1)}>
+                  {t('submit.wizard.whereTitle')}
+                </h2>
+                <p className={s.panelHint}>{t('submit.wizard.whereHint')}</p>
+              </header>
+
+              {/* Mounted once the step is first opened, then kept so the pin isn't lost */}
+              {maxStepReached >= 1 && (
                 <LocationPicker
                   initialLat={latitude}
                   initialLng={longitude}
                   onLocationSelect={(lat, lng, addr) => {
                     setLatitude(lat);
                     setLongitude(lng);
-                    if (addr) setAddress(addr);
+                    if (addr) {
+                      setAddress(addr);
+                      clearFieldError('address');
+                    }
                   }}
-                  height="240px"
+                  height="320px"
                 />
+              )}
 
-                <div>
-                  <label className={s.inputLabel}>
-                    {t('submit.addressLabel')} <span className={s.req}>*</span>
-                  </label>
-                  <input
-                    type="text"
-                    className={s.textInput}
-                    placeholder={t('submit.addressPlaceholder')}
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    required
-                  />
-                </div>
+              <div className={s.field}>
+                <label htmlFor="cs-address" className={s.label}>{t('submit.addressLabel')}</label>
+                <input
+                  id="cs-address"
+                  type="text"
+                  className={`${s.input} ${fieldErrors.address ? s.inputError : ''}`}
+                  placeholder={t('submit.addressPlaceholder')}
+                  value={address}
+                  onChange={(e) => {
+                    setAddress(e.target.value);
+                    clearFieldError('address');
+                  }}
+                  aria-invalid={!!fieldErrors.address}
+                  aria-describedby="cs-address-msg"
+                />
+                <p id="cs-address-msg" className={fieldErrors.address ? s.fieldError : s.fieldHint}>
+                  {fieldErrors.address || t('submit.guidelines.g2')}
+                </p>
+              </div>
 
+              <details className={s.disclosure}>
+                <summary>
+                  <Icon name="expand_more" size={18} className={s.disclosureIcon} />
+                  <span>{t('submit.wizard.manualCoords')}</span>
+                </summary>
                 <div className={s.coordsRow}>
-                  <div>
-                    <label className={s.inputLabel}>Latitude</label>
+                  <div className={s.field}>
+                    <label htmlFor="cs-lat" className={s.label}>{t('submit.latitude')}</label>
                     <input
+                      id="cs-lat"
                       type="number"
                       step="any"
-                      className={s.textInput}
-                      placeholder="e.g. 21.466872"
+                      className={s.input}
+                      placeholder={t('submit.latPlaceholder')}
                       value={latitude ?? ''}
                       onChange={(e) => setLatitude(e.target.value ? parseFloat(e.target.value) : null)}
                     />
                   </div>
-                  <div>
-                    <label className={s.inputLabel}>Longitude</label>
+                  <div className={s.field}>
+                    <label htmlFor="cs-lng" className={s.label}>{t('submit.longitude')}</label>
                     <input
+                      id="cs-lng"
                       type="number"
                       step="any"
-                      className={s.textInput}
-                      placeholder="e.g. 83.981165"
+                      className={s.input}
+                      placeholder={t('submit.lngPlaceholder')}
                       value={longitude ?? ''}
                       onChange={(e) => setLongitude(e.target.value ? parseFloat(e.target.value) : null)}
                     />
                   </div>
                 </div>
-              </div>
-            </div>
+              </details>
+            </section>
 
-            {/* Step 3: Multimedia Evidence Section */}
-            <div className={s.section}>
-              <h3 className={s.sectionHeading}>
-                <span className={s.stepNum}>3</span>
-                <span>{t('submit.evidenceSection')}</span>
-              </h3>
+            {/* ---------- STEP 3: PROOF ---------- */}
+            <section className={s.panel} hidden={step !== 2} aria-labelledby="cs-step-proof">
+              <header className={s.panelHead}>
+                <h2 id="cs-step-proof" className={s.panelTitle} tabIndex={-1} ref={headingRef(2)}>
+                  {t('submit.wizard.proofTitle')}
+                  <span className={s.optionalPill}>{t('submit.wizard.optional')}</span>
+                </h2>
+                <p className={s.panelHint}>{t('submit.wizard.proofHint')}</p>
+              </header>
 
-              {/* 3A: Audio Voice Evidence */}
-              <div className="mb-5">
+              <div className={s.proofGrid}>
+                <button
+                  type="button"
+                  className={`${s.proofTile} ${selectedFiles.length ? s.proofTileOn : ''}`}
+                  onClick={() => photoInputRef.current?.click()}
+                  disabled={selectedFiles.length >= 5}
+                >
+                  <span className={s.proofIcon} aria-hidden="true">
+                    <Icon name="add_a_photo" size={22} />
+                  </span>
+                  <span className={s.proofLabel}>
+                    {t('submit.wizard.photosLabel')}
+                    {selectedFiles.length > 0 ? ` · ${selectedFiles.length}/5` : ''}
+                  </span>
+                  <span className={s.proofSub}>{t('submit.wizard.photosSub')}</span>
+                  <span className={s.proofAction}>
+                    <Icon name="add" size={16} />
+                    {t('submit.wizard.addPhotos')}
+                  </span>
+                </button>
+                <input
+                  ref={photoInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={(e) => {
+                    handleImageFileChange(e);
+                    e.target.value = '';
+                  }}
+                  hidden
+                />
+
                 <AudioRecorder
                   onAudioChange={(file, duration) => {
                     setAudioFile(file);
                     setAudioDuration(duration);
                   }}
                 />
+
+                <button
+                  type="button"
+                  className={`${s.proofTile} ${videoFile ? s.proofTileOn : ''}`}
+                  onClick={() => videoInputRef.current?.click()}
+                >
+                  <span className={s.proofIcon} aria-hidden="true">
+                    <Icon name="videocam" size={22} />
+                  </span>
+                  <span className={s.proofLabel}>{t('submit.wizard.videoLabel')}</span>
+                  <span className={s.proofSub}>{t('submit.wizard.videoSub')}</span>
+                  <span className={s.proofAction}>
+                    <Icon name="add" size={16} />
+                    {t('submit.wizard.addVideo')}
+                  </span>
+                </button>
+                <input
+                  ref={videoInputRef}
+                  type="file"
+                  accept="video/mp4,video/webm,video/*"
+                  onChange={handleVideoFileChange}
+                  hidden
+                />
               </div>
 
-              {/* 3B: Photo Evidence */}
-              <div className="mb-5">
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">
-                  {t('submit.photosTitle')}
-                </label>
-                <div className={s.uploadDropArea}>
-                  <input
-                    type="file"
-                    id="fileUpload"
-                    multiple
-                    accept="image/*"
-                    onChange={handleImageFileChange}
-                    className={s.fileInput}
-                  />
-                  <div className={s.uploadIcon}>
-                    <Icon name="add_a_photo" size={26} />
-                  </div>
-                  <h4 className={s.uploadTitle}>{t('submit.selectPhotosBtn')}</h4>
-                  <p className={s.uploadSub}>{t('submit.photosHelp')}</p>
-                </div>
-
-                {previewUrls.length > 0 && (
-                  <div className={s.previewGrid}>
-                    {previewUrls.map((url, i) => (
-                      <div key={url} className={s.previewItem}>
-                        <img src={url} alt={`Photo ${i + 1}`} className={s.previewImg} />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveImage(i)}
-                          className={s.removeImgBtn}
-                          aria-label="Remove image"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* 3C: Video Evidence */}
-              <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">
-                  {t('submit.videoTitle')}
-                </label>
-                {!videoPreviewUrl ? (
-                  <div
-                    onClick={() => videoInputRef.current?.click()}
-                    className="p-5 border-2 border-dashed border-gray-300 hover:border-emerald-500 rounded-xl cursor-pointer bg-gray-50/60 hover:bg-emerald-50/20 transition-all text-center"
-                  >
-                    <input
-                      type="file"
-                      ref={videoInputRef}
-                      accept="video/mp4,video/webm,video/*"
-                      onChange={handleVideoFileChange}
-                      className="hidden"
-                    />
-                    <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-600 mx-auto flex items-center justify-center mb-2">
-                      <Icon name="videocam" size={22} />
-                    </div>
-                    <div className="text-xs font-bold text-gray-800">{t('submit.selectVideoBtn')}</div>
-                    <div className="text-[11px] text-gray-500 mt-1">{t('submit.videoHelp')}</div>
-                  </div>
-                ) : (
-                  <div className={s.videoContainer}>
-                    <video
-                      controls
-                      src={videoPreviewUrl}
-                      className={s.videoPlayer}
-                    />
-                    <div className={s.videoFooter}>
-                      <span className="truncate max-w-[200px]">
-                        {videoFile?.name || 'On-site video evidence'}
-                      </span>
+              {previewUrls.length > 0 && (
+                <div className={s.thumbs}>
+                  {previewUrls.map((url, i) => (
+                    <figure key={url} className={s.thumb}>
+                      <img src={url} alt={t('submit.photoAlt', { n: i + 1 })} />
                       <button
                         type="button"
-                        onClick={handleRemoveVideo}
-                        className={s.removeVideoBtn}
+                        onClick={() => handleRemoveImage(i)}
+                        className={s.thumbRemove}
+                        aria-label={t('submit.removeImage')}
                       >
-                        {t('submit.removeVideoBtn')}
+                        <Icon name="close" size={14} />
                       </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+                    </figure>
+                  ))}
+                </div>
+              )}
 
-            {/* Submit Action */}
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className={s.submitBtn}
-            >
-              <Icon name="send" size={18} />
-              <span>{isSubmitting ? t('common.submitting') : t('submit.submitBtn')}</span>
-            </button>
+              {videoPreviewUrl && (
+                <div className={s.videoBox}>
+                  <video controls src={videoPreviewUrl} />
+                  <div className={s.videoBar}>
+                    <span className={s.videoName}>{videoFile?.name || t('submit.videoFallbackName')}</span>
+                    <button type="button" onClick={handleRemoveVideo} className={s.removeLink}>
+                      <Icon name="delete" size={15} />
+                      {t('submit.wizard.remove')}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </section>
+
+            {/* ---------- STEP 4: REVIEW ---------- */}
+            <section className={s.panel} hidden={step !== 3} aria-labelledby="cs-step-review">
+              <header className={s.panelHead}>
+                <h2 id="cs-step-review" className={s.panelTitle} tabIndex={-1} ref={headingRef(3)}>
+                  {t('submit.wizard.reviewTitle')}
+                </h2>
+                <p className={s.panelHint}>{t('submit.wizard.reviewHint')}</p>
+              </header>
+
+              <dl className={s.reviewList}>
+                <div className={s.reviewRow}>
+                  <dt>{t('submit.check.category')}</dt>
+                  <dd>
+                    <span className={s.reviewCat} style={{ color: catMeta.color, backgroundColor: catMeta.bgLight }}>
+                      <Icon name={catMeta.icon} size={15} />
+                      {t(`categories.${selectedCategory}`)}
+                    </span>
+                    <span className={s.reviewMuted}>{routeText}</span>
+                  </dd>
+                  <button type="button" className={s.editBtn} onClick={() => goToStep(0)}>{t('submit.wizard.edit')}</button>
+                </div>
+
+                <div className={s.reviewRow}>
+                  <dt>{t('submit.wizard.urgencyTitle')}</dt>
+                  <dd>
+                    <span className={s.reviewUrgency} style={{ color: priMeta.color }}>
+                      <span className={s.segDot} style={{ backgroundColor: priMeta.color }} />
+                      {t(`submit.wizard.urgency.${selectedPriority}`)}
+                    </span>
+                    <span className={s.reviewMuted}>{t('submit.slaHours', { range: priMeta.sla })}</span>
+                  </dd>
+                  <button type="button" className={s.editBtn} onClick={() => goToStep(0)}>{t('submit.wizard.edit')}</button>
+                </div>
+
+                <div className={s.reviewRow}>
+                  <dt>{t('submit.check.details')}</dt>
+                  <dd>
+                    <strong className={s.reviewTitle}>{title.trim() || t('submit.wizard.notSet')}</strong>
+                    {description.trim() && <span className={s.reviewDesc}>{description.trim()}</span>}
+                  </dd>
+                  <button type="button" className={s.editBtn} onClick={() => goToStep(0)}>{t('submit.wizard.edit')}</button>
+                </div>
+
+                <div className={s.reviewRow}>
+                  <dt>{t('submit.check.location')}</dt>
+                  <dd>
+                    <span>{address.trim() || t('submit.wizard.notSet')}</span>
+                    {latitude != null && longitude != null && (
+                      <span className={s.reviewMuted}>{Number(latitude).toFixed(5)}, {Number(longitude).toFixed(5)}</span>
+                    )}
+                  </dd>
+                  <button type="button" className={s.editBtn} onClick={() => goToStep(1)}>{t('submit.wizard.edit')}</button>
+                </div>
+
+                <div className={s.reviewRow}>
+                  <dt>{t('submit.wizard.proofTitle')}</dt>
+                  <dd>
+                    {proofParts.length ? (
+                      <span className={s.reviewChips}>
+                        {proofParts.map((part) => (
+                          <span key={part} className={s.reviewChip}>{part}</span>
+                        ))}
+                      </span>
+                    ) : (
+                      <span className={s.reviewMuted}>{t('submit.chips.noMedia')}</span>
+                    )}
+                  </dd>
+                  <button type="button" className={s.editBtn} onClick={() => goToStep(2)}>{t('submit.wizard.edit')}</button>
+                </div>
+              </dl>
+
+              {formError && (
+                <div className={s.errorBanner} role="alert">
+                  <Icon name="error" size={18} />
+                  <span>{formError}</span>
+                </div>
+              )}
+            </section>
+
+            {/* ---------- Bottom bar: Back / Continue (stays in reach) ---------- */}
+            <div className={s.footer}>
+              {step > 0 ? (
+                <button type="button" className={s.backBtn} onClick={() => goToStep(step - 1)}>
+                  <Icon name="arrow_back" size={18} />
+                  <span>{t('common.back')}</span>
+                </button>
+              ) : (
+                <span />
+              )}
+              <span className={s.stepCount}>
+                {t('submit.wizard.stepOf', { n: step + 1, total: STEPS.length })}
+              </span>
+              <button type="submit" className={s.nextBtn} disabled={isSubmitting}>
+                <span>{nextLabel}</span>
+                <Icon name={isLast ? 'send' : 'arrow_forward'} size={18} />
+              </button>
+            </div>
           </form>
         </div>
 
-        {/* Right Column: Interactive Live Grievance Dossier & Helplines */}
-        <div className={s.sidebarCol}>
-          {/* Interactive Live Grievance Ticket Preview Card */}
-          <div className={s.previewCard}>
-            <div className={s.previewHeader}>
-              <div className={s.previewTitleGroup}>
-                <h4 className={s.previewTitle}>
-                  <Icon name="assignment" size={20} style={{ color: 'var(--cz-accent-blue, #5b9fcb)' }} />
-                  <span>{t('submit.livePreviewTitle')}</span>
-                </h4>
-              </div>
-              <span
-                className={`${s.previewStatusBadge} ${
-                  readiness.score >= 85 ? s.statusReady : s.statusDraft
-                }`}
-              >
-                <Icon name={readiness.score >= 85 ? 'task_alt' : 'edit_note'} size={14} />
-                <span>
-                  {readiness.score >= 85
-                    ? t('submit.readyToSubmit')
-                    : t('submit.drafting')}
-                </span>
-              </span>
+        {/* ================= SIDEBAR ================= */}
+        <aside className={s.sidebar}>
+          <div className={s.summaryCard}>
+            <div className={s.summaryHead}>
+              <h3 className={s.summaryTitle}>{t('submit.wizard.summaryTitle')}</h3>
+              <span className={s.summaryPct}>{readiness.score}%</span>
             </div>
-
-            {/* Readiness Progress Meter */}
-            <div className={s.readinessBox}>
-              <div className={s.readinessRow}>
-                <span>{t('submit.readinessLabel')}</span>
-                <span className={s.readinessPercent}>{readiness.score}%</span>
-              </div>
-              <div className={s.readinessTrack}>
-                <div
-                  className={s.readinessFill}
-                  style={{
-                    width: `${readiness.score}%`,
-                    backgroundColor:
-                      readiness.score >= 85
-                        ? '#16a34a'
-                        : readiness.score >= 50
-                        ? '#d97706'
-                        : '#3b82f6',
-                  }}
-                />
-              </div>
+            <div className={s.summaryTrack} aria-hidden="true">
+              <div className={s.summaryFill} style={{ width: `${readiness.score}%` }} />
             </div>
-
-            {/* Interactive Step Completion Checklist */}
-            <div className={s.checklistGrid}>
-              <div
-                className={`${s.checklistItem} ${
-                  readiness.checks.category ? s.checklistItemCompleted : ''
-                }`}
-              >
-                <Icon
-                  name={readiness.checks.category ? 'check_circle' : 'radio_button_unchecked'}
-                  size={14}
-                />
-                <span>Category</span>
-              </div>
-              <div
-                className={`${s.checklistItem} ${
-                  readiness.checks.details ? s.checklistItemCompleted : ''
-                }`}
-              >
-                <Icon
-                  name={readiness.checks.details ? 'check_circle' : 'radio_button_unchecked'}
-                  size={14}
-                />
-                <span>Details</span>
-              </div>
-              <div
-                className={`${s.checklistItem} ${
-                  readiness.checks.location ? s.checklistItemCompleted : ''
-                }`}
-              >
-                <Icon
-                  name={readiness.checks.location ? 'check_circle' : 'radio_button_unchecked'}
-                  size={14}
-                />
-                <span>Location</span>
-              </div>
-              <div
-                className={`${s.checklistItem} ${
-                  readiness.checks.media ? s.checklistItemCompleted : ''
-                }`}
-              >
-                <Icon
-                  name={readiness.checks.media ? 'check_circle' : 'radio_button_unchecked'}
-                  size={14}
-                />
-                <span>Evidence ({selectedFiles.length + (audioFile ? 1 : 0) + (videoFile ? 1 : 0)})</span>
-              </div>
-            </div>
-
-            {/* Live Interactive Ticket Frame */}
-            <div className={s.liveTicketBox}>
-              <div className={s.ticketTopRow}>
-                <span
-                  className={s.ticketCategoryPill}
-                  style={{
-                    backgroundColor: CATEGORY_METADATA[selectedCategory].bgLight,
-                    color: CATEGORY_METADATA[selectedCategory].color,
-                  }}
-                >
-                  <Icon name={CATEGORY_METADATA[selectedCategory].icon} size={14} />
-                  <span>{t(`categories.${selectedCategory}`)}</span>
-                </span>
-                <span
-                  style={{
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    color: PRIORITY_METADATA[selectedPriority].color,
-                  }}
-                >
-                  {t(PRIORITY_METADATA[selectedPriority].labelKey)}
-                </span>
-              </div>
-
-              <div>
-                <h5 className={`${s.ticketTitle} ${!title.trim() ? s.ticketTitlePlaceholder : ''}`}>
-                  {title.trim() || t('submit.previewPlaceholder')}
-                </h5>
-                {description.trim() && (
-                  <p className={s.ticketDesc}>
-                    {description.slice(0, 110)}
-                    {description.length > 110 ? '...' : ''}
-                  </p>
-                )}
-              </div>
-
-              <div className={s.ticketMetaRow}>
-                <div className={s.ticketMetaItem}>
-                  <Icon name="location_on" size={14} style={{ color: '#2563eb' }} />
-                  <span>
-                    {address.trim()
-                      ? address.length > 36
-                        ? address.slice(0, 34) + '...'
-                        : address
-                      : t('submit.previewLocationPending')}
-                  </span>
+            <ul className={s.summaryList}>
+              <li className={readiness.checks.category ? s.sumDone : ''}>
+                <Icon name={readiness.checks.category ? 'check_circle' : 'radio_button_unchecked'} size={18} />
+                <div>
+                  <span className={s.sumLabel}>{t('submit.check.category')}</span>
+                  <span className={s.sumValue}>{t(`categories.${selectedCategory}`)}</span>
                 </div>
-                <div className={s.ticketMetaItem}>
-                  <Icon name="business" size={14} style={{ color: '#475569' }} />
-                  <span>
-                    {t(currentDept.nameKey)} • {currentDept.defaultSla} SLA
-                  </span>
+              </li>
+              <li className={readiness.checks.details ? s.sumDone : ''}>
+                <Icon name={readiness.checks.details ? 'check_circle' : 'radio_button_unchecked'} size={18} />
+                <div>
+                  <span className={s.sumLabel}>{t('submit.check.details')}</span>
+                  <span className={s.sumValue}>{title.trim() || t('submit.wizard.notSet')}</span>
                 </div>
-
-                {/* Evidence Badges */}
-                <div className={s.evidenceChips}>
-                  {audioFile && (
-                    <span className={s.evidenceChip}>
-                      <Icon name="mic" size={12} />
-                      <span>{audioDuration ? `${audioDuration}s Voice` : 'Voice Note'}</span>
-                    </span>
-                  )}
-                  {selectedFiles.length > 0 && (
-                    <span className={s.evidenceChip}>
-                      <Icon name="photo_camera" size={12} />
-                      <span>{selectedFiles.length} Photo{selectedFiles.length > 1 ? 's' : ''}</span>
-                    </span>
-                  )}
-                  {videoFile && (
-                    <span className={s.evidenceChip}>
-                      <Icon name="videocam" size={12} />
-                      <span>1 Video</span>
-                    </span>
-                  )}
-                  {!audioFile && selectedFiles.length === 0 && !videoFile && (
-                    <span style={{ fontSize: '11px', color: '#94a3b8' }}>
-                      No media evidence attached yet
-                    </span>
-                  )}
+              </li>
+              <li className={readiness.checks.location ? s.sumDone : ''}>
+                <Icon name={readiness.checks.location ? 'check_circle' : 'radio_button_unchecked'} size={18} />
+                <div>
+                  <span className={s.sumLabel}>{t('submit.check.location')}</span>
+                  <span className={s.sumValue}>{address.trim() || t('submit.wizard.notSet')}</span>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Interactive Municipal Helplines Card */}
-          <div className={s.helplineCard}>
-            <h4 className={s.helplineTitle}>
-              <Icon name="phone_in_talk" size={18} style={{ color: '#2563eb' }} />
-              <span>{t('submit.emergencyHelplines')}</span>
-            </h4>
-            <div className={s.helplineList}>
-              <div className={s.helplineRow}>
-                <span className={s.helplineLabel}>
-                  <Icon name="support_agent" size={16} />
-                  <span>{t('submit.controlRoom')}</span>
-                </span>
-                <a href="tel:18003457788" className={s.helplineNumber}>1800-345-7788</a>
-              </div>
-              <div className={s.helplineRow}>
-                <span className={s.helplineLabel}>
-                  <Icon name="bolt" size={16} />
-                  <span>{t('submit.electricityHelpline')}</span>
-                </span>
-                <a href="tel:1912" className={s.helplineNumber}>1912</a>
-              </div>
-              <div className={s.helplineRow}>
-                <span className={s.helplineLabel}>
-                  <Icon name="water" size={16} />
-                  <span>{t('submit.waterHelpline')}</span>
-                </span>
-                <a href="tel:06632400123" className={s.helplineNumber}>0663-2400123</a>
-              </div>
-            </div>
-          </div>
-
-          {/* Filing Guidelines Card */}
-
-          {/* Filing Guidelines Card */}
-          <div className={s.guidelinesCard}>
-            <h4 className={s.guidelinesTitle}>Filing Guidelines</h4>
-            <ul className={s.guideList}>
-              <li>Select the municipal category matching your issue for direct jurisdictional dispatch.</li>
-              <li>Include prominent landmarks, street names, or ward numbers.</li>
-              <li>Voice recordings allow instant reporting in your native language.</li>
-              <li>Upload photos and video clips to prove physical ground severity.</li>
-              <li>Use the generated Tracking Code anytime to track inspection and repairs.</li>
+              </li>
+              <li className={readiness.checks.media ? s.sumDone : ''}>
+                <Icon name={readiness.checks.media ? 'check_circle' : 'radio_button_unchecked'} size={18} />
+                <div>
+                  <span className={s.sumLabel}>{t('submit.wizard.proofTitle')}</span>
+                  <span className={s.sumValue}>{proofParts.length ? proofParts.join(' · ') : t('submit.wizard.optional')}</span>
+                </div>
+              </li>
             </ul>
           </div>
-        </div>
+
+          <div className={s.tipCard}>
+            <Icon name="lightbulb" size={18} />
+            <p>
+              <strong>{t('submit.wizard.tip')}:</strong> {t(STEP_TIPS[step])}
+            </p>
+          </div>
+
+          <div className={s.helpCard}>
+            <h3 className={s.helpTitle}>
+              <Icon name="call" size={16} />
+              <span>{t('submit.wizard.needHelp')}</span>
+            </h3>
+            <ul className={s.helpList}>
+              <li>
+                <span>{t('submit.controlRoom')}</span>
+                <a href="tel:18003457788">1800-345-7788</a>
+              </li>
+              <li>
+                <span>{t('submit.electricityHelpline')}</span>
+                <a href="tel:1912">1912</a>
+              </li>
+              <li>
+                <span>{t('submit.waterHelpline')}</span>
+                <a href="tel:06632400123">0663-2400123</a>
+              </li>
+            </ul>
+          </div>
+        </aside>
       </div>
 
       {/* ================= COMPLAINT SUCCESS SCREEN / MODAL ================= */}
       {submittedData && (
-        <div className={s.successOverlay}>
-          <div className={s.successCard}>
+        <div className={s.successOverlay} onClick={closeSuccess}>
+          <div
+            className={s.successCard}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cs-success-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className={s.successClose}
+              onClick={closeSuccess}
+              aria-label={t('submit.wizard.close')}
+            >
+              <Icon name="close" size={18} />
+            </button>
+
             <div className={s.successCheckIcon}>
               <Icon name="check" size={32} />
             </div>
 
-            <h3 className={s.successTitle}>{t('submit.successModalTitle')}</h3>
+            <h3 id="cs-success-title" className={s.successTitle}>{t('submit.successModalTitle')}</h3>
             <p className={s.successMsg}>
               {t('submit.successModalSubtitle')}
             </p>
 
             <div className={s.trackingBox}>
               <span className={s.trackingBoxLabel}>{t('common.trackingCode')}</span>
-              <span className={s.trackingBoxCode}>{submittedData.tracking_code}</span>
+              <div className={s.trackingCodeRow}>
+                <span className={s.trackingBoxCode}>{submittedData.tracking_code}</span>
+                <button
+                  type="button"
+                  className={s.copyBtn}
+                  onClick={() => copyCode(submittedData.tracking_code)}
+                >
+                  <Icon name="content_copy" size={15} />
+                  <span>{t('submit.wizard.copy')}</span>
+                </button>
+              </div>
             </div>
 
             <div className={s.successDetailsRow}>
               <div>
-                <span style={{ fontSize: 11, color: 'var(--cz-secondary-text, #64748b)', display: 'block' }}>{t('common.status')}</span>
+                <span style={{ fontSize: 11, color: 'var(--cs-text-muted)', display: 'block' }}>{t('common.status')}</span>
                 <span className={s.badgePriorityMedium} style={{ display: 'inline-block', marginTop: 4 }}>
                   {t(`statuses.${submittedData.status}`) || submittedData.status}
                 </span>
               </div>
               <div>
-                <span style={{ fontSize: 11, color: 'var(--cz-secondary-text, #64748b)', display: 'block' }}>{t('submit.assignedDept')}</span>
-                <strong style={{ fontSize: 13, color: '#0f172a', display: 'inline-block', marginTop: 4 }}>
+                <span style={{ fontSize: 11, color: 'var(--cs-text-muted)', display: 'block' }}>{t('submit.assignedDept')}</span>
+                <strong style={{ fontSize: 13, color: '#3B2418', display: 'inline-block', marginTop: 4 }}>
                   {submittedData.department_name}
                 </strong>
               </div>
@@ -914,24 +992,20 @@ export const SubmitComplaint: React.FC = () => {
                 <Icon name="search" size={16} />
                 <span>{t('submit.trackNowBtn')}</span>
               </Link>
-              <button
-                type="button"
-                onClick={() => {
-                  setSubmittedData(null);
-                  setTitle('');
-                  setDescription('');
-                  setAddress('');
-                  setSelectedFiles([]);
-                  setPreviewUrls([]);
-                  setAudioFile(null);
-                  setVideoFile(null);
-                  setVideoPreviewUrl(null);
-                }}
-                className={s.successBtnList}
-              >
+              <button type="button" onClick={closeSuccess} className={s.successBtnList}>
                 <Icon name="add" size={16} />
                 <span>{t('submit.fileAnotherBtn')}</span>
               </button>
+            </div>
+
+            {/* Closes on its own: the bar runs down, pausing while hovered or focused */}
+            <p className={s.autoCloseHint}>{t('submit.wizard.autoClose')}</p>
+            <div className={s.autoCloseTrack} aria-hidden="true">
+              <div
+                className={s.autoCloseBar}
+                style={{ animationDuration: `${SUCCESS_AUTO_CLOSE_MS}ms` }}
+                onAnimationEnd={closeSuccess}
+              />
             </div>
           </div>
         </div>

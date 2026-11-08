@@ -1,19 +1,30 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import useAuthStore from '../../store/authStore';
 import useComplaintStore from '../../store/complaintStore';
 import Icon from '../../components/ui/Icon';
 import s from './CitizenLayout.module.css';
 
 export const CitizenLayout: React.FC = () => {
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const { unreadNotificationsCount, fetchNotifications } = useComplaintStore();
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Soft shadow under the pinned header once the page moves
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 4);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -46,77 +57,83 @@ export const CitizenLayout: React.FC = () => {
 
   const navLinks = isAuthenticated
     ? [
-        { label: 'Dashboard', path: '/citizen/dashboard', icon: 'dashboard' },
-        { label: 'Report Grievance', path: '/citizen/submit', icon: 'add_circle', isHighlight: true },
-        { label: 'My Grievances', path: '/citizen/complaints', icon: 'assignment' },
-        { label: 'Track Complaint', path: '/citizen/tracking', icon: 'search' },
-        { label: 'City Radar Map', path: '/map', icon: 'explore' },
-        { label: 'Profile', path: '/citizen/profile', icon: 'person' },
+        { label: t('layout.nav.dashboard'), path: '/citizen/dashboard', icon: 'dashboard' },
+        { label: t('layout.nav.reportGrievance'), path: '/citizen/submit', icon: 'add_circle', isHighlight: true },
+        { label: t('layout.nav.myGrievances'), path: '/citizen/complaints', icon: 'assignment' },
+        { label: t('layout.nav.trackComplaint'), path: '/citizen/tracking', icon: 'search' },
+        { label: t('layout.nav.radarMap'), path: '/map', icon: 'explore' },
+        { label: t('layout.nav.profile'), path: '/citizen/profile', icon: 'person' },
       ]
     : [
-        { label: 'Report Grievance', path: '/citizen/submit', icon: 'add_circle', isHighlight: true },
-        { label: 'Track Grievance', path: '/citizen/tracking', icon: 'search' },
-        { label: 'City Radar Map', path: '/map', icon: 'explore' },
+        { label: t('layout.nav.reportGrievance'), path: '/citizen/submit', icon: 'add_circle', isHighlight: true },
+        { label: t('layout.nav.trackGrievance'), path: '/citizen/tracking', icon: 'search' },
+        { label: t('layout.nav.radarMap'), path: '/map', icon: 'explore' },
       ];
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login/citizen');
+  // Top bar: "Report grievance" becomes the kesari button on the right, and
+  // Profile lives in the avatar menu. The mobile menu still lists everything.
+  const reportLink = navLinks.find((item) => item.isHighlight);
+  const barLinks = navLinks.filter((item) => !item.isHighlight && item.path !== '/citizen/profile');
+
+  // Sign out to the landing page. The landing page finishes signing out once
+  // it's on screen, so this protected page's "go to login" guard can't win.
+  const handleLogout = () => {
+    navigate('/', { replace: true, state: { signOut: true } });
   };
 
-  const displayName = user?.full_name ? user.full_name.split(' ')[0] : 'Citizen';
+  const displayName = user?.full_name ? user.full_name.split(' ')[0] : t('layout.citizenFallback');
   const avatarLetter = user?.full_name ? user.full_name.trim()[0].toUpperCase() : 'C';
 
   return (
     <div className={`${s.layoutContainer} citizenPortalScope`}>
       {/* ================= TOP NAVBAR ================= */}
-      <header className={s.navbar}>
+      <header className={`${s.navbar} ${scrolled ? s.navbarScrolled : ''}`}>
         <div className={s.navInner}>
-          {/* Left: Brand & Slogan */}
-          <Link to={isAuthenticated ? '/citizen/dashboard' : '/'} className={s.brandGroup} title="CivicSetu Gateway">
+          {/* Left: Brand */}
+          <Link to={isAuthenticated ? '/citizen/dashboard' : '/'} className={s.brandGroup} title={t('layout.gatewayTitle')}>
             <div className={s.brandLogo}>
-              <img src="/logo-mark.png" alt="CivicSetu Logo" className={s.brandLogoImg} />
+              <img src="/logo-mark.png" alt={t('landing.logoAlt')} className={s.brandLogoImg} />
             </div>
-            <div className={s.brandText}>
-              <div className={s.brandTitleRow}>
-                <span className={s.brandName}>CivicSetu</span>
-                <span className={s.brandBadge}>
-                  <span className={s.pulseDot}></span>
-                  {isAuthenticated ? 'Citizen Portal' : 'Public Access'}
-                </span>
-              </div>
-              <span className={s.brandSubtitle}>Connecting Citizens. Improving Communities.</span>
-            </div>
+            <span className={s.brandName}>CivicSetu</span>
           </Link>
 
-          {/* Center: Navigation Links */}
+          {/* Center: one slim segmented bar */}
           <nav className={s.navLinks}>
-            {navLinks.map((item) => {
+            {barLinks.map((item) => {
               const isActive = location.pathname === item.path;
               return (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`${s.navLink} ${isActive ? s.activeNavLink : ''} ${
-                    item.isHighlight && !isActive ? s.highlightNavLink : ''
-                  }`}
+                  className={`${s.navLink} ${isActive ? s.activeNavLink : ''}`}
+                  aria-current={isActive ? 'page' : undefined}
                 >
-                  <Icon name={item.icon} size={18} />
+                  <Icon name={item.icon} size={17} className={s.navIcon} />
                   <span>{item.label}</span>
                 </Link>
               );
             })}
           </nav>
 
-          {/* Right: Notification, User Dropdown / Sign In */}
+          {/* Right: main action, notifications, user menu / sign in */}
           <div className={s.navRight}>
+            {reportLink && (
+              <Link
+                to={reportLink.path}
+                className={`${s.reportBtn} ${location.pathname === reportLink.path ? s.reportBtnActive : ''}`}
+                aria-current={location.pathname === reportLink.path ? 'page' : undefined}
+              >
+                <Icon name="add" size={18} />
+                <span>{reportLink.label}</span>
+              </Link>
+            )}
             {isAuthenticated ? (
               <>
                 <Link
                   to="/citizen/notifications"
                   className={s.notifBtn}
-                  title="Grievance Notifications"
-                  aria-label="Notifications"
+                  title={t('layout.notificationsTitle')}
+                  aria-label={t('layout.notifications')}
                 >
                   <Icon name="notifications" size={20} />
                   {unreadNotificationsCount > 0 && (
@@ -129,7 +146,7 @@ export const CitizenLayout: React.FC = () => {
                     type="button"
                     className={s.userTrigger}
                     onClick={() => setDropdownOpen(!dropdownOpen)}
-                    aria-label="User Menu"
+                    aria-label={t('layout.userMenu')}
                   >
                     <div className={s.userAvatar}>{avatarLetter}</div>
                     <span className={s.userName}>{displayName}</span>
@@ -143,23 +160,23 @@ export const CitizenLayout: React.FC = () => {
                   {dropdownOpen && (
                     <div className={s.dropdownMenu}>
                       <div className={s.dropdownHeader}>
-                        <div className={s.dropdownUserName}>{user?.full_name || 'Citizen'}</div>
+                        <div className={s.dropdownUserName}>{user?.full_name || t('layout.citizenFallback')}</div>
                         <div className={s.dropdownUserEmail}>{user?.email || 'citizen@civicsetu.gov'}</div>
                       </div>
 
                       <Link to="/citizen/profile" className={s.dropdownItem}>
                         <Icon name="person" size={17} />
-                        <span>Profile</span>
+                        <span>{t('layout.nav.profile')}</span>
                       </Link>
 
                       <Link to="/citizen/complaints" className={s.dropdownItem}>
                         <Icon name="assignment" size={17} />
-                        <span>My Grievances</span>
+                        <span>{t('layout.nav.myGrievances')}</span>
                       </Link>
 
                       <Link to="/citizen/notifications" className={s.dropdownItem}>
                         <Icon name="notifications" size={17} />
-                        <span>Notifications</span>
+                        <span>{t('layout.notifications')}</span>
                         {unreadNotificationsCount > 0 && (
                           <span className={s.notifBadge} style={{ position: 'static', marginLeft: 'auto' }}>
                             {unreadNotificationsCount}
@@ -175,7 +192,7 @@ export const CitizenLayout: React.FC = () => {
                         className={`${s.dropdownItem} ${s.dropdownLogout}`}
                       >
                         <Icon name="logout" size={17} />
-                        <span>Sign Out</span>
+                        <span>{t('layout.signOut')}</span>
                       </button>
                     </div>
                   )}
@@ -184,7 +201,7 @@ export const CitizenLayout: React.FC = () => {
             ) : (
               <Link to="/login/citizen" className={s.signInBtn}>
                 <Icon name="login" size={17} />
-                <span>Sign In / Register</span>
+                <span>{t('layout.signInRegister')}</span>
               </Link>
             )}
 
@@ -193,7 +210,7 @@ export const CitizenLayout: React.FC = () => {
               type="button"
               className={s.mobileMenuBtn}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle Navigation"
+              aria-label={t('landing.nav.toggleNav')}
             >
               <Icon name={mobileMenuOpen ? 'close' : 'menu'} size={22} />
             </button>
@@ -207,7 +224,8 @@ export const CitizenLayout: React.FC = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={s.mobileNavLink}
+                className={`${s.mobileNavLink} ${location.pathname === item.path ? s.mobileNavLinkActive : ''}`}
+                aria-current={location.pathname === item.path ? 'page' : undefined}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <Icon name={item.icon} size={18} />
@@ -223,7 +241,7 @@ export const CitizenLayout: React.FC = () => {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Icon name="notifications" size={18} />
-                  <span>Notifications ({unreadNotificationsCount})</span>
+                  <span>{t('layout.notificationsCount', { n: unreadNotificationsCount })}</span>
                 </Link>
                 <button
                   type="button"
@@ -232,7 +250,7 @@ export const CitizenLayout: React.FC = () => {
                   style={{ background: 'transparent', border: 'none', textAlign: 'left', width: '100%' }}
                 >
                   <Icon name="logout" size={18} />
-                  <span>Sign Out</span>
+                  <span>{t('layout.signOut')}</span>
                 </button>
               </>
             ) : (
@@ -242,7 +260,7 @@ export const CitizenLayout: React.FC = () => {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <Icon name="login" size={18} />
-                <span>Sign In / Register</span>
+                <span>{t('layout.signInRegister')}</span>
               </Link>
             )}
           </div>
@@ -261,30 +279,29 @@ export const CitizenLayout: React.FC = () => {
             <div className={s.footerBrand}>
               <div className={s.footerLogoRow}>
                 <div className={s.brandLogo} style={{ width: 28, height: 28 }}>
-                  <img src="/logo-mark.png" alt="CivicSetu" className={s.brandLogoImg} />
+                  <img src="/logo-mark.png" alt={t('landing.logoAlt')} className={s.brandLogoImg} />
                 </div>
-                <strong style={{ fontSize: 16, color: '#0f172a' }}>CivicSetu</strong>
+                <strong style={{ fontSize: 16, color: 'var(--cs-text-strong)' }}>CivicSetu</strong>
               </div>
               <p className={s.footerDesc}>
-                Empowering residents with transparent, AI-triage municipal grievance registration,
-                real-time SLA accountability, and automated department routing.
+                {t('layout.footer.desc')}
               </p>
             </div>
 
             <div className={s.footerHelplineBox}>
-              <span className={s.helplineTitle}>24x7 Citizen Emergency Helplines</span>
+              <span className={s.helplineTitle}>{t('layout.footer.helplineTitle')}</span>
               <div className={s.helplineNumbers}>
                 <div className={s.helplineItem}>
-                  <Icon name="call" size={15} style={{ color: 'var(--cz-accent-orange, #e89a5b)' }} />
-                  <span>Municipal Control: <strong>1913</strong></span>
+                  <Icon name="call" size={15} style={{ color: 'var(--cs-kesari-deep)' }} />
+                  <span>{t('layout.footer.municipalControl')} <strong>1913</strong></span>
                 </div>
                 <div className={s.helplineItem}>
-                  <Icon name="local_police" size={15} style={{ color: 'var(--cz-accent-blue, #5b9fcb)' }} />
-                  <span>Emergency: <strong>112</strong></span>
+                  <Icon name="local_police" size={15} style={{ color: 'var(--cs-maroon)' }} />
+                  <span>{t('layout.footer.emergency')} <strong>112</strong></span>
                 </div>
                 <div className={s.helplineItem}>
-                  <Icon name="medical_services" size={15} style={{ color: '#4caf7d' }} />
-                  <span>Ambulance: <strong>108</strong></span>
+                  <Icon name="medical_services" size={15} style={{ color: 'var(--cs-success)' }} />
+                  <span>{t('layout.footer.ambulance')} <strong>108</strong></span>
                 </div>
               </div>
             </div>
@@ -292,13 +309,13 @@ export const CitizenLayout: React.FC = () => {
 
           <div className={s.footerBottom}>
             <div>
-              &copy; {new Date().getFullYear()} CivicSetu. Government & Citizen Grievance Redressal System.
+              {t('layout.footer.copyright', { year: new Date().getFullYear() })}
             </div>
             <div className={s.footerLinks}>
-              <Link to="/citizen/submit" className={s.footerLink}>Report Issue</Link>
-              <Link to="/citizen/tracking" className={s.footerLink}>Track Status</Link>
-              <Link to="/citizen/complaints" className={s.footerLink}>My Grievances</Link>
-              <Link to="/map" className={s.footerLink}>Civic Radar Map</Link>
+              <Link to="/citizen/submit" className={s.footerLink}>{t('layout.footer.reportIssue')}</Link>
+              <Link to="/citizen/tracking" className={s.footerLink}>{t('layout.footer.trackStatus')}</Link>
+              <Link to="/citizen/complaints" className={s.footerLink}>{t('layout.footer.myGrievances')}</Link>
+              <Link to="/map" className={s.footerLink}>{t('layout.footer.radarMap')}</Link>
             </div>
           </div>
         </div>

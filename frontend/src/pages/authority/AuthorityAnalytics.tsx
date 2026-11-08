@@ -303,10 +303,10 @@ export const AuthorityAnalytics: React.FC = () => {
 
     const total = filteredComplaints.length || 1;
     const segments = [
-      { key: 'RESOLVED', label: 'Resolved', count: counts.RESOLVED, color: '#107c41', pct: (counts.RESOLVED / total) * 100 },
-      { key: 'IN_PROGRESS', label: 'In Progress', count: counts.IN_PROGRESS, color: '#0078d4', pct: (counts.IN_PROGRESS / total) * 100 },
-      { key: 'PENDING', label: 'Pending', count: counts.PENDING, color: '#f2c811', pct: (counts.PENDING / total) * 100 },
-      { key: 'CLOSED', label: 'Closed / Archived', count: counts.CLOSED, color: '#605e5c', pct: (counts.CLOSED / total) * 100 },
+      { key: 'RESOLVED', label: 'Resolved', count: counts.RESOLVED, color: '#2E7D4F', pct: (counts.RESOLVED / total) * 100 },
+      { key: 'IN_PROGRESS', label: 'In Progress', count: counts.IN_PROGRESS, color: '#E8620F', pct: (counts.IN_PROGRESS / total) * 100 },
+      { key: 'PENDING', label: 'Pending', count: counts.PENDING, color: '#B8860B', pct: (counts.PENDING / total) * 100 },
+      { key: 'CLOSED', label: 'Closed / Archived', count: counts.CLOSED, color: '#5A4033', pct: (counts.CLOSED / total) * 100 },
     ];
 
     return { segments, total: filteredComplaints.length };
@@ -496,7 +496,7 @@ export const AuthorityAnalytics: React.FC = () => {
             <div className={s.authorityTitleRow}>
               <h1 className={s.reportTitle}>{authorityName}</h1>
               <span className={s.authorityDesignationBadge}>
-                <Icon name="verified_user" size={13} style={{ color: '#0078d4' }} />
+                <Icon name="verified_user" size={13} style={{ color: '#7A1F2B' }} />
                 <span>{authorityDesignation}</span>
               </span>
             </div>
@@ -559,7 +559,7 @@ export const AuthorityAnalytics: React.FC = () => {
       <section className={s.slicersPanel}>
         <div className={s.slicerRow}>
           <div className={s.slicerIconBox}>
-            <Icon name="tune" size={17} style={{ color: '#0078d4' }} />
+            <Icon name="tune" size={17} style={{ color: '#7A1F2B' }} />
             <span className={s.slicerLabel}>Operational Filters:</span>
           </div>
 
@@ -714,7 +714,7 @@ export const AuthorityAnalytics: React.FC = () => {
         <div className={s.pbiCard} onClick={() => setActiveStatus('ALL')}>
           <div className={s.cardTopRow}>
             <span className={s.cardCalloutLabel}>Total Grievance Volume</span>
-            <span className={s.cardIconBadge} style={{ background: '#deecf9', color: '#0078d4' }}>
+            <span className={s.cardIconBadge} style={{ background: '#FFE8D6', color: '#7A1F2B' }}>
               <Icon name="inventory_2" size={18} />
             </span>
           </div>
@@ -724,8 +724,8 @@ export const AuthorityAnalytics: React.FC = () => {
               <span className={s.deltaPillGreen}>Active</span>
               <Sparkline
                 data={[12, 14, 15, 17, 19, 21, Math.max(kpiData.total, 4)]}
-                color="#0078d4"
-                fillColor="#deecf9"
+                color="#E8620F"
+                fillColor="#FFE8D6"
               />
             </div>
           </div>
@@ -746,12 +746,12 @@ export const AuthorityAnalytics: React.FC = () => {
         >
           <div className={s.cardTopRow}>
             <span className={s.cardCalloutLabel}>SLA Compliance Rate</span>
-            <span className={s.cardIconBadge} style={{ background: '#dff6dd', color: '#107c41' }}>
+            <span className={s.cardIconBadge} style={{ background: '#E6F4EA', color: '#1F6B3F' }}>
               <Icon name="verified" size={18} />
             </span>
           </div>
           <div className={s.cardMainMetricRow}>
-            <span className={s.cardBigValue} style={{ color: '#107c41' }}>
+            <span className={s.cardBigValue} style={{ color: '#2E7D4F' }}>
               {kpiData.slaCompliance}%
             </span>
             <div className={s.cardDeltaWrap}>
@@ -760,8 +760,8 @@ export const AuthorityAnalytics: React.FC = () => {
               </span>
               <Sparkline
                 data={[88, 89, 90, 91, 91, 92, kpiData.slaCompliance]}
-                color="#107c41"
-                fillColor="#dff6dd"
+                color="#2E7D4F"
+                fillColor="#E6F4EA"
               />
             </div>
           </div>
@@ -776,12 +776,12 @@ export const AuthorityAnalytics: React.FC = () => {
         <div className={s.pbiCard}>
           <div className={s.cardTopRow}>
             <span className={s.cardCalloutLabel}>Average Resolution Velocity</span>
-            <span className={s.cardIconBadge} style={{ background: '#fff4ce', color: '#d9a404' }}>
+            <span className={s.cardIconBadge} style={{ background: '#FDF0C4', color: '#6B4E00' }}>
               <Icon name="speed" size={18} />
             </span>
           </div>
           <div className={s.cardMainMetricRow}>
-            <span className={s.cardBigValue} style={{ color: '#b45309' }}>
+            <span className={s.cardBigValue} style={{ color: '#6B4E00' }}>
               {kpiData.avgTat} hrs
             </span>
             <div className={s.cardDeltaWrap}>
@@ -790,8 +790,8 @@ export const AuthorityAnalytics: React.FC = () => {
               </span>
               <Sparkline
                 data={[22, 20, 19, 18, 17, 16, Math.max(kpiData.avgTat, 2)]}
-                color="#f59e0b"
-                fillColor="#fff4ce"
+                color="#B8860B"
+                fillColor="#FDF0C4"
               />
             </div>
           </div>
@@ -804,20 +804,20 @@ export const AuthorityAnalytics: React.FC = () => {
         <div className={s.pbiCard} onClick={() => setActiveViewTab('csat')}>
           <div className={s.cardTopRow}>
             <span className={s.cardCalloutLabel}>Citizen Satisfaction (CSAT)</span>
-            <span className={s.cardIconBadge} style={{ background: '#fef3c7', color: '#f59e0b' }}>
+            <span className={s.cardIconBadge} style={{ background: '#FDF0C4', color: '#6B4E00' }}>
               <Icon name="star" size={18} />
             </span>
           </div>
           <div className={s.cardMainMetricRow}>
-            <span className={s.cardBigValue} style={{ color: '#d97706' }}>
+            <span className={s.cardBigValue} style={{ color: '#6B4E00' }}>
               ★ {kpiData.csatRating} / 5.0
             </span>
             <div className={s.cardDeltaWrap}>
               <span className={s.deltaPillGreen}>94% Positive</span>
               <Sparkline
                 data={[4.6, 4.7, 4.7, 4.8, 4.8, 4.9, kpiData.csatRating]}
-                color="#f59e0b"
-                fillColor="#fef3c7"
+                color="#B8860B"
+                fillColor="#FDF0C4"
               />
             </div>
           </div>
@@ -864,11 +864,11 @@ export const AuthorityAnalytics: React.FC = () => {
             {/* Power BI Legend */}
             <div className={s.pbiLegendRow}>
               <div className={s.legendItem}>
-                <span className={s.legendBox} style={{ background: '#0078d4' }}></span>
+                <span className={s.legendBox} style={{ background: '#FF7722' }}></span>
                 <span>Incident Influx (Volume)</span>
               </div>
               <div className={s.legendItem}>
-                <span className={s.legendLine} style={{ background: '#107c41' }}></span>
+                <span className={s.legendLine} style={{ background: '#2E7D4F' }}></span>
                 <span>Resolved Pace (SLA Speed)</span>
               </div>
             </div>
@@ -1138,7 +1138,7 @@ export const AuthorityAnalytics: React.FC = () => {
                         className={s.wardBarFill}
                         style={{
                           width: `${w.widthPct}%`,
-                          background: idx === 0 ? '#d83b01' : idx === 1 ? '#f59e0b' : '#0078d4',
+                          background: idx === 0 ? '#B42318' : idx === 1 ? '#F4C430' : '#FF7722',
                         }}
                       />
                     </div>
@@ -1237,7 +1237,7 @@ export const AuthorityAnalytics: React.FC = () => {
                     <tr>
                       <td colSpan={8} className={s.emptyCell}>
                         <div className={s.emptyStateBox}>
-                          <Icon name="search_off" size={32} style={{ color: '#94a3b8' }} />
+                          <Icon name="search_off" size={32} style={{ color: '#857060' }} />
                           <p>No complaints match the selected operational filters.</p>
                           <button type="button" className={s.resetInlineBtn} onClick={handleResetSlicers}>
                             Reset Filters
@@ -1249,26 +1249,26 @@ export const AuthorityAnalytics: React.FC = () => {
                     paginatedComplaints.map((c) => {
                       const priorityColor =
                         c.priority === 'URGENT'
-                          ? '#d83b01'
+                          ? '#B42318'
                           : c.priority === 'HIGH'
-                          ? '#e65100'
+                          ? '#B93E0C'
                           : c.priority === 'MEDIUM'
-                          ? '#f59e0b'
-                          : '#0078d4';
+                          ? '#6B4E00'
+                          : '#7D6657';
 
                       const statusBg =
                         c.status === 'RESOLVED' || c.status === 'CLOSED'
-                          ? '#dff6dd'
+                          ? '#E6F4EA'
                           : c.status === 'IN_PROGRESS' || c.status === 'ASSIGNED'
-                          ? '#deecf9'
-                          : '#fff4ce';
+                          ? '#FFE8D6'
+                          : '#FDF0C4';
 
                       const statusColor =
                         c.status === 'RESOLVED' || c.status === 'CLOSED'
-                          ? '#107c41'
+                          ? '#2E7D4F'
                           : c.status === 'IN_PROGRESS' || c.status === 'ASSIGNED'
-                          ? '#0078d4'
-                          : '#b45309';
+                          ? '#7A1F2B'
+                          : '#6B4E00';
 
                       return (
                         <tr
@@ -1393,7 +1393,7 @@ export const AuthorityAnalytics: React.FC = () => {
 
             {feedbacks.length === 0 ? (
               <div className={s.noDataMuted}>
-                <Icon name="rate_review" size={32} style={{ color: '#94a3b8', marginBottom: '8px' }} />
+                <Icon name="rate_review" size={32} style={{ color: '#857060', marginBottom: '8px' }} />
                 <p>No citizen reviews submitted for this timeframe yet.</p>
               </div>
             ) : (
@@ -1465,7 +1465,7 @@ export const AuthorityAnalytics: React.FC = () => {
 
             <div className={s.focusModalBody}>
               <div className={s.focusInfoBanner}>
-                <Icon name="info" size={18} style={{ color: '#0078d4' }} />
+                <Icon name="info" size={18} style={{ color: '#7A1F2B' }} />
                 <span>
                   Viewing high-definition operational visual canvas. All data is dynamically synchronized with backend telemetry.
                 </span>
@@ -1520,9 +1520,9 @@ export const AuthorityAnalytics: React.FC = () => {
                             <tr key={c.category}>
                               <td><b>{c.category_display || c.category}</b></td>
                               <td>{c.total}</td>
-                              <td style={{ color: '#107c41', fontWeight: 600 }}>{c.resolved}</td>
-                              <td style={{ color: '#0078d4' }}>{c.in_progress}</td>
-                              <td style={{ color: '#b45309' }}>{c.pending}</td>
+                              <td style={{ color: '#2E7D4F', fontWeight: 600 }}>{c.resolved}</td>
+                              <td style={{ color: '#7A1F2B' }}>{c.in_progress}</td>
+                              <td style={{ color: '#6B4E00' }}>{c.pending}</td>
                               <td>
                                 <span className={rate >= 80 ? s.rateGreen : s.rateAmber}>{rate}%</span>
                               </td>
@@ -1580,13 +1580,13 @@ export const AuthorityAnalytics: React.FC = () => {
               <div className={s.detailMetaGrid}>
                 <div className={s.detailMetaItem}>
                   <label>Status</label>
-                  <span className={s.statusPill} style={{ background: '#dff6dd', color: '#107c41' }}>
+                  <span className={s.statusPill} style={{ background: '#E6F4EA', color: '#1F6B3F' }}>
                     {selectedComplaint.status}
                   </span>
                 </div>
                 <div className={s.detailMetaItem}>
                   <label>Priority</label>
-                  <span className={s.priorityBadge} style={{ color: '#d83b01' }}>
+                  <span className={s.priorityBadge} style={{ color: '#B42318' }}>
                     {selectedComplaint.priority}
                   </span>
                 </div>
@@ -1610,7 +1610,7 @@ export const AuthorityAnalytics: React.FC = () => {
               <div className={s.detailLocationSection}>
                 <label className={s.detailSectionLabel}>Location & Ward</label>
                 <div className={s.locationRow}>
-                  <Icon name="place" size={17} style={{ color: '#0078d4' }} />
+                  <Icon name="place" size={17} style={{ color: '#7A1F2B' }} />
                   <span>{selectedComplaint.location_address || 'Central Municipal Sector'}</span>
                 </div>
               </div>

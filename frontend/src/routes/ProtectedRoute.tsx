@@ -1,5 +1,6 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import useAuthStore from '../store/authStore';
 import { UserRole } from '../types/user';
 
@@ -9,11 +10,12 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
   const { user, isAuthenticated, isLoading } = useAuthStore();
+  const { t } = useTranslation();
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-[#0b0f19] text-gray-300 text-sm">
-        Initializing CivicSetu OS...
+        {t('common.initializing')}
       </div>
     );
   }

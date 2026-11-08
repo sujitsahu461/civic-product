@@ -77,11 +77,13 @@ api.interceptors.response.use(
       return Promise.reject(rateLimitError);
     }
 
-    // Handle 401 Unauthorized for token refresh (exclude public login/register/auth endpoints)
+    // Handle 401 Unauthorized for token refresh (exclude public login/register/auth endpoints,
+    // and logout: a 401 there just means the session already ended)
     const isAuthRoute =
       originalRequest.url?.includes('/auth/login') ||
       originalRequest.url?.includes('/auth/register') ||
       originalRequest.url?.includes('/auth/captcha') ||
+      originalRequest.url?.includes('/auth/logout') ||
       originalRequest.url?.includes('/auth/refresh');
 
     if (error.response?.status === 401 && !originalRequest._retry && !isAuthRoute) {

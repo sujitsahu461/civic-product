@@ -116,18 +116,18 @@ export const Login: React.FC = () => {
                   d="M 55, 55 m -40, 0 a 40,40 0 1,1 80,0 a 40,40 0 1,1 -80,0"
                   fill="none"
                 />
-                <circle cx="55" cy="55" r="50" stroke="#24451F" strokeWidth="1" strokeDasharray="3 3" fill="none" opacity="0.4" />
-                <circle cx="55" cy="55" r="34" stroke="#24451F" strokeWidth="0.8" fill="none" opacity="0.3" />
-                <text fill="#24451F" fontSize="8.5" fontWeight="700" letterSpacing="2.2">
+                <circle cx="55" cy="55" r="50" stroke="#7A1F2B" strokeWidth="1" strokeDasharray="3 3" fill="none" opacity="0.4" />
+                <circle cx="55" cy="55" r="34" stroke="#7A1F2B" strokeWidth="0.8" fill="none" opacity="0.3" />
+                <text fill="#7A1F2B" fontSize="8.5" fontWeight="700" letterSpacing="2.2">
                   <textPath href="#sealPath" startOffset="0%">
                     FOR OUR CITIES • FOR OUR CITIZENS •
                   </textPath>
                 </text>
                 <g transform="translate(55, 55) scale(0.85)">
-                  <path d="M0,8 C-7,1 -7,-8 0,-14 C7,-8 7,1 0,8 Z" fill="#24451F" />
-                  <path d="M0,0 C-9,-2 -10,-10 -5,-14 C-2,-10 0,-3 0,0 Z" fill="#4F8F4A" />
-                  <path d="M0,0 C9,-2 10,-10 5,-14 C2,-10 0,-3 0,0 Z" fill="#4F8F4A" />
-                  <circle cx="0" cy="8.5" r="1.5" fill="#24451F" />
+                  <path d="M0,8 C-7,1 -7,-8 0,-14 C7,-8 7,1 0,8 Z" fill="#7A1F2B" />
+                  <path d="M0,0 C-9,-2 -10,-10 -5,-14 C-2,-10 0,-3 0,0 Z" fill="#B93E0C" />
+                  <path d="M0,0 C9,-2 10,-10 5,-14 C2,-10 0,-3 0,0 Z" fill="#B93E0C" />
+                  <circle cx="0" cy="8.5" r="1.5" fill="#7A1F2B" />
                 </g>
               </svg>
             </div>
@@ -306,20 +306,20 @@ export const Login: React.FC = () => {
             </div>
 
             {/* Separate Dedicated Portals */}
-            <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #f1f5f9', display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #F7EFE1', display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: '#857060', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                 Dedicated Role Portals:
               </span>
               <div style={{ display: 'flex', gap: '14px', fontSize: '12px' }}>
-                <Link to="/login/citizen" style={{ color: '#16a34a', fontWeight: 600, textDecoration: 'none' }}>
+                <Link to="/login/citizen" style={{ color: '#2E7D4F', fontWeight: 600, textDecoration: 'none' }}>
                   🌱 Citizen
                 </Link>
-                <span style={{ color: '#cbd5e1' }}>•</span>
-                <Link to="/login/authority" style={{ color: '#2563eb', fontWeight: 600, textDecoration: 'none' }}>
+                <span style={{ color: '#DCCDB5' }}>•</span>
+                <Link to="/login/authority" style={{ color: '#7A1F2B', fontWeight: 600, textDecoration: 'none' }}>
                   🏛️ Authority
                 </Link>
-                <span style={{ color: '#cbd5e1' }}>•</span>
-                <Link to="/login/superadmin" style={{ color: '#7c3aed', fontWeight: 600, textDecoration: 'none' }}>
+                <span style={{ color: '#DCCDB5' }}>•</span>
+                <Link to="/login/superadmin" style={{ color: '#7A1F2B', fontWeight: 600, textDecoration: 'none' }}>
                   🛡️ Super Admin
                 </Link>
               </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation, Trans } from 'react-i18next';
 import useAuthStore from '../store/authStore';
 import { useToast } from '../components/ui/Toast';
 import Button from '../components/ui/Button';
@@ -8,6 +9,7 @@ import Icon from '../components/ui/Icon';
 import s from './Login.module.css';
 
 export const ResetPassword: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { resetPassword, forgotPassword } = useAuthStore();
@@ -34,7 +36,7 @@ export const ResetPassword: React.FC = () => {
 
   const handleSendEmailLink = async () => {
     if (!email.trim()) {
-      setFormError('Please enter your registered email address first.');
+      setFormError(t('auth.reset.errEmailFirst'));
       return;
     }
     setFormError('');
@@ -45,9 +47,9 @@ export const ResetPassword: React.FC = () => {
       if (res?.reset_url) {
         setGeneratedResetUrl(res.reset_url);
       }
-      success('Password reset request processed! Check your email or use the link below.');
+      success(t('auth.reset.linkSentToast'));
     } catch (err: any) {
-      let msg = 'Failed to dispatch reset email.';
+      let msg = t('auth.reset.errSendFailed');
       if (err.message) msg = err.message;
       if (err.response?.data?.detail) msg = err.response.data.detail;
       setFormError(msg);
@@ -61,7 +63,7 @@ export const ResetPassword: React.FC = () => {
     e.preventDefault();
     setFormError('');
     if (!email.trim()) {
-      setFormError('Please enter your registered email address.');
+      setFormError(t('auth.reset.errEmail'));
       return;
     }
     setStep('password');
@@ -72,17 +74,17 @@ export const ResetPassword: React.FC = () => {
     setFormError('');
 
     if (!email.trim() && (!uid || !token)) {
-      setFormError('Please enter your registered account email address.');
+      setFormError(t('auth.reset.errAccountEmail'));
       return;
     }
 
     if (password !== confirmPassword) {
-      setFormError('New password and confirm password do not match.');
+      setFormError(t('auth.reset.errMismatch'));
       return;
     }
 
     if (password.length < 8) {
-      setFormError('Password must be at least 8 characters long.');
+      setFormError(t('auth.common.passwordMinLength'));
       return;
     }
 
@@ -97,9 +99,9 @@ export const ResetPassword: React.FC = () => {
       });
 
       setIsDone(true);
-      success('Password successfully reset! You can now log in with your new password.');
+      success(t('auth.reset.resetSuccessToast'));
     } catch (err: any) {
-      let msg = 'Failed to reset password. Please check your registered email address.';
+      let msg = t('auth.reset.errResetFailed');
       if (err.message) {
         msg = err.message;
       }
@@ -113,7 +115,7 @@ export const ResetPassword: React.FC = () => {
         else if (data.message) msg = data.message;
       }
       setFormError(typeof msg === 'string' ? msg : JSON.stringify(msg));
-      toastError(typeof msg === 'string' ? msg : 'Failed to reset password.');
+      toastError(typeof msg === 'string' ? msg : t('auth.reset.errResetShort'));
     } finally {
       setLoading(false);
     }
@@ -129,11 +131,11 @@ export const ResetPassword: React.FC = () => {
           <div className={s.visualTopRow}>
             <Link to="/" className={s.brandHeader} style={{ textDecoration: 'none' }}>
               <div className={s.brandLogo}>
-                <img src="/logo-mark.png" alt="CivicSetu" className={s.brandLogoImg} />
+                <img src="/logo-mark.png" alt={t('landing.logoAlt')} className={s.brandLogoImg} />
               </div>
               <div className={s.brandMeta}>
                 <span className={s.brandName}>CivicSetu</span>
-                <span className={s.brandBadge}>SECURITY & RECOVERY</span>
+                <span className={s.brandBadge}>{t('auth.reset.badge')}</span>
               </div>
             </Link>
 
@@ -145,34 +147,34 @@ export const ResetPassword: React.FC = () => {
           <div className={s.visualBody}>
             <div className={s.visualTagline}>
               <span className={s.taglineDot} />
-              <span>Secure Identity & Access Recovery</span>
+              <span>{t('auth.reset.tagline')}</span>
             </div>
 
             <h1 className={s.editorialHeading}>
-              Account Security<br />
-              & Password Reset.
+              {t('auth.reset.headingLine1')}<br />
+              {t('auth.reset.headingLine2')}
             </h1>
 
             <p className={s.editorialSubheading}>
-              Direct digital credential update for CivicSetu users. Enter your registered account email and set your new password to regain access instantly.
+              {t('auth.reset.subheading')}
             </p>
 
             <div style={{ marginTop: '20px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <span style={{ background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#166534' }}>
-                ✓ Instant Reset
+              <span style={{ background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#1F6B3F' }}>
+                {t('auth.reset.chipInstant')}
               </span>
-              <span style={{ background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#166534' }}>
-                ✓ 256-bit Encryption
+              <span style={{ background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#1F6B3F' }}>
+                {t('auth.reset.chipEncryption')}
               </span>
-              <span style={{ background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#166534' }}>
-                ✓ Zero Wait
+              <span style={{ background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, color: '#1F6B3F' }}>
+                {t('auth.reset.chipZeroWait')}
               </span>
             </div>
           </div>
 
           <div className={s.visualFooter}>
-            <Link to="/" style={{ color: '#166534', fontSize: '13px', fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-              ← Return to Main Homepage
+            <Link to="/" style={{ color: '#1F6B3F', fontSize: '13px', fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              {t('auth.common.returnHome')}
             </Link>
           </div>
         </div>
@@ -182,28 +184,28 @@ export const ResetPassword: React.FC = () => {
           <div className={s.formWrapper}>
             <div className={s.formHeader}>
               <div className={s.badgeRow}>
-                <span className={s.portalBadge}>PASSWORD RECOVERY</span>
+                <span className={s.portalBadge}>{t('auth.reset.formBadge')}</span>
               </div>
-              <h2 className={s.title}>Reset Your Password</h2>
+              <h2 className={s.title}>{t('auth.reset.title')}</h2>
               <p className={s.subtitle}>
-                Enter your registered email and choose a strong new password to regain access to your account.
+                {t('auth.reset.subtitle')}
               </p>
             </div>
 
             {isDone ? (
               <div style={{ textAlign: 'center', padding: '40px 20px' }}>
                 <div style={{
-                  width: '64px', height: '64px', borderRadius: '50%', background: '#dcfce7',
+                  width: '64px', height: '64px', borderRadius: '50%', background: '#E6F4EA',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px',
-                  fontSize: '28px', color: '#16a34a'
+                  fontSize: '28px', color: '#2E7D4F'
                 }}>
                   ✓
                 </div>
-                <h4 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>
-                  Password Updated Successfully!
+                <h4 style={{ fontSize: '18px', fontWeight: 700, color: '#3B2418', marginBottom: '8px' }}>
+                  {t('auth.reset.doneTitle')}
                 </h4>
-                <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '24px', lineHeight: 1.6 }}>
-                  Your password has been updated in the system. You can now sign in to your dashboard with your new credentials.
+                <p style={{ fontSize: '14px', color: '#7D6657', marginBottom: '24px', lineHeight: 1.6 }}>
+                  {t('auth.reset.doneText')}
                 </p>
                 <Button
                   variant="primary"
@@ -213,7 +215,7 @@ export const ResetPassword: React.FC = () => {
                   className={s.submitBtn}
                   style={{ marginTop: '8px' }}
                 >
-                  Proceed to Sign In
+                  {t('auth.reset.proceedSignIn')}
                 </Button>
               </div>
             ) : step === 'email' ? (
@@ -228,9 +230,9 @@ export const ResetPassword: React.FC = () => {
                 <form className={s.form} onSubmit={handleEmailStep}>
                   <div className={s.fieldGroup}>
                     <Input
-                      label="Registered Email Address"
+                      label={t('auth.reset.emailLabel')}
                       type="email"
-                      placeholder="e.g. yourname@example.com"
+                      placeholder={t('auth.reset.emailPlaceholder')}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
@@ -245,11 +247,11 @@ export const ResetPassword: React.FC = () => {
                     rightIcon={<Icon name="arrow_forward" size={18} />}
                     className={s.submitBtn}
                   >
-                    Continue to Set New Password
+                    {t('auth.reset.continueBtn')}
                   </Button>
 
-                  <div style={{ textAlign: 'center', margin: '14px 0 6px 0', fontSize: '12px', color: '#94a3b8' }}>
-                    ── OR ──
+                  <div style={{ textAlign: 'center', margin: '14px 0 6px 0', fontSize: '12px', color: '#857060' }}>
+                    {t('auth.reset.or')}
                   </div>
 
                   <button
@@ -260,9 +262,9 @@ export const ResetPassword: React.FC = () => {
                       width: '100%',
                       padding: '11px',
                       borderRadius: '10px',
-                      border: '1px solid #cbd5e1',
-                      background: '#ffffff',
-                      color: '#334155',
+                      border: '1px solid #DCCDB5',
+                      background: '#FFFFFF',
+                      color: '#5A4033',
                       fontSize: '13px',
                       fontWeight: 600,
                       cursor: 'pointer',
@@ -273,7 +275,7 @@ export const ResetPassword: React.FC = () => {
                     }}
                   >
                     <Icon name="mail" size={16} />
-                    <span>{sendingLink ? 'Dispatching link...' : 'Email Me a Secure Reset Link'}</span>
+                    <span>{sendingLink ? t('auth.reset.sendingLink') : t('auth.reset.sendLink')}</span>
                   </button>
                 </form>
 
@@ -281,26 +283,30 @@ export const ResetPassword: React.FC = () => {
                   <div style={{
                     marginTop: '16px',
                     padding: '14px',
-                    background: '#f0fdf4',
-                    border: '1px solid #bbf7d0',
+                    background: '#E6F4EA',
+                    border: '1px solid #B7DEC3',
                     borderRadius: '12px',
                     fontSize: '13px',
-                    color: '#15803d'
+                    color: '#1F6B3F'
                   }}>
-                    <div style={{ fontWeight: 700, marginBottom: '4px' }}>✓ Reset Request Dispatched!</div>
-                    <p style={{ margin: '0 0 8px 0', color: '#166534', lineHeight: 1.5 }}>
-                      If an active account exists for <strong>{email}</strong>, a secure password reset link has been processed.
+                    <div style={{ fontWeight: 700, marginBottom: '4px' }}>{t('auth.reset.linkSentTitle')}</div>
+                    <p style={{ margin: '0 0 8px 0', color: '#1F6B3F', lineHeight: 1.5 }}>
+                      <Trans
+                        i18nKey="auth.reset.linkSentText"
+                        values={{ email }}
+                        components={{ bold: <strong /> }}
+                      />
                     </p>
                     {generatedResetUrl && (
                       <div style={{ marginTop: '8px' }}>
-                        <span style={{ fontSize: '11px', fontWeight: 700, color: '#047857' }}>DEV MODE DIRECT RESET LINK:</span>
+                        <span style={{ fontSize: '11px', fontWeight: 700, color: '#1F6B3F' }}>{t('auth.reset.devLink')}</span>
                         <a
                           href={generatedResetUrl}
                           style={{
                             display: 'block',
                             marginTop: '4px',
                             wordBreak: 'break-all',
-                            color: '#2563eb',
+                            color: '#7A1F2B',
                             textDecoration: 'underline',
                             fontSize: '12px',
                             fontWeight: 600
@@ -314,9 +320,9 @@ export const ResetPassword: React.FC = () => {
                 )}
 
                 <div className={s.footerText} style={{ marginTop: 24 }}>
-                  Remember your credentials?{' '}
+                  {t('auth.reset.rememberCreds')}{' '}
                   <Link to="/login/citizen" className={s.signupLink}>
-                    Back to Sign In
+                    {t('auth.reset.backToSignIn')}
                   </Link>
                 </div>
               </>
@@ -332,25 +338,25 @@ export const ResetPassword: React.FC = () => {
                 {/* Show which email we're resetting for */}
                 {email && (
                   <div style={{
-                    background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px',
+                    background: '#FFFBF2', border: '1px solid #EADFCB', borderRadius: '12px',
                     padding: '10px 14px', display: 'flex', alignItems: 'center',
                     justifyContent: 'space-between', marginBottom: '16px'
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Icon name="mail" size={18} style={{ color: '#16a34a' }} />
-                      <span style={{ fontSize: '13px', color: '#475569', fontWeight: 600 }}>{email}</span>
+                      <Icon name="mail" size={18} style={{ color: '#2E7D4F' }} />
+                      <span style={{ fontSize: '13px', color: '#5A4033', fontWeight: 600 }}>{email}</span>
                     </div>
                     {!hasResetToken && (
                       <button
                         type="button"
                         onClick={() => { setStep('email'); setFormError(''); }}
                         style={{
-                          background: '#dcfce7', color: '#15803d', border: '1px solid #bbf7d0',
+                          background: '#E6F4EA', color: '#1F6B3F', border: '1px solid #B7DEC3',
                           padding: '4px 10px', borderRadius: '8px', fontSize: '12px',
                           fontWeight: 700, cursor: 'pointer'
                         }}
                       >
-                        Change Email
+                        {t('auth.reset.changeEmail')}
                       </button>
                     )}
                   </div>
@@ -359,9 +365,9 @@ export const ResetPassword: React.FC = () => {
                 <form className={s.form} onSubmit={handleSubmit}>
                   <div className={s.fieldGroup}>
                     <Input
-                      label="New Password"
+                      label={t('auth.reset.newPasswordLabel')}
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter new password (min 8 characters)"
+                      placeholder={t('auth.reset.newPasswordPlaceholder')}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
@@ -371,7 +377,7 @@ export const ResetPassword: React.FC = () => {
                           type="button"
                           className={s.iconToggleBtn}
                           onClick={() => setShowPassword(!showPassword)}
-                          aria-label={showPassword ? 'Hide password' : 'Show password'}
+                          aria-label={showPassword ? t('auth.common.hidePassword') : t('auth.common.showPassword')}
                         >
                           <Icon name={showPassword ? 'visibility_off' : 'visibility'} size={18} />
                         </button>
@@ -381,9 +387,9 @@ export const ResetPassword: React.FC = () => {
 
                   <div className={s.fieldGroup}>
                     <Input
-                      label="Confirm New Password"
+                      label={t('auth.reset.confirmNewLabel')}
                       type={showConfirmPassword ? 'text' : 'password'}
-                      placeholder="Re-enter new password"
+                      placeholder={t('auth.reset.confirmNewPlaceholder')}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
@@ -393,7 +399,7 @@ export const ResetPassword: React.FC = () => {
                           type="button"
                           className={s.iconToggleBtn}
                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                          aria-label={showConfirmPassword ? t('auth.common.hidePassword') : t('auth.common.showPassword')}
                         >
                           <Icon name={showConfirmPassword ? 'visibility_off' : 'visibility'} size={18} />
                         </button>
@@ -409,14 +415,14 @@ export const ResetPassword: React.FC = () => {
                     rightIcon={<Icon name="arrow_forward" size={18} />}
                     className={s.submitBtn}
                   >
-                    Update Password Now
+                    {t('auth.reset.updateBtn')}
                   </Button>
                 </form>
 
                 <div className={s.footerText} style={{ marginTop: 24 }}>
-                  Remember your credentials?{' '}
+                  {t('auth.reset.rememberCreds')}{' '}
                   <Link to="/login/citizen" className={s.signupLink}>
-                    Back to Sign In
+                    {t('auth.reset.backToSignIn')}
                   </Link>
                 </div>
               </>

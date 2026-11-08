@@ -1,0 +1,204 @@
+/* Voice note tile: matches the photo / video tiles on the report page */
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 184px;
+  padding: 20px 16px;
+  box-sizing: border-box;
+  text-align: center;
+  border: 1.5px dashed var(--cs-border-strong);
+  border-radius: 16px;
+  background: var(--cs-ivory);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.tile:hover {
+  border-color: var(--cs-kesari-light);
+}
+
+/* A voice note is attached */
+.tileOn {
+  border-style: solid;
+  border-color: var(--cs-kesari-light);
+  background: var(--cs-kesari-wash);
+}
+
+/* Recording in progress */
+.tileRec {
+  border-style: solid;
+  border-color: var(--cs-danger-light);
+  background: var(--cs-danger-tint);
+}
+
+.icon {
+  width: 44px;
+  height: 44px;
+  margin-bottom: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cs-maroon);
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cs-text-strong);
+}
+
+.sub {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--cs-text-muted);
+}
+
+.fileName {
+  max-width: 100%;
+  font-size: 12px;
+  color: var(--cs-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player {
+  width: 100%;
+  height: 36px;
+  margin-top: 6px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.recordBtn,
+.stopBtn,
+.linkBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 9999px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.recordBtn {
+  border: 1px solid var(--cs-kesari);
+  background: var(--cs-kesari);
+  color: var(--cs-text-strong);
+}
+
+.recordBtn:hover {
+  background: var(--cs-kesari-hover);
+  border-color: var(--cs-kesari-hover);
+}
+
+.stopBtn {
+  border: 1px solid var(--cs-danger);
+  background: var(--cs-danger);
+  color: var(--cs-white);
+}
+
+.stopBtn:hover {
+  background: var(--cs-danger-dark);
+}
+
+.linkBtn {
+  border: 1px solid var(--cs-border);
+  background: var(--cs-white);
+  color: var(--cs-text);
+  font-weight: 600;
+}
+
+.linkBtn:hover {
+  border-color: var(--cs-border-strong);
+  color: var(--cs-text-strong);
+}
+
+.linkBtnDanger {
+  color: var(--cs-danger);
+  border-color: var(--cs-danger-light);
+}
+
+.linkBtnDanger:hover {
+  color: var(--cs-danger-dark);
+  border-color: var(--cs-danger);
+}
+
+.recordBtn:focus-visible,
+.stopBtn:focus-visible,
+.linkBtn:focus-visible {
+  outline: 2px solid var(--cs-kesari);
+  outline-offset: 2px;
+}
+
+/* Pulsing red dot while recording */
+.recPulse {
+  width: 44px;
+  height: 44px;
+  margin-bottom: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cs-white);
+  border: 1px solid var(--cs-danger-light);
+}
+
+.recPulse span {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--cs-danger);
+  animation: recPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes recPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.7); opacity: 0.6; }
+}
+
+.timer {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cs-danger);
+}
+
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: left;
+  color: var(--cs-haldi-text);
+  background: var(--cs-haldi-tint);
+  border: 1px solid var(--cs-haldi-light);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recPulse span {
+    animation: none;
+  }
+}

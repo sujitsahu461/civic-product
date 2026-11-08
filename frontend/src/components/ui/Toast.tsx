@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './Toast.module.css';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
@@ -29,6 +30,7 @@ export const useToast = () => {
 };
 
 export const ToastContainer: React.FC = () => {
+  const { t } = useTranslation();
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
   useEffect(() => {
@@ -67,15 +69,15 @@ export const ToastContainer: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      {toasts.map((t) => (
-        <div key={t.id} className={`${styles.toast} ${styles[t.type]}`}>
-          <span className={styles.icon}>{getIcon(t.type)}</span>
-          <div className={styles.message}>{t.message}</div>
+      {toasts.map((toast) => (
+        <div key={toast.id} className={`${styles.toast} ${styles[toast.type]}`}>
+          <span className={styles.icon}>{getIcon(toast.type)}</span>
+          <div className={styles.message}>{toast.message}</div>
           <button
             type="button"
             className={styles.closeBtn}
-            onClick={() => removeToast(t.id)}
-            aria-label="Close notification"
+            onClick={() => removeToast(toast.id)}
+            aria-label={t('common.closeNotification')}
           >
             ×
           </button>

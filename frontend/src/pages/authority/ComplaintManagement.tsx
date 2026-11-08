@@ -350,7 +350,7 @@ export const ComplaintManagement: React.FC = () => {
         </div>
       ) : complaints.length === 0 ? (
         <div className={s.emptyBox}>
-          <Icon name="check_circle" size={48} style={{ color: '#10b981' }} />
+          <Icon name="check_circle" size={48} style={{ color: '#2E7D4F' }} />
           <h3>Queue is Empty</h3>
           <p>No complaints match your active filter parameters.</p>
         </div>
@@ -398,13 +398,13 @@ export const ComplaintManagement: React.FC = () => {
                       style={{
                         color:
                           c.priority === 'URGENT'
-                            ? '#ef4444'
+                            ? '#B42318'
                             : c.priority === 'HIGH'
-                            ? '#fb923c'
-                            : '#38bdf8',
+                            ? '#B93E0C'
+                            : '#7D6657',
                         background:
                           c.priority === 'URGENT'
-                            ? 'rgba(239, 68, 68, 0.12)'
+                            ? 'rgba(180, 35, 24, 0.12)'
                             : 'rgba(255, 255, 255, 0.05)',
                       }}
                     >
@@ -498,7 +498,7 @@ export const ComplaintManagement: React.FC = () => {
               </div>
               <div className={s.metaBox}>
                 <span className={s.metaLabel}>Priority</span>
-                <span className={s.metaVal} style={{ color: '#fb923c' }}>
+                <span className={s.metaVal} style={{ color: '#B93E0C' }}>
                   {selectedComplaint.priority}
                 </span>
               </div>
@@ -558,7 +558,7 @@ export const ComplaintManagement: React.FC = () => {
                             <Icon name="mic" size={16} />
                             <span>{aud.file_name || 'Citizen audio recording'}</span>
                             {aud.duration_seconds && (
-                              <span style={{ marginLeft: 'auto', fontSize: 11, color: '#94a3b8' }}>
+                              <span style={{ marginLeft: 'auto', fontSize: 11, color: '#857060' }}>
                                 {aud.duration_seconds}s
                               </span>
                             )}
@@ -586,7 +586,7 @@ export const ComplaintManagement: React.FC = () => {
             {/* Resolution Notes if available */}
             {selectedComplaint.resolution_notes && (
               <div className={s.resolutionBanner}>
-                <Icon name="verified" size={20} style={{ color: '#34d399' }} />
+                <Icon name="verified" size={20} style={{ color: '#2E7D4F' }} />
                 <div>
                   <strong>Resolution Remarks:</strong>
                   <p>{selectedComplaint.resolution_notes}</p>
