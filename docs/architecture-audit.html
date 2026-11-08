@@ -153,7 +153,7 @@ html{scroll-behavior:smooth}
 
 <main>
 <header class="doc">
-  <div class="ref"><b>AUD-20261108-CVS1</b><span>Architecture audit mode</span><span>Phase 1 of 15</span><span>Revision 2</span></div>
+  <div class="ref"><b>AUD-20261108-CVS1</b><span>Architecture audit mode</span><span>Phase 1 of 15</span><span>Revision 3</span></div>
   <h1>CivicSetu Architecture Audit</h1>
   <p class="lede">A read of both repositories before any change: what exists today, what blocks the 1,000-concurrent-user target, and a phased path to a production platform on Azure. No file in either repository has been modified.</p>
   <dl class="facts">
@@ -170,14 +170,14 @@ html{scroll-behavior:smooth}
     <li><strong>There is one backend today and no BFFs.</strong> <code>civicsetu-v1</code> is a Django modular monolith: 13 apps, 68 REST endpoints, about 8,500 lines of Python outside tests and migrations, and 237 tests. The website is built into the same Django process and served from it.</li>
     <li><strong>The CIVIC mobile app isn't connected to the backend yet.</strong> By default it opens the CIVIC web app in a WebView, and that web app keeps complaints, tracking codes and sign-ins in browser storage. Its source (<code>src/</code> and <code>mobile/src/</code>) isn't in the repository; only compiled bundles are.</li>
     <li><strong><code>main</code> is missing critical security fixes.</strong> They sit on the unmerged branch <code>fix/security-hardening</code> along with the move to PostgreSQL. <code>main</code> has since gained a separate UI redesign, so the two lines have diverged.</li>
-    <li><strong>Supabase isn't in use.</strong> The branch targets PostgreSQL 18 on the development PC. Your only Supabase project is paused and located in Tokyo, far from Indian users and from Azure Central India.</li>
+    <li><strong>The database runs on the development PC.</strong> The branch targets PostgreSQL 18 on the developer machine. You have decided production will use <strong>Azure Database for PostgreSQL</strong> in Central India, which keeps data and compute in one network. (A paused, unused Supabase project in Tokyo exists in your account; it plays no part.)</li>
     <li><strong>It can't run on more than one server yet.</strong> Uploads go to local disk, rate limits are counted in each process's memory, logs go to a local file, and there are no health checks, containers or pipelines.</li>
     <li><strong>The foundations are good.</strong> Business logic lives in service classes, complaint visibility rules are in one module (<code>apps/complaints/scoping.py</code>), and the October data ledger lists about 1,230 rows. A gradual migration is practical.</li>
   </ul>
 
   <div class="panel reco">
     <span class="label">Recommendation</span>
-    <p style="margin:0">Build CivicSetu as <strong>nine domain microservices and two BFFs</strong>: Identity, Grievance, Department &amp; Routing, Triage, Media, Notification, Feedback, Reporting and Audit. Each owns its own data schema, API, pipeline and scaling, talks to others through versioned APIs and events, and is carved out of today's Django app one at a time behind the BFFs, so the product keeps working throughout. A seven-layer <a href="#customization">customization model</a> lets you change business rules, features, settings, themes, providers and infrastructure without touching code, or with a change to one small place. Cost rises to about $420–880 a month in production, from $280–590 for the earlier four-deployable design.</p>
+    <p style="margin:0">Build CivicSetu as <strong>nine domain microservices and two BFFs</strong>: Identity, Grievance, Department &amp; Routing, Triage, Media, Notification, Feedback, Reporting and Audit. Each owns its own data schema, API, pipeline and scaling, talks to others through versioned APIs and events, and is carved out of today's Django app one at a time behind the BFFs, so the product keeps working throughout. A seven-layer <a href="#customization">customization model</a> lets you change business rules, features, settings, themes, providers and infrastructure without touching code, or with a change to one small place. With the database on Azure, cost is about $490–1,070 a month in production (the top of the range includes zone-redundant database HA), from $280–590 for the earlier four-deployable design.</p>
   </div>
 
   <div class="panel ask">
@@ -185,7 +185,7 @@ html{scroll-behavior:smooth}
     <ol>
       <li><strong>Push the CIVIC source code.</strong> Commit the web app's <code>src/</code> and the mobile app's <code>mobile/src/</code> to <code>CIVIC--Powered-by-CivicSetu</code>. Its own <code>docs/BASELINE.md</code> says the work happened in a folder without git. Without the source, the mobile app can't be changed or pointed at a BFF.</li>
       <li><strong>Choose which UI to keep when merging.</strong> <code>main</code> has the kesari palette and guided report flow (a45d389, today). <code>design/premium-ui</code> has the calm petrol and sage restyle (443b361). Both rewrite the same stylesheets. The backend fixes merge either way.</li>
-      <li><strong>Choose the database host.</strong> (a) A new Supabase Pro project in Mumbai (<code>ap-south-1</code>); the Tokyo project can't change region. (b) Azure Database for PostgreSQL Flexible Server in Central India, which keeps the database inside the Azure network. I recommend (a) because it matches your brief and its trade-offs are manageable (section E).</li>
+      <li><strong>Database host: decided.</strong> Azure Database for PostgreSQL Flexible Server, Central India, on a private network. Still to confirm: production size and whether to pay for zone-redundant high availability (section D.1).</li>
       <li><strong>Approve the revised shape:</strong> nine services, two BFFs and the customization layers in section C, at the higher cost in section G.</li>
       <li><strong>Product call on AI triage.</strong> <code>docs/AI_REMOVAL_PLAN.md</code> removes the ML models; commit 69f94a6 on the branch turns them back on ahead of the keyword rules. Either works; pick one so code, tests and docs agree.</li>
     </ol>
@@ -205,7 +205,7 @@ html{scroll-behavior:smooth}
       <tr><td>CIVIC web app</td><td class="path">CIVIC--Powered-by-CivicSetu/ (root)</td><td>React 19, Vite, Tailwind 4, PWA service worker; Express <code>server.js</code></td><td>Citizen-only prototype. <strong>Source missing</strong>, only <code>dist/</code>. Data seeded into <code>localStorage</code>; reads <code>VITE_CIVICSETU_API_URL</code> through <code>process.env</code>, which Vite leaves empty, so it never calls the API. Preview hosted from Google AI Studio on Cloud Run (asia-southeast1)</td></tr>
       <tr><td>CIVIC mobile app</td><td class="path">CIVIC--Powered-by-CivicSetu/mobile</td><td>Expo SDK 54, React Native 0.81, SecureStore, SQLite, NetInfo, camera, location</td><td>Default <code>website</code> mode wraps the CIVIC web app in a WebView at a LAN address. <code>native</code> mode has real screens, a typed Django client, offline drafts. <strong><code>mobile/src</code> missing</strong>; only a 2.4 MB Hermes bundle</td></tr>
       <tr><td>Database</td><td>config/settings/base.py</td><td><code>main</code>: SQLite by default, MySQL in docs. Branch: PostgreSQL 18 on <code>127.0.0.1</code></td><td>21 tables in use; about 1,230 rows (21 users, 38 complaints, 364 notifications)</td></tr>
-      <tr><td>Supabase</td><td>Supabase account</td><td>PostgreSQL 17, <code>ap-northeast-1</code> (Tokyo)</td><td>One project, status inactive (paused). Not referenced anywhere in code</td></tr>
+    <tr><td>Supabase</td><td>Supabase account</td><td>PostgreSQL 17, Tokyo</td><td>One paused project, unused and not referenced in code. Not part of the target design</td></tr>
       <tr><td>ML models</td><td class="path">civicsetu-v1/*.pkl</td><td>scikit-learn TF-IDF and classifiers via joblib</td><td>Three models of 3–7 KB, loaded lazily once per process</td></tr>
       <tr><td>Media</td><td><code>MEDIA_ROOT</code></td><td>Local filesystem</td><td>Served publicly at <code>/media/</code></td></tr>
       <tr><td>Email</td><td class="path">apps/accounts/services.py</td><td>Gmail SMTP</td><td>Sent inside the request (password reset)</td></tr>
@@ -561,7 +561,7 @@ flowchart LR
     <tr><td><span class="chip med">Medium</span></td><td>Rate limits are stored in each process's memory, so with N processes the real limit is N times higher.</td><td class="path">config/settings/base.py (no CACHES)</td><td>Redis cache · Phase 4</td></tr>
     <tr><td><span class="chip med">Medium</span></td><td>The branch leaves libraries unpinned (<code>scikit-learn&gt;=1.6.1</code>, pandas, numpy) while the models are pickles tied to one scikit-learn version. Pickles run code when loaded.</td><td class="path">requirements.txt, *.pkl</td><td>Lock file, model checksums · Phase 0 and 10</td></tr>
     <tr><td><span class="chip med">Medium</span></td><td>No dependency, container image or secret scanning anywhere.</td><td>—</td><td>Pipeline scans · Phase 11</td></tr>
-    <tr><td><span class="chip med">Medium</span></td><td>When Supabase is adopted, tables in the <code>public</code> schema are reachable through its Data API with the project's public key unless RLS is enabled or the API is switched off.</td><td>Supabase project settings</td><td>Decide at project creation · Phase 3</td></tr>
+    <tr><td><span class="chip med">Medium</span></td><td>The database has no network protection yet: it listens on the developer PC with a local password. In Azure it must never be reachable from the internet.</td><td>Deployment</td><td>Private access inside the VNet only · Phase 3</td></tr>
     <tr><td><span class="chip low">Low</span></td><td><code>/ai/classify/</code> is public; Swagger and the schema are public in production; the JWT carries the user's email.</td><td class="path">apps/ai_predictions/views.py, config/urls.py</td><td>Phase 5 and 10</td></tr>
   </tbody></table></div>
   <p class="small">No raw SQL was found (the ORM is used throughout), and React escapes output, so SQL injection and XSS exposure are low. Server code makes no outbound requests to user-supplied URLs.</p>
@@ -875,12 +875,12 @@ flowchart LR
 
 <section id="azure">
   <h2><span class="letter">D</span>Proposed Azure infrastructure</h2>
-  <p class="sub">Region: Azure Central India (Pune), paired with Supabase in Mumbai so the database is a few milliseconds away and all data stays in India. Prices are list estimates in USD; confirm them in the Azure Pricing Calculator for Central India before committing.</p>
+  <p class="sub">Region: Azure Central India (Pune), with the database in the same region and virtual network so queries stay in one datacenter and all data stays in India. Prices are list estimates in USD; confirm them in the Azure Pricing Calculator for Central India before committing.</p>
 
   <h3>D.1 Services</h3>
   <div class="tbl wide"><table>
     <thead><tr><th>Service</th><th>Why, and the problem it solves</th><th>Connects to</th><th>At launch</th><th class="num">≈ $/month</th><th>Scaling</th></tr></thead><tbody>
-    <tr><td>Container Apps (one environment per stage, VNet-integrated)</td><td>Runs the 11 apps, their outbox relay sidecars and scheduled jobs, with revisions, probes, scale rules, mutual TLS between apps and one managed identity per app, without running a cluster</td><td>Front Door, ACR, Key Vault, App Configuration, Service Bus, Redis, Blob, Supabase through NAT</td><td>Yes</td><td class="num">200–450</td><td>Per-app rules on HTTP concurrency, queue length or CPU; 0–30 replicas each</td></tr>
+    <tr><td>Container Apps (one environment per stage, VNet-integrated)</td><td>Runs the 11 apps, their outbox relay sidecars and scheduled jobs, with revisions, probes, scale rules, mutual TLS between apps and one managed identity per app, without running a cluster</td><td>Front Door, ACR, Key Vault, App Configuration, Service Bus, Redis, Blob, the database through private access</td><td>Yes</td><td class="num">200–450</td><td>Per-app rules on HTTP concurrency, queue length or CPU; 0–30 replicas each</td></tr>
     <tr><td>Container Registry, Basic</td><td>One image repository per service, tagged by git SHA</td><td>Container Apps, GitHub Actions</td><td>Yes</td><td class="num">5</td><td>Standard tier for more storage</td></tr>
     <tr><td>Front Door Standard with WAF policy</td><td>The only public entry: TLS, custom domains, edge caching for the website, themes and translations, rate limits, WAF custom rules</td><td>Azure DNS; BFF origins locked to Front Door</td><td>Yes</td><td class="num">40–60</td><td>Global and managed. Premium (about $330) adds managed OWASP rules and Private Link</td></tr>
     <tr><td>Service Bus Standard</td><td>One topic per producing service, a subscription per consumer, dead-lettering, duplicate detection</td><td>Every service</td><td>From Phase 6</td><td class="num">10–20</td><td>Priced per operation. Premium for private endpoints and isolation</td></tr>
@@ -891,12 +891,12 @@ flowchart LR
     <tr><td>Blob Storage (StorageV2)</td><td>Private evidence and avatars, model files, theme and translation files, immutable backup container</td><td>Media, Triage, Front Door, backup job</td><td>Yes</td><td class="num">5–10</td><td>Practically unlimited; ZRS in production</td></tr>
     <tr><td>Log Analytics and Application Insights</td><td>Logs, distributed traces, service map, metrics, dashboards</td><td>All apps through OpenTelemetry</td><td>Yes</td><td class="num">25–60</td><td>Per GB ingested; sampling and retention control cost</td></tr>
     <tr><td>Azure Monitor alerts and action group</td><td>Paging on errors, latency, dead letters, failed deploys and spend</td><td>Log Analytics</td><td>Yes</td><td class="num">1–5</td><td>—</td></tr>
-    <tr><td>Virtual Network and NAT Gateway</td><td>Private network for the apps and one static outbound IP for the Supabase allowlist</td><td>Container Apps environment, Supabase</td><td>Yes</td><td class="num">37–45</td><td>Extra IPs for more outbound connections</td></tr>
+    <tr><td>Virtual Network</td><td>Private network for the apps and the database. The database sits in a delegated subnet with no public address. A NAT Gateway (about $37–45) is added only if a partner needs one fixed outbound IP</td><td>Container Apps environment, PostgreSQL</td><td>Yes</td><td class="num">0</td><td>—</td></tr>
     <tr><td>Private Endpoints</td><td>Keep Key Vault, App Configuration and Blob traffic off the internet</td><td>VNet</td><td>Phase 10</td><td class="num">≈ 8 each</td><td>—</td></tr>
     <tr><td>Azure DNS</td><td>Zones for the CivicSetu domains</td><td>Front Door</td><td>Yes</td><td class="num">1</td><td>—</td></tr>
     <tr><td>Azure Communication Services Email</td><td>Replaces Gmail SMTP</td><td>Notification</td><td>From Phase 6</td><td class="num">1–5</td><td>Per message</td></tr>
     <tr><td>GitHub Actions with OIDC</td><td>One pipeline per service where the code already lives, with no stored Azure passwords</td><td>ACR, Container Apps, Bicep</td><td>Yes</td><td class="num">0–15</td><td>Per minute</td></tr>
-    <tr><td>Supabase Pro (outside Azure, AWS Mumbai)</td><td>PostgreSQL with the Supavisor pooler and daily backups; nine schemas, one role per service</td><td>All services over TLS, from the NAT IP only</td><td>Yes</td><td class="num">45–110</td><td>Compute add-ons; separate projects per service later; point-in-time recovery adds about $100</td></tr>
+    <tr><td>Azure Database for PostgreSQL Flexible Server</td><td>PostgreSQL 17 (or 18 if generally available in Central India), nine schemas and one role per service; built-in PgBouncer pooler, automatic backups with point-in-time restore, TLS, encryption at rest, optional zone-redundant high availability</td><td>All services over the private network; Key Vault holds role passwords</td><td>Yes</td><td class="num">150–340</td><td>General Purpose D2ds_v5 to start (about $150–180 with 128 GB); zone-redundant HA roughly doubles compute; grow vCores and storage in place; read replicas later; a second server per service when needed</td></tr>
   </tbody></table></div>
 
   <h3>D.2 Considered and not chosen</h3>
@@ -908,7 +908,7 @@ flowchart LR
     <li><strong>Application Gateway WAF v2:</strong> regional and about $250 a month before traffic; Front Door covers TLS, WAF and the edge for less.</li>
     <li><strong>Event Hubs or Kafka:</strong> streaming platforms for far larger volumes than CivicSetu produces.</li>
     <li><strong>Azure DevOps:</strong> code and issues are on GitHub.</li>
-    <li><strong>Terraform:</strong> Bicep is native to Azure and has no state file to secure; Supabase is managed through its CLI. Terraform remains an option if you later want one tool for both.</li>
+    <li><strong>Terraform:</strong> Bicep is native to Azure and has no state file to secure; Terraform remains an option if you later want one tool for both.</li>
   </ul>
 
   <h3>D.3 Deployment architecture</h3>
@@ -933,7 +933,7 @@ flowchart TB
         end
         jobs["jobs: migrations, cleanup, exports, backups"]
       end
-      nat["NAT Gateway - static outbound IP"]
+      pgs["Database subnet - private, delegated"]
     end
     acr["Container Registry"]
     kv["Key Vault"]
@@ -951,7 +951,7 @@ flowchart TB
   dom --> sb
   dom --> st
   st --> eg --> sb
-  cae --> nat --> supa[("Supabase PostgreSQL - AWS ap-south-1")]
+  cae --> pgs --> supa[("Azure Database for PostgreSQL - private access, Central India")]
   gh["GitHub Actions - OIDC"] -->|"push images"| acr
   gh -->|"Bicep and revisions"| cae
   acr -.-> cae
@@ -964,7 +964,7 @@ flowchart TB
   <div class="tbl wide"><table>
     <thead><tr><th></th><th>Development</th><th>Staging</th><th>Production</th></tr></thead><tbody>
     <tr><td>Where</td><td>Docker Compose on a laptop, all 11 apps or only the ones you work on</td><td>Azure, <code>rg-civicsetu-stg</code></td><td>Azure, <code>rg-civicsetu-prod</code></td></tr>
-    <tr><td>Database</td><td>PostgreSQL 17 container with the same nine schemas and roles</td><td>Supabase project <code>civicsetu-stg</code></td><td>Supabase project <code>civicsetu-prod</code>, Small or Medium compute</td></tr>
+    <tr><td>Database</td><td>PostgreSQL 17 container with the same nine schemas and roles</td><td>Flexible Server <code>cs-pg-stg</code>, Burstable B2s (about $30), no HA</td><td>Flexible Server <code>cs-pg-prod</code>, General Purpose D2ds_v5, zone-redundant HA recommended</td></tr>
     <tr><td>Messaging and storage</td><td>Service Bus emulator, Azurite</td><td>Own namespace and storage account</td><td>Own namespace, ZRS storage</td></tr>
     <tr><td>Configuration</td><td>Local files with the same keys</td><td>App Configuration, label <code>staging</code></td><td>App Configuration, label <code>prod</code></td></tr>
     <tr><td>Replicas</td><td>1 each</td><td>0–1 each (scale to zero)</td><td>BFFs, Identity and Grievance min 2; the other seven min 1</td></tr>
@@ -1011,7 +1011,7 @@ flowchart TB
     <tr><td>Transactional outbox and inbox</td><td><span class="chip ok">Every service</span></td><td>Events are never lost when Service Bus is down, never sent for a rolled-back change, and never applied twice</td></tr>
     <tr><td>Saga, choreographed</td><td><span class="chip ok">Where a workflow spans services</span></td><td>Account erasure under India's DPDP Act: Identity asks every service to anonymize, each one confirms. Suspending an officer: Identity, then Department &amp; Routing removes assignments, then Grievance unassigns open complaints. Filing a complaint needs no saga</td></tr>
     <tr><td>Eventual consistency</td><td><span class="chip ok">For copies of data</span></td><td>Routing rules held by Grievance, contacts held by Notification and everything in Reporting lag by seconds. A complaint's own state is always consistent inside Grievance</td></tr>
-    <tr><td>Distributed transactions</td><td><span class="chip crit">No</span></td><td>Unsupported across Supabase and Service Bus, and unnecessary</td></tr>
+    <tr><td>Distributed transactions</td><td><span class="chip crit">No</span></td><td>Unsupported across PostgreSQL and Service Bus, and unnecessary</td></tr>
   </tbody></table></div>
 
   <h3>E.4 Database architecture</h3>
@@ -1022,21 +1022,21 @@ flowchart LR
     a2["grievance"]
     a3["seven more services"]
   end
-  a1 -->|"role identity_svc"| pool["Supavisor pooler - transaction mode :6543"]
+  a1 -->|"role identity_svc"| pool["Built-in PgBouncer - transaction mode :6432"]
   a2 -->|"role grievance_svc"| pool
   a3 -->|"one role each"| pool
-  mig["Migration job per service"] -->|"owner role, session mode :5432"| sess["Supavisor session mode"]
-  pool --> pg[("PostgreSQL 17 - Supabase Mumbai - nine schemas")]
+  mig["Migration job per service"] -->|"owner role, direct :5432"| sess["Direct connection"]
+  pool --> pg[("PostgreSQL Flexible Server - Central India - nine schemas")]
   sess --> pg
-  pg -->|"daily backups, PITR in prod"| bk[("Supabase backups")]
+  pg -->|"automatic backups, 14-35 day PITR in prod"| bk[("Azure backup storage")]
   pg --> job["Weekly backup job"]
   job -->|"pg_dump per schema"| imm[("Immutable Blob container, 35 days")]
-</pre></div><figcaption>Supabase direct connections are IPv6-only unless you buy the IPv4 add-on, and Container Apps egress is IPv4, so everything goes through the pooler. The pooler keeps a separate pool per role.</figcaption></figure>
+</pre></div><figcaption>The database has no public address; only apps inside the virtual network can reach it. The pooler is switched on with one server parameter and keeps a separate pool per role.</figcaption></figure>
 
   <h3>E.5 Connection pooling</h3>
   <ul>
-    <li>Gunicorn <code>gthread</code> with 2 workers × 2 threads gives at most 4 connections per replica. About 18 replicas plus relays and jobs come to roughly 90 client connections, which the pooler multiplexes onto far fewer server connections. Supabase Medium compute gives comfortable headroom; confirm the limits for the size you pick.</li>
-    <li>Django settings: <code>DISABLE_SERVER_SIDE_CURSORS = True</code> (required in transaction mode), <code>CONN_MAX_AGE = 60</code> with health checks, <code>connect_timeout = 3</code>, <code>sslmode = verify-full</code> with Supabase's CA certificate.</li>
+    <li>Gunicorn <code>gthread</code> with 2 workers × 2 threads gives at most 4 connections per replica. About 18 replicas plus relays and jobs come to roughly 90 client connections, which the pooler multiplexes onto far fewer server connections. A D2ds_v5 server allows several hundred connections and PgBouncer multiplexes the rest; confirm the limit during load testing.</li>
+    <li>Django settings: <code>DISABLE_SERVER_SIDE_CURSORS = True</code> (required in transaction mode), <code>CONN_MAX_AGE = 60</code> with health checks, <code>connect_timeout = 3</code>, <code>sslmode = verify-full</code> with the Azure root CA bundle. Services connect to PgBouncer on port 6432; migrations connect directly on 5432. Entra ID (managed identity) sign-in can replace role passwords in Phase 10.</li>
     <li><code>search_path</code> and <code>statement_timeout</code> are set on each role, because the transaction pooler doesn't pass start-up options.</li>
     <li>Migrations run from each service's pipeline before its new revision gets traffic, never at container start.</li>
   </ul>
@@ -1102,14 +1102,14 @@ GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA audit TO audit_svc;</code></pre>
 
   <h3>E.8 Moving the data</h3>
   <ol>
-    <li><strong>Rehearse (Phase 3).</strong> Restore the local PostgreSQL 18 database into a scratch Supabase project. Restoring an 18 dump into 17 isn't officially supported; if <code>pg_restore</code> rejects it, use Django <code>dumpdata</code> and <code>loaddata</code>. Check every table's row count against the October ledger and reset sequences.</li>
+    <li><strong>Rehearse (Phase 3).</strong> Restore the local PostgreSQL 18 database into a scratch Flexible Server. If the server runs 17, restoring an 18 dump isn't officially supported; if <code>pg_restore</code> rejects it, use Django <code>dumpdata</code> and <code>loaddata</code>. Check every table's row count against the October ledger and reset sequences.</li>
     <li><strong>Media.</strong> Copy <code>media/</code> into the private container with <code>azcopy</code> and compare SHA-256 hashes.</li>
     <li><strong>Cutover (Phase 14).</strong> Pause writes with a maintenance page, take a verified backup, move the data, verify, then switch connection secrets. At this data size it takes minutes.</li>
   </ol>
 
   <h3>E.9 Backup and recovery</h3>
   <ul>
-    <li>Supabase Pro daily backups kept 7 days; point-in-time recovery in production.</li>
+    <li>Azure automatic backups with point-in-time restore: 14 days in staging and 35 days in production, included in the server price. Geo-redundant backups (restore into the paired region) are optional at a higher storage price.</li>
     <li>Weekly <code>pg_dump</code> per schema to an immutable Blob container, kept 35 days, so one service can be restored without touching the others.</li>
     <li>Blob soft delete for 14 days and versioning on the media container.</li>
     <li>Targets: at most 15 minutes of data loss with PITR (24 hours without), service back within 4 hours.</li>
@@ -1138,7 +1138,7 @@ GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA audit TO audit_svc;</code></pre>
   <div class="tbl wide"><table>
     <thead><tr><th>OWASP 2021</th><th>Today</th><th>Planned controls</th></tr></thead><tbody>
     <tr><td>A01 Broken access control</td><td>Role escalation and open officer scope on <code>main</code>; demotion bug and officer user search on both</td><td>Merge the branch, fix demotion, a per-service endpoint-by-role permission test matrix in CI</td></tr>
-    <tr><td>A02 Cryptographic failures</td><td>Public media; database TLS optional</td><td>Private Blob with SAS, <code>verify-full</code> TLS, mutual TLS inside the environment, encryption at rest on Supabase and Azure Storage</td></tr>
+    <tr><td>A02 Cryptographic failures</td><td>Public media; database TLS optional</td><td>Private Blob with SAS, <code>verify-full</code> TLS to a database with no public address, mutual TLS inside the environment, encryption at rest on Supabase and Azure Storage</td></tr>
     <tr><td>A03 Injection</td><td>ORM only, React escaping</td><td>Keep; Bandit and Semgrep in every service pipeline</td></tr>
     <tr><td>A04 Insecure design</td><td>Anonymous uploads, short tracking codes, no idempotency</td><td>Quotas and captcha, longer codes, idempotency keys, attachment grants</td></tr>
     <tr><td>A05 Security misconfiguration</td><td>No proxy SSL header, public Swagger</td><td>Configuration as code per environment, <code>manage.py check --deploy</code> in CI</td></tr>
@@ -1146,7 +1146,7 @@ GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA audit TO audit_svc;</code></pre>
     <tr><td>A07 Authentication failures</td><td>Reusable captcha, refresh race, tokens in localStorage, no lockout</td><td>Single-use captcha, cookie tokens on the web, single refresh request, lockout, TOTP for officers and admins</td></tr>
     <tr><td>A08 Integrity failures</td><td>Pickled models from the repository, no build provenance</td><td>Model checksums, images built only in CI, protected branches</td></tr>
     <tr><td>A09 Logging and monitoring failures</td><td>Spoofable IP, local log files, no alerts</td><td>Trusted client IP, central logs with secret scrubbing, alerts on sign-in failure spikes</td></tr>
-    <tr><td>A10 SSRF</td><td>No user-controlled server requests</td><td>Keep; outbound traffic only through the NAT gateway</td></tr>
+    <tr><td>A10 SSRF</td><td>No user-controlled server requests</td><td>Keep; outbound traffic limited by network rules</td></tr>
   </tbody></table></div>
 
   <h3>F.3 Threat model</h3>
@@ -1231,13 +1231,13 @@ flowchart TD
     <tr><td>Key Vault, DNS, alerts, email</td><td class="num">2–5</td><td class="num">4–16</td></tr>
     <tr><td>Blob Storage</td><td class="num">1–3</td><td class="num">5–10</td></tr>
     <tr><td>Log Analytics and Application Insights</td><td class="num">8–20</td><td class="num">25–60</td></tr>
-    <tr><td>NAT Gateway and public IP</td><td class="num">0–37</td><td class="num">37–45</td></tr>
-    <tr><td>Supabase (Pro plan counted once, plus compute)</td><td class="num">10</td><td class="num">45–110</td></tr>
+    <tr><td>NAT Gateway (optional, fixed outbound IP)</td><td class="num">0</td><td class="num">0</td></tr>
+    <tr><td>Azure Database for PostgreSQL</td><td class="num">15–40</td><td class="num">150–340</td></tr>
     <tr><td>GitHub Actions</td><td class="num" colspan="2">0–15, shared</td></tr>
-    <tr><td><strong>Total</strong></td><td class="num"><strong>≈ 65–180</strong></td><td class="num"><strong>≈ 420–880</strong></td></tr>
-    <tr><td>Optional: Supabase point-in-time recovery</td><td class="num">—</td><td class="num">+ 100</td></tr>
+    <tr><td><strong>Total</strong></td><td class="num"><strong>≈ 70–175</strong></td><td class="num"><strong>≈ 490–1,070</strong></td></tr>
+    <tr><td>Point-in-time restore</td><td class="num" colspan="2">included</td></tr>
   </tbody></table></div>
-  <p>That is roughly $140–290 a month more in production than the four-deployable design in revision 1, mostly from extra running containers and logs. The biggest levers: minimum replicas for the seven quieter services, replica sizes, log retention, and whether staging keeps a NAT gateway. Budgets with alerts at 50%, 80% and 100% go in during Phase 11.</p>
+  <p>That is roughly $210–350 a month more in production than the four-deployable design in revision 1: extra running containers and logs, and a managed database that includes backups and optional high availability. The biggest levers: the database size and whether to pay for zone-redundant HA (the top of the range), minimum replicas for the seven quieter services, replica sizes and log retention. Budgets with alerts at 50%, 80% and 100% go in during Phase 11.</p>
 </section>
 
 <section id="plan">
@@ -1269,7 +1269,7 @@ flowchart TD
   <details class="phase"><summary><span class="pno">Phase 3</span><span class="ptitle">Contracts, ownership and customization catalogue<small>Every API, event and setting written down before services exist.</small></span></summary><div class="pbody"><dl>
     <dt>Changes</dt><dd><ul><li>ADR-001 to ADR-011 in <code>docs/adr/</code>.</li><li>OpenAPI spec per service, cut from today's drf-spectacular schema; JSON Schema per event.</li><li>Configuration catalogue: every rule, flag and setting with its owner, default, allowed values and layer (C.9).</li><li>Staging database with the Data API off or RLS on, network restrictions, and one owner, migrator and runtime role per service; data move rehearsed (E.8).</li></ul></dd>
     <dt>Files</dt><dd><code>docs/adr/*.md</code>, <code>contracts/openapi/*.yaml</code>, <code>contracts/events/**/*.json</code>, <code>config/catalogue.yaml</code>, <code>scripts/db/roles.sql</code>, <code>scripts/db/verify_parity.py</code></dd>
-    <dt>Acceptance</dt><dd>Row counts and media hashes match after the rehearsal; restore time recorded; Supabase security advisor clean</dd>
+    <dt>Acceptance</dt><dd>Row counts and media hashes match after the rehearsal; restore time recorded; database reachable only from the private subnet</dd>
     <dt>Rollback</dt><dd>Nothing points at the new database yet</dd>
   </dl></div></details>
 
@@ -1385,8 +1385,7 @@ flowchart TD
     <tr><td>The branch merge breaks a UI or flow</td><td><span class="chip med">Medium</span></td><td><span class="chip med">Medium</span></td><td>Pull request, full test run, walkthrough of each portal</td><td>Revert the merge; redeploy the tag</td></tr>
     <tr><td>CIVIC source can't be recovered</td><td><span class="chip low">Low</span></td><td><span class="chip high">High</span></td><td>Push it now; if lost, rebuild native screens against the Mobile BFF from the docs</td><td>—</td></tr>
     <tr><td>PostgreSQL 18 dump won't restore into 17</td><td><span class="chip med">Medium</span></td><td><span class="chip med">Medium</span></td><td>Rehearsal in Phase 3; Django dumpdata fallback</td><td>Local database stays authoritative until Phase 14</td></tr>
-    <tr><td>Database outside Azure: latency or outage</td><td><span class="chip low">Low</span></td><td><span class="chip high">High</span></td><td>Same metro pair; measure query p95 in Phase 4; documented restore into Azure PostgreSQL</td><td>Restore the latest dump into Azure PostgreSQL and swap secrets</td></tr>
-    <tr><td>Supabase Data API left open</td><td><span class="chip med">Medium</span></td><td><span class="chip high">High</span></td><td>Disable it or enable RLS at project creation; advisor check in CI</td><td>—</td></tr>
+    <tr><td>Database reachable from the internet by mistake</td><td><span class="chip low">Low</span></td><td><span class="chip high">High</span></td><td>Private access only; Bicep forbids a public endpoint; policy check in CI</td><td>—</td></tr>
     <tr><td>Cookie sign-in signs every website user out once</td><td><span class="chip high">Expected</span></td><td><span class="chip low">Low</span></td><td>Announce it; keep the old path for one release</td><td>Website flag off</td></tr>
     <tr><td>Monthly cost above estimate</td><td><span class="chip med">Medium</span></td><td><span class="chip med">Medium</span></td><td>Budgets and alerts; staging scales to zero; small sizes for quiet services</td><td>Lower minimum replicas and log retention</td></tr>
     <tr><td>Error during the production data move</td><td><span class="chip low">Low</span></td><td><span class="chip high">High</span></td><td>Verified backup, parity script, maintenance window</td><td>Point back to the old database; restore if needed</td></tr>
@@ -1415,7 +1414,7 @@ flowchart TD
     <tr><td>007</td><td>Customization model: rule tables per service, App Configuration for settings and flags, theme tokens, provider adapters</td><td><span class="chip ok">Your direction</span></td></tr>
     <tr><td>008</td><td>One repository with a pipeline per service and a service template</td><td><span class="chip new">Proposed</span></td></tr>
     <tr><td>009</td><td>GitHub Actions and Bicep</td><td><span class="chip new">Proposed</span></td></tr>
-    <tr><td>010</td><td>Database host: Supabase Pro in Mumbai</td><td><span class="chip new">Proposed</span></td></tr>
+    <tr><td>010</td><td>Database host: Azure Database for PostgreSQL Flexible Server, private access, Central India</td><td><span class="chip ok">Your direction</span></td></tr>
     <tr><td>011</td><td>AI triage as a setting: on by default, rule-based fallback</td><td><span class="chip new">Proposed</span></td></tr>
   </tbody></table></div>
 </section>
