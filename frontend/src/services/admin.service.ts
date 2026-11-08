@@ -170,20 +170,6 @@ export const adminService = {
     return res.data;
   },
 
-  // AI & ML
-  async classifyAi(title: string, description: string, locationAddress = ''): Promise<any> {
-    const res = await api.post('/ai/classify/', {
-      title,
-      description,
-      location_address: locationAddress,
-    });
-    return res.data;
-  },
-
-  async getCityInsights(): Promise<any> {
-    const res = await api.get('/ai/city-insights/');
-    return res.data;
-  },
 };
 
 export default adminService;

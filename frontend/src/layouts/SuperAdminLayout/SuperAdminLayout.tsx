@@ -284,8 +284,7 @@ export const SuperAdminLayout: React.FC = () => {
                 {[
                   { id: 'ACT-20250922-0142', user: 'superadmin', action: 'Created User', details: 'New authority user created: bmc_officer@rourkela.gov.in', module: 'User Management', time: '22 Sep 2025, 10:22 AM', status: 'Success' },
                   { id: 'ACT-20250922-0141', user: 'superadmin', action: 'Updated Department', details: 'Updated category mapping for Sanitation', module: 'Departments', time: '22 Sep 2025, 09:18 AM', status: 'Success' },
-                  { id: 'ACT-20250922-0140', user: 'superadmin', action: 'Retrained AI Model', details: 'Classification model v2.1 deployed', module: 'AI & ML', time: '22 Sep 2025, 08:45 AM', status: 'Success' },
-                  { id: 'ACT-20250922-0139', user: 'superadmin', action: 'Onboarded Authority', details: 'Bargarh Municipal Council added', module: 'Authorities', time: '22 Sep 2025, 06:30 AM', status: 'Success' },
+                                  { id: 'ACT-20250922-0139', user: 'superadmin', action: 'Onboarded Authority', details: 'Bargarh Municipal Council added', module: 'Authorities', time: '22 Sep 2025, 06:30 AM', status: 'Success' },
                   { id: 'ACT-20250922-0138', user: 'system', action: 'Completed Backup', details: 'Daily database backup completed', module: 'System', time: '22 Sep 2025, 02:15 AM', status: 'Success' },
                   { id: 'ACT-20250921-0137', user: 'superadmin', action: 'Modified SLA Policy', details: 'Adjusted Road Hazard resolution window to 24 hours', module: 'Governance', time: '21 Sep 2025, 04:12 PM', status: 'Success' },
                 ].map((log) => (
@@ -343,14 +342,6 @@ export const SuperAdminLayout: React.FC = () => {
 
             <div className={s.modalBody}>
               <div className={s.settingsGrid}>
-                <div className={s.settingRow}>
-                  <div>
-                    <div className={s.settingName}>AI Auto-Triage Engine</div>
-                    <div className={s.settingDesc}>Automatically classify complaints and route to municipal jurisdiction</div>
-                  </div>
-                  <span className={s.activePill}>Enabled (v2.1)</span>
-                </div>
-
                 <div className={s.settingRow}>
                   <div>
                     <div className={s.settingName}>SMS / WhatsApp Citizen Alerts</div>

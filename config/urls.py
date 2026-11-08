@@ -38,7 +38,6 @@ urlpatterns = [
     path("api/v1/notifications/", include("apps.notifications.urls")),
     path("api/v1/authority/", include("apps.authority.urls")),
     path("api/v1/feedback/", include("apps.feedback.urls")),
-    path("api/v1/ai/", include("apps.ai_predictions.urls")),
     path("api/v1/audit-logs/", include("apps.audit_logs.urls")),
 
     # API Schema & Swagger Docs

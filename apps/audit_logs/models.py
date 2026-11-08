@@ -22,7 +22,6 @@ class AuditAction(models.TextChoices):
     AUTHORITY_ASSIGNED = "AUTHORITY_ASSIGNED", _("Authority Assigned to Department")
 
     FEEDBACK_SUBMITTED = "FEEDBACK_SUBMITTED", _("Feedback Submitted")
-    AI_TRIAGE_RUN = "AI_TRIAGE_RUN", _("AI Triage Executed")
     SYSTEM_EVENT = "SYSTEM_EVENT", _("System Event")
 
 

@@ -2,122 +2,11 @@ openapi: 3.0.3
 info:
   title: CivicSetu API
   version: 1.0.0
-  description: Backend API for the CivicSetu AI-powered civic engagement platform.
+  description: Backend API for the CivicSetu civic engagement platform.
 paths:
-  /api/v1/ai/city-insights/:
-    get:
-      operationId: api_v1_ai_city_insights_retrieve
-      description: Retrieve city-wide predictive insights, hazard alerts, and category
-        distributions.
-      summary: Get city-wide AI civic insights
-      tags:
-      - AI Predictions
-      security:
-      - jwtAuth: []
-      - bearerAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AICityInsights'
-          description: ''
-  /api/v1/ai/classify/:
-    post:
-      operationId: api_v1_ai_classify_create
-      description: Classify grievance text and predict urgency, priority, and hazard
-        tags.
-      summary: AI automated complaint triage & classification
-      tags:
-      - AI Predictions
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AITriageRequestRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/AITriageRequestRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/AITriageRequestRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      - bearerAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AITriageResponse'
-          description: ''
-        '400':
-          description: Invalid request payload
-  /api/v1/ai/complaint/{complaint_public_id}/prediction/:
-    get:
-      operationId: api_v1_ai_complaint_prediction_retrieve
-      description: Retrieve or generate AI predictions for a specific complaint.
-      summary: Get AI analysis for a complaint
-      parameters:
-      - in: path
-        name: complaint_public_id
-        schema:
-          type: string
-          format: uuid
-        required: true
-      tags:
-      - AI Predictions
-      security:
-      - jwtAuth: []
-      - bearerAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AITriageResponse'
-          description: ''
-        '404':
-          description: Complaint not found
-  /api/v1/ai/detect-duplicates/:
-    post:
-      operationId: api_v1_ai_detect_duplicates_create
-      description: Scan open complaints to identify duplicate grievances using geospatial
-        proximity and NLP.
-      summary: AI duplicate complaint detection
-      tags:
-      - AI Predictions
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AIDuplicateCheckRequestRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/AIDuplicateCheckRequestRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/AIDuplicateCheckRequestRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      - bearerAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/AIDuplicateMatch'
-          description: ''
-        '400':
-          description: Validation error
   /api/v1/audit-logs/:
     get:
-      operationId: api_v1_audit_logs_list
+      operationId: v1_audit_logs_list
       description: List system audit logs with filtering and pagination (Super Admin
         only).
       summary: List and filter audit logs
@@ -139,7 +28,6 @@ paths:
           - DEPARTMENT_UPDATED
           - AUTHORITY_ASSIGNED
           - FEEDBACK_SUBMITTED
-          - AI_TRIAGE_RUN
           - SYSTEM_EVENT
           type: string
           minLength: 1
@@ -157,7 +45,6 @@ paths:
           * `DEPARTMENT_UPDATED` - Department Updated
           * `AUTHORITY_ASSIGNED` - Authority Assigned to Department
           * `FEEDBACK_SUBMITTED` - Feedback Submitted
-          * `AI_TRIAGE_RUN` - AI Triage Executed
           * `SYSTEM_EVENT` - System Event
       - in: query
         name: actor_email
@@ -210,7 +97,7 @@ paths:
           description: ''
   /api/v1/audit-logs/{public_id}/:
     get:
-      operationId: api_v1_audit_logs_retrieve
+      operationId: v1_audit_logs_retrieve
       description: Retrieve specific audit log entry by public UUID (Super Admin only).
       summary: Get audit log details
       parameters:
@@ -236,7 +123,7 @@ paths:
           description: Audit log entry not found
   /api/v1/audit-logs/summary/:
     get:
-      operationId: api_v1_audit_logs_summary_retrieve
+      operationId: v1_audit_logs_summary_retrieve
       description: Retrieve aggregate security and activity summary metrics (Super
         Admin only).
       summary: Get audit log activity summary
@@ -252,9 +139,25 @@ paths:
               schema:
                 $ref: '#/components/schemas/AuditLogSummary'
           description: ''
+  /api/v1/auth/captcha/:
+    get:
+      operationId: v1_auth_captcha_retrieve
+      summary: Generate a new cryptographic CAPTCHA challenge
+      tags:
+      - Authentication
+      security:
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaptchaResponse'
+          description: ''
   /api/v1/auth/forgot-password/:
     post:
-      operationId: api_v1_auth_forgot_password_create
+      operationId: v1_auth_forgot_password_create
       summary: Request a password reset email
       tags:
       - Authentication
@@ -271,7 +174,6 @@ paths:
               $ref: '#/components/schemas/ForgotPasswordRequest'
         required: true
       security:
-      - jwtAuth: []
       - bearerAuth: []
       - {}
       responses:
@@ -279,8 +181,8 @@ paths:
           description: Password reset email queued if the account exists.
   /api/v1/auth/login/:
     post:
-      operationId: api_v1_auth_login_create
-      summary: Login with email and password
+      operationId: v1_auth_login_create
+      summary: Login with email, password and captcha
       tags:
       - Authentication
       requestBody:
@@ -296,7 +198,6 @@ paths:
               $ref: '#/components/schemas/LoginRequest'
         required: true
       security:
-      - jwtAuth: []
       - bearerAuth: []
       - {}
       responses:
@@ -308,7 +209,7 @@ paths:
           description: ''
   /api/v1/auth/logout/:
     post:
-      operationId: api_v1_auth_logout_create
+      operationId: v1_auth_logout_create
       summary: Logout by blacklisting the refresh token
       tags:
       - Authentication
@@ -332,7 +233,7 @@ paths:
           description: Refresh token blacklisted.
   /api/v1/auth/me/:
     get:
-      operationId: api_v1_auth_me_retrieve
+      operationId: v1_auth_me_retrieve
       summary: Get the authenticated user profile
       tags:
       - Authentication
@@ -348,7 +249,7 @@ paths:
           description: ''
   /api/v1/auth/refresh/:
     post:
-      operationId: api_v1_auth_refresh_create
+      operationId: v1_auth_refresh_create
       summary: Refresh JWT access token
       tags:
       - Authentication
@@ -377,8 +278,10 @@ paths:
           description: ''
   /api/v1/auth/register/:
     post:
-      operationId: api_v1_auth_register_create
-      summary: Register a citizen or authority account
+      operationId: v1_auth_register_create
+      description: Public sign-up creates citizen accounts only. Officer and administrator
+        accounts are created by a super admin via POST /api/v1/users/create/.
+      summary: Register a citizen account
       tags:
       - Authentication
       requestBody:
@@ -394,7 +297,6 @@ paths:
               $ref: '#/components/schemas/RegisterRequest'
         required: true
       security:
-      - jwtAuth: []
       - bearerAuth: []
       - {}
       responses:
@@ -406,7 +308,7 @@ paths:
           description: ''
   /api/v1/auth/reset-password/:
     post:
-      operationId: api_v1_auth_reset_password_create
+      operationId: v1_auth_reset_password_create
       summary: Confirm password reset with uid and token
       tags:
       - Authentication
@@ -423,7 +325,6 @@ paths:
               $ref: '#/components/schemas/ResetPasswordRequest'
         required: true
       security:
-      - jwtAuth: []
       - bearerAuth: []
       - {}
       responses:
@@ -431,7 +332,7 @@ paths:
           description: Password reset completed.
   /api/v1/auth/verify/:
     post:
-      operationId: api_v1_auth_verify_create
+      operationId: v1_auth_verify_create
       description: |-
         Takes a token and indicates if it is valid.  This view provides no
         information about a token's fitness for a particular use.
@@ -457,7 +358,7 @@ paths:
           description: No response body
   /api/v1/authority/analytics/department/:
     get:
-      operationId: api_v1_authority_analytics_department_list
+      operationId: v1_authority_analytics_department_list
       description: Returns per-category complaint breakdown with resolution rates.
       summary: Category performance
       tags:
@@ -476,7 +377,7 @@ paths:
           description: ''
   /api/v1/authority/analytics/priority/:
     get:
-      operationId: api_v1_authority_analytics_priority_retrieve
+      operationId: v1_authority_analytics_priority_retrieve
       description: Returns complaint count and percentage by priority level for the
         authority's scope.
       summary: Priority breakdown
@@ -494,7 +395,7 @@ paths:
           description: ''
   /api/v1/authority/analytics/stats/:
     get:
-      operationId: api_v1_authority_analytics_stats_retrieve
+      operationId: v1_authority_analytics_stats_retrieve
       description: Returns status breakdown, average resolution time, and daily trend
         for the authority's scope.
       summary: Complaint statistics
@@ -518,7 +419,7 @@ paths:
           description: ''
   /api/v1/authority/complaints/:
     get:
-      operationId: api_v1_authority_complaints_list
+      operationId: v1_authority_complaints_list
       description: Paginated list of complaints in the authority's department(s) or
         assigned directly, with search and filters.
       summary: List authority complaints
@@ -549,6 +450,7 @@ paths:
         schema:
           type: string
           enum:
+          - ASSIGNED
           - CLOSED
           - IN_PROGRESS
           - PENDING
@@ -569,7 +471,7 @@ paths:
           description: ''
   /api/v1/authority/complaints/{public_id}/:
     get:
-      operationId: api_v1_authority_complaints_retrieve
+      operationId: v1_authority_complaints_retrieve
       description: Retrieve full details, images, and latest history for a complaint.
       summary: Complaint details
       parameters:
@@ -593,7 +495,7 @@ paths:
           description: ''
   /api/v1/authority/complaints/{public_id}/notes/:
     post:
-      operationId: api_v1_authority_complaints_notes_create
+      operationId: v1_authority_complaints_notes_create
       description: Add or update resolution notes. Triggers a notification to the
         citizen.
       summary: Add resolution notes
@@ -629,7 +531,7 @@ paths:
                 $ref: '#/components/schemas/ComplaintDetail'
           description: ''
     patch:
-      operationId: api_v1_authority_complaints_notes_partial_update
+      operationId: v1_authority_complaints_notes_partial_update
       description: Add or update resolution notes. Triggers a notification to the
         citizen.
       summary: Add resolution notes
@@ -665,7 +567,7 @@ paths:
           description: ''
   /api/v1/authority/complaints/{public_id}/priority/:
     post:
-      operationId: api_v1_authority_complaints_priority_create
+      operationId: v1_authority_complaints_priority_create
       description: Change complaint priority level and optionally add remarks.
       summary: Update complaint priority
       parameters:
@@ -700,7 +602,7 @@ paths:
                 $ref: '#/components/schemas/ComplaintDetail'
           description: ''
     patch:
-      operationId: api_v1_authority_complaints_priority_partial_update
+      operationId: v1_authority_complaints_priority_partial_update
       description: Change complaint priority level and optionally add remarks.
       summary: Update complaint priority
       parameters:
@@ -735,7 +637,7 @@ paths:
           description: ''
   /api/v1/authority/complaints/{public_id}/resolution-image/:
     post:
-      operationId: api_v1_authority_complaints_resolution_image_create
+      operationId: v1_authority_complaints_resolution_image_create
       description: Upload a resolution evidence image (JPEG/PNG/WebP, max 5MB) attached
         to the complaint.
       summary: Upload resolution image
@@ -772,7 +674,7 @@ paths:
           description: ''
   /api/v1/authority/complaints/{public_id}/status/:
     post:
-      operationId: api_v1_authority_complaints_status_create
+      operationId: v1_authority_complaints_status_create
       description: Change complaint status and optionally add resolution remarks.
         Triggers a notification to the citizen.
       summary: Update complaint status
@@ -808,7 +710,7 @@ paths:
                 $ref: '#/components/schemas/ComplaintDetail'
           description: ''
     patch:
-      operationId: api_v1_authority_complaints_status_partial_update
+      operationId: v1_authority_complaints_status_partial_update
       description: Change complaint status and optionally add resolution remarks.
         Triggers a notification to the citizen.
       summary: Update complaint status
@@ -844,7 +746,7 @@ paths:
           description: ''
   /api/v1/authority/dashboard/recent/:
     get:
-      operationId: api_v1_authority_dashboard_recent_list
+      operationId: v1_authority_dashboard_recent_list
       description: Returns the 5 most recently created complaints in the authority's
         scope.
       summary: Recent complaints
@@ -864,7 +766,7 @@ paths:
           description: ''
   /api/v1/authority/dashboard/summary/:
     get:
-      operationId: api_v1_authority_dashboard_summary_retrieve
+      operationId: v1_authority_dashboard_summary_retrieve
       description: Returns complaint counts by status, urgent count, today's new,
         and total assigned for the authority's scope.
       summary: Dashboard summary
@@ -882,7 +784,7 @@ paths:
           description: ''
   /api/v1/authority/notifications/:
     get:
-      operationId: api_v1_authority_notifications_list
+      operationId: v1_authority_notifications_list
       description: Returns paginated notifications for the user, optionally filtered
         by read/unread status.
       summary: List notifications
@@ -912,7 +814,7 @@ paths:
           description: ''
   /api/v1/authority/notifications/mark-all-read/:
     post:
-      operationId: api_v1_authority_notifications_mark_all_read_create
+      operationId: v1_authority_notifications_mark_all_read_create
       description: Mark all unread notifications as read for the authenticated user.
       summary: Mark all notifications as read
       tags:
@@ -925,7 +827,7 @@ paths:
           description: No response body
   /api/v1/authority/notifications/mark-read/:
     post:
-      operationId: api_v1_authority_notifications_mark_read_create
+      operationId: v1_authority_notifications_mark_read_create
       description: Mark one or more specific notifications as read by their UUIDs.
       summary: Mark notifications as read
       tags:
@@ -950,7 +852,7 @@ paths:
           description: No response body
   /api/v1/authority/notifications/unread-count/:
     get:
-      operationId: api_v1_authority_notifications_unread_count_retrieve
+      operationId: v1_authority_notifications_unread_count_retrieve
       description: Returns the number of unread notifications for the authenticated
         user.
       summary: Unread notification count
@@ -968,7 +870,7 @@ paths:
           description: ''
   /api/v1/complaints/:
     get:
-      operationId: api_v1_complaints_list
+      operationId: v1_complaints_list
       description: Returns paginated complaints scoped to the user's role (Citizens
         see their own, Authorities/Admins see all).
       summary: List complaints
@@ -1025,6 +927,7 @@ paths:
         schema:
           type: string
           enum:
+          - ASSIGNED
           - CLOSED
           - IN_PROGRESS
           - PENDING
@@ -1036,7 +939,6 @@ paths:
       security:
       - jwtAuth: []
       - bearerAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -1046,7 +948,7 @@ paths:
           description: ''
   /api/v1/complaints/{public_id}/:
     get:
-      operationId: api_v1_complaints_retrieve
+      operationId: v1_complaints_retrieve
       description: Retrieve full details, image attachments, and latest status history
         for a complaint.
       summary: Get complaint details
@@ -1071,7 +973,7 @@ paths:
           description: ''
   /api/v1/complaints/{public_id}/assign/:
     patch:
-      operationId: api_v1_complaints_assign_partial_update
+      operationId: v1_complaints_assign_partial_update
       description: Assign a specific authority user to handle this complaint.
       summary: Assign authority to complaint
       parameters:
@@ -1104,9 +1006,46 @@ paths:
               schema:
                 $ref: '#/components/schemas/ComplaintDetail'
           description: ''
+  /api/v1/complaints/{public_id}/attachments/:
+    post:
+      operationId: v1_complaints_attachments_create
+      description: Upload an additional multimodal evidence file (Image <= 5MB, Audio
+        <= 10MB, Video <= 25MB).
+      summary: Upload complaint attachment
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Complaints
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComplaintAttachmentUploadRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ComplaintAttachmentUploadRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ComplaintAttachmentUploadRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintAttachment'
+          description: ''
   /api/v1/complaints/{public_id}/images/:
     post:
-      operationId: api_v1_complaints_images_create
+      operationId: v1_complaints_images_create
       description: Upload an additional image file (JPEG/PNG/WebP, max 5MB) attached
         to a complaint.
       summary: Upload complaint image
@@ -1143,7 +1082,7 @@ paths:
           description: ''
   /api/v1/complaints/{public_id}/status/:
     patch:
-      operationId: api_v1_complaints_status_partial_update
+      operationId: v1_complaints_status_partial_update
       description: Change complaint status (e.g., PENDING -> IN_PROGRESS -> RESOLVED)
         and record resolution notes.
       summary: Update complaint status
@@ -1179,7 +1118,7 @@ paths:
           description: ''
   /api/v1/complaints/{public_id}/timeline/:
     get:
-      operationId: api_v1_complaints_timeline_list
+      operationId: v1_complaints_timeline_list
       description: Returns the full chronological audit history of status updates,
         assignments, and events for a complaint.
       summary: Get complaint timeline
@@ -1195,6 +1134,7 @@ paths:
       security:
       - jwtAuth: []
       - bearerAuth: []
+      - {}
       responses:
         '200':
           content:
@@ -1206,7 +1146,7 @@ paths:
           description: ''
   /api/v1/complaints/create/:
     post:
-      operationId: api_v1_complaints_create_create
+      operationId: v1_complaints_create_create
       description: Submit a civic complaint with details, location coordinates, department
         selection, and optional image files.
       summary: Create a new complaint
@@ -1237,7 +1177,7 @@ paths:
           description: ''
   /api/v1/complaints/track/{tracking_code}/:
     get:
-      operationId: api_v1_complaints_track_retrieve
+      operationId: v1_complaints_track_retrieve
       description: Retrieve public complaint status by human-readable tracking code
         (e.g. CMP-20260722-XXXX) or public UUID.
       summary: Public complaint status tracking
@@ -1262,7 +1202,7 @@ paths:
           description: ''
   /api/v1/departments/:
     get:
-      operationId: api_v1_departments_list
+      operationId: v1_departments_list
       description: Returns all active departments. Available to any authenticated
         user.
       summary: List departments
@@ -1287,7 +1227,7 @@ paths:
           description: ''
   /api/v1/departments/{public_id}/:
     get:
-      operationId: api_v1_departments_retrieve
+      operationId: v1_departments_retrieve
       description: Retrieve full department details by public UUID.
       summary: Get department detail
       parameters:
@@ -1311,7 +1251,7 @@ paths:
           description: ''
   /api/v1/departments/{public_id}/authorities/:
     get:
-      operationId: api_v1_departments_authorities_list
+      operationId: v1_departments_authorities_list
       description: List all authority users assigned to a department.
       summary: List department authorities
       parameters:
@@ -1341,7 +1281,7 @@ paths:
           description: ''
   /api/v1/departments/{public_id}/authorities/{user_public_id}/:
     delete:
-      operationId: api_v1_departments_authorities_destroy
+      operationId: v1_departments_authorities_destroy
       description: Remove an authority user from a department. SuperAdmin only.
       summary: Remove authority from department
       parameters:
@@ -1367,7 +1307,7 @@ paths:
           description: Authority removed from department.
   /api/v1/departments/{public_id}/authorities/{user_public_id}/update/:
     patch:
-      operationId: api_v1_departments_authorities_update_partial_update
+      operationId: v1_departments_authorities_update_partial_update
       description: Update designation or head status for an authority in a department.
         SuperAdmin only.
       summary: Update authority assignment
@@ -1409,7 +1349,7 @@ paths:
           description: ''
   /api/v1/departments/{public_id}/authorities/assign/:
     post:
-      operationId: api_v1_departments_authorities_assign_create
+      operationId: v1_departments_authorities_assign_create
       description: Assign an authority user to a department with optional designation.
         SuperAdmin only.
       summary: Assign authority to department
@@ -1446,7 +1386,7 @@ paths:
           description: ''
   /api/v1/departments/{public_id}/deactivate/:
     post:
-      operationId: api_v1_departments_deactivate_create
+      operationId: v1_departments_deactivate_create
       description: Soft-delete a department by setting its status to INACTIVE. SuperAdmin
         only.
       summary: Deactivate department
@@ -1467,7 +1407,7 @@ paths:
           description: Department deactivated.
   /api/v1/departments/{public_id}/statistics/:
     get:
-      operationId: api_v1_departments_statistics_retrieve
+      operationId: v1_departments_statistics_retrieve
       description: Returns aggregate statistics for a department including authority
         counts.
       summary: Department statistics
@@ -1492,7 +1432,7 @@ paths:
           description: ''
   /api/v1/departments/{public_id}/update/:
     put:
-      operationId: api_v1_departments_update_update
+      operationId: v1_departments_update_update
       description: Update department details. SuperAdmin only.
       summary: Update department
       parameters:
@@ -1526,7 +1466,7 @@ paths:
                 $ref: '#/components/schemas/Department'
           description: ''
     patch:
-      operationId: api_v1_departments_update_partial_update
+      operationId: v1_departments_update_partial_update
       description: Partially update department details. SuperAdmin only.
       summary: Partially update department
       parameters:
@@ -1561,7 +1501,7 @@ paths:
           description: ''
   /api/v1/departments/create/:
     post:
-      operationId: api_v1_departments_create_create
+      operationId: v1_departments_create_create
       description: Create a new civic department. SuperAdmin only.
       summary: Create department
       tags:
@@ -1588,9 +1528,29 @@ paths:
               schema:
                 $ref: '#/components/schemas/Department'
           description: ''
+  /api/v1/feedback/authority/feedbacks/:
+    get:
+      operationId: v1_feedback_authority_feedbacks_list
+      description: List all citizen feedbacks with ratings, stars, and comments for
+        municipal authority review.
+      summary: List all citizen feedbacks for authority review
+      tags:
+      - Feedback
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FeedbackDetail'
+          description: ''
   /api/v1/feedback/authority/stats/:
     get:
-      operationId: api_v1_feedback_authority_stats_retrieve
+      operationId: v1_feedback_authority_stats_retrieve
       description: Retrieve feedback metrics for the calling municipal authority.
       summary: Get feedback metrics for the authenticated authority
       tags:
@@ -1607,7 +1567,7 @@ paths:
           description: ''
   /api/v1/feedback/complaint/{complaint_public_id}/:
     get:
-      operationId: api_v1_feedback_complaint_retrieve
+      operationId: v1_feedback_complaint_retrieve
       description: Retrieve feedback for a specific complaint.
       summary: Get feedback for a specific complaint
       parameters:
@@ -1635,7 +1595,7 @@ paths:
           description: Feedback or complaint not found
   /api/v1/feedback/department/{category}/stats/:
     get:
-      operationId: api_v1_feedback_department_stats_retrieve
+      operationId: v1_feedback_department_stats_retrieve
       description: Retrieve feedback metrics for a department or category.
       summary: Get feedback metrics for a department category
       parameters:
@@ -1658,7 +1618,7 @@ paths:
           description: ''
   /api/v1/feedback/my-feedbacks/:
     get:
-      operationId: api_v1_feedback_my_feedbacks_list
+      operationId: v1_feedback_my_feedbacks_list
       description: List all feedbacks submitted by the authenticated citizen.
       summary: List feedbacks submitted by current citizen
       tags:
@@ -1677,8 +1637,9 @@ paths:
           description: ''
   /api/v1/feedback/submit/:
     post:
-      operationId: api_v1_feedback_submit_create
-      description: Submit rating and feedback for a resolved complaint.
+      operationId: v1_feedback_submit_create
+      description: Submit rating and feedback for a resolved complaint (owner only,
+        signed in).
       summary: Submit complaint resolution feedback
       tags:
       - Feedback
@@ -1706,13 +1667,15 @@ paths:
           description: ''
         '400':
           description: Validation error or invalid status
+        '401':
+          description: Not signed in
         '403':
           description: Citizen does not own complaint
         '404':
           description: Complaint not found
   /api/v1/notifications/:
     get:
-      operationId: api_v1_notifications_list
+      operationId: v1_notifications_list
       summary: List user notifications
       tags:
       - Notifications
@@ -1730,7 +1693,7 @@ paths:
           description: ''
   /api/v1/notifications/{public_id}/mark-read/:
     post:
-      operationId: api_v1_notifications_mark_read_create
+      operationId: v1_notifications_mark_read_create
       summary: Mark notification as read
       parameters:
       - in: path
@@ -1749,7 +1712,7 @@ paths:
           description: No response body
   /api/v1/notifications/mark-all-read/:
     post:
-      operationId: api_v1_notifications_mark_all_read_create
+      operationId: v1_notifications_mark_all_read_create
       summary: Mark all notifications as read
       tags:
       - Notifications
@@ -1761,7 +1724,7 @@ paths:
           description: No response body
   /api/v1/users/{public_id}/:
     get:
-      operationId: api_v1_users_retrieve
+      operationId: v1_users_retrieve
       description: Retrieve any user's profile by their public UUID. Accessible by
         authorities and admins.
       summary: Get user by public ID
@@ -1784,9 +1747,46 @@ paths:
               schema:
                 $ref: '#/components/schemas/AdminProfile'
           description: ''
+    patch:
+      operationId: v1_users_partial_update
+      description: Update user status, role, phone, or details.
+      summary: Update user by public ID (Super Admin only)
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - User Management
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: v1_users_destroy
+      summary: Delete / Deactivate user by public ID (Super Admin only)
+      parameters:
+      - in: path
+        name: public_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - User Management
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
   /api/v1/users/change-password/:
     post:
-      operationId: api_v1_users_change_password_create
+      operationId: v1_users_change_password_create
       description: Change the authenticated user's password by providing the current
         password and a new one.
       summary: Change password
@@ -1812,9 +1812,23 @@ paths:
           description: Password changed successfully.
         '400':
           description: Validation error.
+  /api/v1/users/create/:
+    post:
+      operationId: v1_users_create_create
+      description: Enrolls a new user with any role, full credentials, and optional
+        department assignment.
+      summary: Create new platform user (Super Admin only)
+      tags:
+      - User Management
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
   /api/v1/users/profile/admin/:
     get:
-      operationId: api_v1_users_profile_admin_retrieve
+      operationId: v1_users_profile_admin_retrieve
       description: Returns the full profile of the authenticated super-admin.
       summary: Get admin profile
       tags:
@@ -1831,7 +1845,7 @@ paths:
           description: ''
   /api/v1/users/profile/authority/:
     get:
-      operationId: api_v1_users_profile_authority_retrieve
+      operationId: v1_users_profile_authority_retrieve
       description: Returns the authenticated authority's own profile, including department
         and designation.
       summary: Get authority profile
@@ -1849,7 +1863,7 @@ paths:
           description: ''
   /api/v1/users/profile/citizen/:
     get:
-      operationId: api_v1_users_profile_citizen_retrieve
+      operationId: v1_users_profile_citizen_retrieve
       description: Returns the authenticated citizen's own profile.
       summary: Get citizen profile
       tags:
@@ -1866,7 +1880,7 @@ paths:
           description: ''
   /api/v1/users/profile/update/:
     put:
-      operationId: api_v1_users_profile_update_update
+      operationId: v1_users_profile_update_update
       description: Update profile fields. Citizens can update name, phone, bio, address.
         Authorities can additionally update department and designation.
       summary: Update own profile
@@ -1895,7 +1909,7 @@ paths:
                 $ref: '#/components/schemas/AdminProfile'
           description: ''
     patch:
-      operationId: api_v1_users_profile_update_partial_update
+      operationId: v1_users_profile_update_partial_update
       description: Partially update profile fields.
       summary: Partially update own profile
       tags:
@@ -1923,7 +1937,7 @@ paths:
           description: ''
   /api/v1/users/profile/upload-image/:
     post:
-      operationId: api_v1_users_profile_upload_image_create
+      operationId: v1_users_profile_upload_image_create
       description: Upload or replace the authenticated user's profile image. Max 5
         MB, JPEG/PNG/WebP.
       summary: Upload profile image
@@ -1955,7 +1969,7 @@ paths:
           description: Invalid image file.
   /api/v1/users/search/:
     get:
-      operationId: api_v1_users_search_list
+      operationId: v1_users_search_list
       description: Search and filter all platform users. Supports free-text query
         across email, name, and phone, plus role and status filters.
       summary: Search users (admin only)
@@ -2003,165 +2017,6 @@ paths:
           description: ''
 components:
   schemas:
-    AICityInsights:
-      type: object
-      description: City-wide predictive civic analytics metrics.
-      properties:
-        total_ai_scans:
-          type: integer
-        average_urgency_index:
-          type: number
-          format: double
-        high_hazard_alerts_count:
-          type: integer
-        top_predicted_categories:
-          type: array
-          items:
-            type: object
-            additionalProperties: {}
-        category_distribution:
-          type: array
-          items:
-            type: object
-            additionalProperties: {}
-        system_readiness_status:
-          type: string
-        model_version:
-          type: string
-        last_updated:
-          type: string
-      required:
-      - average_urgency_index
-      - category_distribution
-      - high_hazard_alerts_count
-      - last_updated
-      - model_version
-      - system_readiness_status
-      - top_predicted_categories
-      - total_ai_scans
-    AIDuplicateCheckRequestRequest:
-      type: object
-      description: Input payload for checking potential duplicate complaints.
-      properties:
-        title:
-          type: string
-          minLength: 1
-          maxLength: 200
-        description:
-          type: string
-          minLength: 1
-        category:
-          $ref: '#/components/schemas/CategoryEnum'
-        latitude:
-          type: number
-          format: double
-          nullable: true
-        longitude:
-          type: number
-          format: double
-          nullable: true
-        radius_km:
-          type: number
-          format: double
-          maximum: 25.0
-          minimum: 0.1
-          default: 1.5
-      required:
-      - category
-      - description
-      - title
-    AIDuplicateMatch:
-      type: object
-      description: Individual match candidate in duplicate analysis.
-      properties:
-        complaint_public_id:
-          type: string
-          format: uuid
-        tracking_code:
-          type: string
-        title:
-          type: string
-        status:
-          type: string
-        location_address:
-          type: string
-        distance_km:
-          type: number
-          format: double
-          nullable: true
-        similarity_score:
-          type: number
-          format: double
-        match_confidence:
-          type: string
-        matched_tokens:
-          type: array
-          items:
-            type: string
-      required:
-      - complaint_public_id
-      - distance_km
-      - location_address
-      - match_confidence
-      - matched_tokens
-      - similarity_score
-      - status
-      - title
-      - tracking_code
-    AITriageRequestRequest:
-      type: object
-      description: Input payload for classifying grievance text.
-      properties:
-        title:
-          type: string
-          minLength: 1
-          description: Title or subject of the complaint
-          maxLength: 200
-        description:
-          type: string
-          minLength: 1
-          description: Detailed description of the civic issue
-        location_address:
-          type: string
-          default: ''
-          description: Optional address or landmark for context
-      required:
-      - description
-      - title
-    AITriageResponse:
-      type: object
-      description: Output predictions including category, priority, and hazard assessment.
-      properties:
-        predicted_category:
-          $ref: '#/components/schemas/PredictedCategoryEnum'
-        confidence_score:
-          type: number
-          format: double
-        urgency_score:
-          type: integer
-        predicted_priority:
-          $ref: '#/components/schemas/PredictedPriorityEnum'
-        detected_keywords:
-          type: array
-          items:
-            type: string
-        hazard_tags:
-          type: array
-          items:
-            type: string
-        sentiment:
-          type: string
-        estimated_resolution_hours:
-          type: integer
-      required:
-      - confidence_score
-      - detected_keywords
-      - estimated_resolution_hours
-      - hazard_tags
-      - predicted_category
-      - predicted_priority
-      - sentiment
-      - urgency_score
     AdminProfile:
       type: object
       description: Full read-only profile for super-admin users — includes all fields.
@@ -2183,7 +2038,7 @@ components:
           nullable: true
         role:
           allOf:
-          - $ref: '#/components/schemas/Role027Enum'
+          - $ref: '#/components/schemas/RoleEnum'
           readOnly: true
         status:
           allOf:
@@ -2203,8 +2058,8 @@ components:
         profile_image:
           type: string
           format: uri
-          readOnly: true
           nullable: true
+          readOnly: true
         is_active:
           type: boolean
           readOnly: true
@@ -2249,6 +2104,16 @@ components:
           default: false
       required:
       - user_public_id
+    AttachmentTypeEnum:
+      enum:
+      - IMAGE
+      - AUDIO
+      - VIDEO
+      type: string
+      description: |-
+        * `IMAGE` - Image
+        * `AUDIO` - Audio Recording
+        * `VIDEO` - Video Evidence
     AuditLog:
       type: object
       description: Serializer for AuditLog entries.
@@ -2316,7 +2181,6 @@ components:
       - DEPARTMENT_UPDATED
       - AUTHORITY_ASSIGNED
       - FEEDBACK_SUBMITTED
-      - AI_TRIAGE_RUN
       - SYSTEM_EVENT
       type: string
       description: |-
@@ -2333,7 +2197,6 @@ components:
         * `DEPARTMENT_UPDATED` - Department Updated
         * `AUTHORITY_ASSIGNED` - Authority Assigned to Department
         * `FEEDBACK_SUBMITTED` - Feedback Submitted
-        * `AI_TRIAGE_RUN` - AI Triage Executed
         * `SYSTEM_EVENT` - System Event
     AuditLogSummary:
       type: object
@@ -2430,8 +2293,8 @@ components:
         profile_image:
           type: string
           format: uri
-          readOnly: true
           nullable: true
+          readOnly: true
         created_at:
           type: string
           format: date-time
@@ -2451,7 +2314,7 @@ components:
       description: Authority status update with resolution remarks.
       properties:
         status:
-          $ref: '#/components/schemas/Status76eEnum'
+          $ref: '#/components/schemas/Status0e4Enum'
         remarks:
           type: string
           default: ''
@@ -2481,6 +2344,22 @@ components:
       - full_name
       - phone
       - public_id
+    BlankEnum:
+      enum:
+      - ''
+    CaptchaResponse:
+      type: object
+      properties:
+        captcha_key:
+          type: string
+        captcha_svg:
+          type: string
+        expires_in:
+          type: integer
+      required:
+      - captcha_key
+      - captcha_svg
+      - expires_in
     CategoryEnum:
       enum:
       - ROAD
@@ -2580,8 +2459,8 @@ components:
         profile_image:
           type: string
           format: uri
-          readOnly: true
           nullable: true
+          readOnly: true
         created_at:
           type: string
           format: date-time
@@ -2595,14 +2474,86 @@ components:
       - phone
       - profile_image
       - public_id
+    ComplaintAttachment:
+      type: object
+      description: Read-only multimedia attachment representation (image, audio, video).
+      properties:
+        public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        file:
+          type: string
+          format: uri
+          nullable: true
+          readOnly: true
+        attachment_type:
+          allOf:
+          - $ref: '#/components/schemas/AttachmentTypeEnum'
+          readOnly: true
+        original_filename:
+          type: string
+          readOnly: true
+        content_type:
+          type: string
+          readOnly: true
+        file_size:
+          type: integer
+          readOnly: true
+          description: File size in bytes
+        caption:
+          type: string
+          readOnly: true
+        duration_seconds:
+          type: number
+          format: double
+          readOnly: true
+          nullable: true
+        uploaded_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - attachment_type
+      - caption
+      - content_type
+      - duration_seconds
+      - file
+      - file_size
+      - original_filename
+      - public_id
+      - uploaded_at
+    ComplaintAttachmentUploadRequest:
+      type: object
+      description: Validates multimedia attachment upload request.
+      properties:
+        file:
+          type: string
+          format: binary
+        attachment_type:
+          allOf:
+          - $ref: '#/components/schemas/AttachmentTypeEnum'
+          default: IMAGE
+        caption:
+          type: string
+          default: ''
+          maxLength: 255
+        duration_seconds:
+          type: number
+          format: double
+          nullable: true
+      required:
+      - file
     ComplaintCreateRequest:
       type: object
       description: Validates data for filing a new complaint.
       properties:
         category:
-          allOf:
+          nullable: true
+          oneOf:
           - $ref: '#/components/schemas/CategoryEnum'
-          default: ROAD
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
         department_public_id:
           type: string
           nullable: true
@@ -2614,36 +2565,47 @@ components:
           type: string
           minLength: 1
         priority:
-          allOf:
+          nullable: true
+          oneOf:
           - $ref: '#/components/schemas/PriorityEnum'
-          default: MEDIUM
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
         location_address:
           type: string
-          minLength: 1
-          maxLength: 255
+          default: ''
+          maxLength: 500
         latitude:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+          type: number
+          format: double
           nullable: true
         longitude:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+          type: number
+          format: double
           nullable: true
         images:
           type: array
           items:
             type: string
             format: binary
+        audio:
+          type: string
+          format: binary
+          nullable: true
+        video:
+          type: string
+          format: binary
+          nullable: true
+        audio_duration:
+          type: number
+          format: double
+          nullable: true
       required:
       - description
-      - location_address
       - title
     ComplaintDetail:
       type: object
-      description: Detailed read-only complaint representation with nested images
-        and history.
+      description: Detailed read-only complaint representation with nested images,
+        attachments, feedback, and history.
       properties:
         public_id:
           type: string
@@ -2660,7 +2622,7 @@ components:
           readOnly: true
         status:
           allOf:
-          - $ref: '#/components/schemas/Status76eEnum'
+          - $ref: '#/components/schemas/Status0e4Enum'
           readOnly: true
         priority:
           allOf:
@@ -2704,6 +2666,15 @@ components:
           items:
             $ref: '#/components/schemas/ComplaintImage'
           readOnly: true
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComplaintAttachment'
+          readOnly: true
+        feedback:
+          allOf:
+          - $ref: '#/components/schemas/ComplaintFeedbackInline'
+          readOnly: true
         latest_history:
           type: string
           readOnly: true
@@ -2722,11 +2693,13 @@ components:
           nullable: true
       required:
       - assigned_authority
+      - attachments
       - category
       - category_display
       - citizen
       - created_at
       - description
+      - feedback
       - images
       - latest_history
       - latitude
@@ -2740,9 +2713,111 @@ components:
       - title
       - tracking_code
       - updated_at
+    ComplaintFeedbackInline:
+      type: object
+      description: Feedback details submitted by citizen upon grievance resolution.
+      properties:
+        public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        rating:
+          type: integer
+          readOnly: true
+          description: Rating score between 1 (worst) and 5 (best)
+        satisfaction_level:
+          allOf:
+          - $ref: '#/components/schemas/SatisfactionLevelEnum'
+          readOnly: true
+        resolution_quality:
+          allOf:
+          - $ref: '#/components/schemas/ResolutionQualityEnum'
+          readOnly: true
+        timeliness:
+          allOf:
+          - $ref: '#/components/schemas/TimelinessEnum'
+          readOnly: true
+        comments:
+          type: string
+          readOnly: true
+        is_issue_resolved:
+          type: boolean
+          readOnly: true
+          description: Citizen confirmation whether the civic issue was actually resolved
+        citizen_name:
+          type: string
+          readOnly: true
+        citizen_email:
+          type: string
+          format: email
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - citizen_email
+      - citizen_name
+      - comments
+      - created_at
+      - is_issue_resolved
+      - public_id
+      - rating
+      - resolution_quality
+      - satisfaction_level
+      - timeliness
+    ComplaintFeedbackPublicInline:
+      type: object
+      description: Public feedback representation for tracking, without citizen PII.
+      properties:
+        public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        rating:
+          type: integer
+          readOnly: true
+          description: Rating score between 1 (worst) and 5 (best)
+        satisfaction_level:
+          allOf:
+          - $ref: '#/components/schemas/SatisfactionLevelEnum'
+          readOnly: true
+        resolution_quality:
+          allOf:
+          - $ref: '#/components/schemas/ResolutionQualityEnum'
+          readOnly: true
+        timeliness:
+          allOf:
+          - $ref: '#/components/schemas/TimelinessEnum'
+          readOnly: true
+        comments:
+          type: string
+          readOnly: true
+        is_issue_resolved:
+          type: boolean
+          readOnly: true
+          description: Citizen confirmation whether the civic issue was actually resolved
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - comments
+      - created_at
+      - is_issue_resolved
+      - public_id
+      - rating
+      - resolution_quality
+      - satisfaction_level
+      - timeliness
     ComplaintHistory:
       type: object
-      description: Read-only audit history timeline entry.
+      description: |-
+        Read-only audit history timeline entry.
+
+        With ``context={"public": True}`` (viewer is not the owner, a responsible
+        officer or a super admin) the actor is reduced to their role and any email
+        addresses in the remarks are masked.
       properties:
         public_id:
           type: string
@@ -2750,7 +2825,7 @@ components:
           readOnly: true
         actor:
           allOf:
-          - $ref: '#/components/schemas/ComplaintUserInline'
+          - $ref: '#/components/schemas/PublicComplaintUserInline'
           readOnly: true
         action:
           allOf:
@@ -2808,6 +2883,7 @@ components:
         image:
           type: string
           format: uri
+          nullable: true
           readOnly: true
         caption:
           type: string
@@ -2853,7 +2929,7 @@ components:
           readOnly: true
         status:
           allOf:
-          - $ref: '#/components/schemas/Status76eEnum'
+          - $ref: '#/components/schemas/Status0e4Enum'
           readOnly: true
         priority:
           allOf:
@@ -2890,6 +2966,15 @@ components:
         image_count:
           type: string
           readOnly: true
+        attachment_count:
+          type: string
+          readOnly: true
+        feedback_rating:
+          type: integer
+          readOnly: true
+        feedback_comments:
+          type: string
+          readOnly: true
         created_at:
           type: string
           format: date-time
@@ -2900,11 +2985,14 @@ components:
           readOnly: true
       required:
       - assigned_authority_name
+      - attachment_count
       - category
       - category_display
       - citizen_name
       - created_at
       - description
+      - feedback_comments
+      - feedback_rating
       - image_count
       - latitude
       - location_address
@@ -2931,10 +3019,21 @@ components:
           type: number
           format: double
           nullable: true
+        sla_compliance_rate:
+          type: number
+          format: double
+          default: 100.0
         daily_trend:
           type: array
           items:
             $ref: '#/components/schemas/DailyTrendItem'
+        total_feedbacks:
+          type: integer
+          default: 0
+        average_rating:
+          type: number
+          format: double
+          default: 0.0
       required:
       - avg_resolution_hours
       - daily_trend
@@ -2943,7 +3042,13 @@ components:
       - total_complaints
     ComplaintTracking:
       type: object
-      description: Public read-only tracking serializer.
+      description: |-
+        Public read-only tracking serializer.
+
+        Evidence files (photos, audio, video) are only included when the viewer may
+        access the complaint (owner, responsible officer, super admin). Anyone else
+        holding the tracking code sees status and text details only. Pass the
+        request in the serializer context.
       properties:
         public_id:
           type: string
@@ -2960,7 +3065,7 @@ components:
           readOnly: true
         status:
           allOf:
-          - $ref: '#/components/schemas/Status76eEnum'
+          - $ref: '#/components/schemas/Status0e4Enum'
           readOnly: true
         priority:
           allOf:
@@ -2984,6 +3089,15 @@ components:
           items:
             $ref: '#/components/schemas/ComplaintImage'
           readOnly: true
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComplaintAttachment'
+          readOnly: true
+        feedback:
+          allOf:
+          - $ref: '#/components/schemas/ComplaintFeedbackPublicInline'
+          readOnly: true
         created_at:
           type: string
           format: date-time
@@ -2998,10 +3112,12 @@ components:
           readOnly: true
           nullable: true
       required:
+      - attachments
       - category
       - category_display
       - created_at
       - description
+      - feedback
       - images
       - location_address
       - priority
@@ -3033,7 +3149,7 @@ components:
           nullable: true
         role:
           allOf:
-          - $ref: '#/components/schemas/Role027Enum'
+          - $ref: '#/components/schemas/RoleEnum'
           readOnly: true
       required:
       - email
@@ -3065,6 +3181,9 @@ components:
           type: integer
         pending:
           type: integer
+        assigned:
+          type: integer
+          default: 0
         in_progress:
           type: integer
         resolved:
@@ -3169,9 +3288,12 @@ components:
           type: string
           default: ''
         contact_email:
-          type: string
-          format: email
-          default: ''
+          oneOf:
+          - type: string
+            format: email
+            default: ''
+          - type: string
+            maxLength: 0
         contact_phone:
           type: string
           default: ''
@@ -3266,8 +3388,11 @@ components:
         description:
           type: string
         contact_email:
-          type: string
-          format: email
+          oneOf:
+          - type: string
+            format: email
+          - type: string
+            maxLength: 0
         contact_phone:
           type: string
           maxLength: 20
@@ -3402,6 +3527,10 @@ components:
           type: string
           writeOnly: true
           minLength: 1
+        captcha_key:
+          type: string
+        captcha_code:
+          type: string
       required:
       - email
       - password
@@ -3482,6 +3611,9 @@ components:
         * `RESOLUTION_UPDATE` - Resolution Update
         * `PRIORITY_CHANGED` - Priority Changed
         * `SYSTEM` - System Notification
+    NullEnum:
+      enum:
+      - null
     PaginatedAuditLogList:
       type: object
       required:
@@ -3625,7 +3757,7 @@ components:
       description: Authority status update with resolution remarks.
       properties:
         status:
-          $ref: '#/components/schemas/Status76eEnum'
+          $ref: '#/components/schemas/Status0e4Enum'
         remarks:
           type: string
           default: ''
@@ -3644,7 +3776,7 @@ components:
       description: Validates status transition updates.
       properties:
         status:
-          $ref: '#/components/schemas/Status76eEnum'
+          $ref: '#/components/schemas/Status0e4Enum'
         remarks:
           type: string
           default: ''
@@ -3659,8 +3791,11 @@ components:
         description:
           type: string
         contact_email:
-          type: string
-          format: email
+          oneOf:
+          - type: string
+            format: email
+          - type: string
+            maxLength: 0
         contact_phone:
           type: string
           maxLength: 20
@@ -3710,42 +3845,6 @@ components:
         address:
           type: string
           maxLength: 255
-    PredictedCategoryEnum:
-      enum:
-      - ROAD
-      - WATER
-      - ELECTRICITY
-      - GARBAGE
-      - DRAINAGE
-      - SANITATION
-      - STREET_LIGHT
-      - PARKS
-      - NOISE
-      - OTHER
-      type: string
-      description: |-
-        * `ROAD` - Road & Infrastructure
-        * `WATER` - Water Supply
-        * `ELECTRICITY` - Electricity
-        * `GARBAGE` - Garbage & Waste
-        * `DRAINAGE` - Drainage & Sewage
-        * `SANITATION` - Sanitation & Hygiene
-        * `STREET_LIGHT` - Street Light
-        * `PARKS` - Parks & Public Spaces
-        * `NOISE` - Noise Pollution
-        * `OTHER` - Other
-    PredictedPriorityEnum:
-      enum:
-      - LOW
-      - MEDIUM
-      - HIGH
-      - URGENT
-      type: string
-      description: |-
-        * `LOW` - Low
-        * `MEDIUM` - Medium
-        * `HIGH` - High
-        * `URGENT` - Urgent
     PriorityBreakdown:
       type: object
       properties:
@@ -3807,6 +3906,25 @@ components:
           format: binary
       required:
       - profile_image
+    PublicComplaintUserInline:
+      type: object
+      description: Sanitized public representation of an actor in audit/history logs.
+      properties:
+        public_id:
+          type: string
+          format: uuid
+          readOnly: true
+        full_name:
+          type: string
+          readOnly: true
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          readOnly: true
+      required:
+      - full_name
+      - public_id
+      - role
     RefreshTokenRequest:
       type: object
       properties:
@@ -3817,6 +3935,11 @@ components:
       - refresh
     RegisterRequest:
       type: object
+      description: |-
+        Public sign-up. Creates citizen accounts only.
+
+        Officer (AUTHORITY) and SUPER_ADMIN accounts are created by a super admin through
+        POST /api/v1/users/create/, or with `manage.py createsuperuser`.
       properties:
         email:
           type: string
@@ -3832,40 +3955,38 @@ components:
           maxLength: 150
         phone:
           type: string
+          nullable: true
           maxLength: 20
         role:
           allOf:
-          - $ref: '#/components/schemas/RegisterRoleEnum'
+          - $ref: '#/components/schemas/RoleEnum'
           default: CITIZEN
+        address:
+          type: string
+          nullable: true
+          maxLength: 255
       required:
       - email
       - full_name
       - password
-    RegisterRoleEnum:
-      enum:
-      - CITIZEN
-      - AUTHORITY
-      type: string
-      description: |-
-        * `CITIZEN` - CITIZEN
-        * `AUTHORITY` - AUTHORITY
     ResetPasswordRequest:
       type: object
       properties:
         uid:
           type: string
-          minLength: 1
+          default: ''
         token:
           type: string
-          minLength: 1
+          default: ''
+        email:
+          type: string
+          default: ''
         new_password:
           type: string
           writeOnly: true
           minLength: 8
       required:
       - new_password
-      - token
-      - uid
     ResolutionImageUploadRequest:
       type: object
       description: Upload a resolution image.
@@ -3900,7 +4021,7 @@ components:
         * `FAIR` - Fair
         * `GOOD` - Good
         * `EXCELLENT` - Excellent
-    Role027Enum:
+    RoleEnum:
       enum:
       - CITIZEN
       - AUTHORITY
@@ -3924,6 +4045,22 @@ components:
         * `NEUTRAL` - Neutral
         * `SATISFIED` - Satisfied
         * `VERY_SATISFIED` - Very Satisfied
+    Status0e4Enum:
+      enum:
+      - PENDING
+      - ASSIGNED
+      - IN_PROGRESS
+      - RESOLVED
+      - REJECTED
+      - CLOSED
+      type: string
+      description: |-
+        * `PENDING` - Pending
+        * `ASSIGNED` - Assigned
+        * `IN_PROGRESS` - In Progress
+        * `RESOLVED` - Resolved
+        * `REJECTED` - Rejected
+        * `CLOSED` - Closed
     Status372Enum:
       enum:
       - ACTIVE
@@ -3932,20 +4069,6 @@ components:
       description: |-
         * `ACTIVE` - Active
         * `INACTIVE` - Inactive
-    Status76eEnum:
-      enum:
-      - PENDING
-      - IN_PROGRESS
-      - RESOLVED
-      - REJECTED
-      - CLOSED
-      type: string
-      description: |-
-        * `PENDING` - Pending
-        * `IN_PROGRESS` - In Progress
-        * `RESOLVED` - Resolved
-        * `REJECTED` - Rejected
-        * `CLOSED` - Closed
     StatusBreakdownItem:
       type: object
       properties:
@@ -4047,21 +4170,43 @@ components:
           nullable: true
         role:
           allOf:
-          - $ref: '#/components/schemas/Role027Enum'
+          - $ref: '#/components/schemas/RoleEnum'
           readOnly: true
         status:
           allOf:
           - $ref: '#/components/schemas/StatusF08Enum'
+          readOnly: true
+        address:
+          type: string
+          readOnly: true
+        department:
+          type: string
+          readOnly: true
+        designation:
+          type: string
+          readOnly: true
+        profile_image:
+          type: string
+          format: uri
+          nullable: true
+          readOnly: true
+        bio:
+          type: string
           readOnly: true
         created_at:
           type: string
           format: date-time
           readOnly: true
       required:
+      - address
+      - bio
       - created_at
+      - department
+      - designation
       - email
       - full_name
       - phone
+      - profile_image
       - public_id
       - role
       - status
@@ -4114,11 +4259,26 @@ components:
           nullable: true
         role:
           allOf:
-          - $ref: '#/components/schemas/Role027Enum'
+          - $ref: '#/components/schemas/RoleEnum'
           readOnly: true
         status:
           allOf:
           - $ref: '#/components/schemas/StatusF08Enum'
+          readOnly: true
+        department:
+          type: string
+          readOnly: true
+        department_name:
+          type: string
+          readOnly: true
+        designation:
+          type: string
+          readOnly: true
+        bio:
+          type: string
+          readOnly: true
+        address:
+          type: string
           readOnly: true
         departments:
           type: array
@@ -4128,8 +4288,8 @@ components:
         profile_image:
           type: string
           format: uri
-          readOnly: true
           nullable: true
+          readOnly: true
         is_active:
           type: boolean
           readOnly: true
@@ -4141,8 +4301,13 @@ components:
           format: date-time
           readOnly: true
       required:
+      - address
+      - bio
       - created_at
+      - department
+      - department_name
       - departments
+      - designation
       - email
       - full_name
       - is_active

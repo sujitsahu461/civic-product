@@ -1028,14 +1028,10 @@ export const SystemAnalytics: React.FC = () => {
             </div>
           </div>
 
-          {/* Card 3: AI Insights & Predictions */}
+          {/* Card 3: Insights */}
           <div className={s.chartCard}>
             <div className={s.chartCardHeader} style={{ marginBottom: 8 }}>
-              <h3 className={s.cardTitle}>AI Insights &amp; Predictions</h3>
-              <span className={s.aiBadge}>
-                <Icon name="auto_awesome" size={13} />
-                <span>Powered by AI</span>
-              </span>
+              <h3 className={s.cardTitle}>Insights</h3>
             </div>
 
             <div className={s.predictionList}>

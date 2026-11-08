@@ -56,7 +56,6 @@ export const SuperAdminDashboard: React.FC = () => {
   const [timeHorizon, setTimeHorizon] = useState<'30d' | '7d' | 'quarter'>('30d');
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('30d');
   const [selectedTrendFilter, setSelectedTrendFilter] = useState<string>('30d');
-  const [selectedAiFilter, setSelectedAiFilter] = useState<string>('30d');
 
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [_lastRefreshedTime, setLastRefreshedTime] = useState<string>('Just now');
@@ -66,22 +65,9 @@ export const SuperAdminDashboard: React.FC = () => {
 
   // Modals
   const [activeModal, setActiveModal] = useState<
-    'ai_inspector' | 'health_diagnostics' | 'record_details' | 'audit_archive' | null
+    'health_diagnostics' | 'record_details' | 'audit_archive' | null
   >(null);
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
-
-  // AI Testing Playground State
-  const [testText, setTestText] = useState(
-    'Overflowing municipal garbage container on Main Street causing road blockage'
-  );
-  const [aiInferenceResult, setAiInferenceResult] = useState<{
-    category: string;
-    confidence: number;
-    priority: string;
-    sentiment: string;
-  } | null>(null);
-  const [isRetraining, setIsRetraining] = useState(false);
-  const [retrainProgress, setRetrainProgress] = useState(0);
 
   // Live formatted Date & Time
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
@@ -366,56 +352,6 @@ export const SuperAdminDashboard: React.FC = () => {
     link.click();
     document.body.removeChild(link);
     showToast('Executive BI Dataset exported successfully to CSV!', 'success');
-  };
-
-  // Operational: Live AI Inference Simulator backed by real AI API
-  const handleRunAiInference = async () => {
-    if (!testText.trim()) return;
-    try {
-      const res = await adminService.classifyAi('Live Grievance Inspection', testText);
-      const cat = res.predicted_category || res.category || 'Roads & Infrastructure';
-      const conf = res.confidence_score ? Math.round(res.confidence_score * 1000) / 10 : 94.5;
-      const prio = res.predicted_priority || res.priority || 'HIGH';
-      const sentiment =
-        res.hazard_tags && res.hazard_tags.length > 0
-          ? `Hazard: ${res.hazard_tags.join(', ')}`
-          : (res.urgency_score || 0) > 60
-          ? 'Urgent Citizen Grievance'
-          : 'Standard Citizen Request';
-
-      setAiInferenceResult({
-        category: cat,
-        confidence: conf,
-        priority: prio,
-        sentiment,
-      });
-      showToast('Live AI classification inference executed successfully!', 'success');
-    } catch {
-      // Fallback
-      setAiInferenceResult({
-        category: 'Roads & Infrastructure',
-        confidence: 92.4,
-        priority: 'HIGH',
-        sentiment: 'Civic Grievance Evaluated',
-      });
-    }
-  };
-
-  // Operational: Trigger Model Retraining Simulation
-  const handleTriggerRetrain = () => {
-    setIsRetraining(true);
-    setRetrainProgress(10);
-    const int = setInterval(() => {
-      setRetrainProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(int);
-          setIsRetraining(false);
-          showToast('AI Model Retrained & Deployed: Accuracy increased to 93.4%!', 'success');
-          return 100;
-        }
-        return prev + 25;
-      });
-    }, 600);
   };
 
   return (
@@ -1035,94 +971,6 @@ export const SuperAdminDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Card 2: AI Model Performance */}
-        <div className={s.cardBox}>
-          <div className={s.cardHeader}>
-            <div className={s.cardHeaderLeft}>
-              <h2 className={s.cardTitle}>AI Model Performance</h2>
-              <span className={s.cardSubtitle}>Accuracy and processing metrics</span>
-            </div>
-            <select
-              className={s.filterSelect}
-              value={selectedAiFilter}
-              onChange={(e) => setSelectedAiFilter(e.target.value)}
-            >
-              <option value="30d">Last 30 Days</option>
-              <option value="7d">Last 7 Days</option>
-            </select>
-          </div>
-
-          <div className={s.aiGrid}>
-            {/* Metric 1: Classification */}
-            <div
-              className={s.aiMetricCard}
-              onClick={() => setActiveModal('ai_inspector')}
-            >
-              <div className={s.aiMetricTop}>
-                <div className={s.aiIconCircle} style={{ background: '#E6F4EA', color: '#1F6B3F' }}>
-                  <Icon name="settings" size={14} />
-                </div>
-                <div className={s.aiMetricValRow}>
-                  <span className={s.aiMetricVal}>92.7%</span>
-                  <span className={`${s.aiMetricTrend} ${s.trendGreen}`}>↑ 2.4%</span>
-                </div>
-              </div>
-              <span className={s.aiMetricLabel}>Classification Accuracy</span>
-            </div>
-
-            {/* Metric 2: Image Analysis */}
-            <div
-              className={s.aiMetricCard}
-              onClick={() => setActiveModal('ai_inspector')}
-            >
-              <div className={s.aiMetricTop}>
-                <div className={s.aiIconCircle} style={{ background: '#FFE8D6', color: '#7A1F2B' }}>
-                  <Icon name="image" size={14} />
-                </div>
-                <div className={s.aiMetricValRow}>
-                  <span className={s.aiMetricVal}>89.1%</span>
-                  <span className={`${s.aiMetricTrend} ${s.trendGreen}`}>↑ 1.8%</span>
-                </div>
-              </div>
-              <span className={s.aiMetricLabel}>Image Analysis Accuracy</span>
-            </div>
-
-            {/* Metric 3: Voice-to-Text */}
-            <div
-              className={s.aiMetricCard}
-              onClick={() => setActiveModal('ai_inspector')}
-            >
-              <div className={s.aiMetricTop}>
-                <div className={s.aiIconCircle} style={{ background: '#F6E3E5', color: '#7A1F2B' }}>
-                  <Icon name="mic" size={14} />
-                </div>
-                <div className={s.aiMetricValRow}>
-                  <span className={s.aiMetricVal}>94.3%</span>
-                  <span className={`${s.aiMetricTrend} ${s.trendGreen}`}>↑ 1.2%</span>
-                </div>
-              </div>
-              <span className={s.aiMetricLabel}>Voice-to-Text Accuracy</span>
-            </div>
-
-            {/* Metric 4: Avg Processing Time */}
-            <div
-              className={s.aiMetricCard}
-              onClick={() => setActiveModal('ai_inspector')}
-            >
-              <div className={s.aiMetricTop}>
-                <div className={s.aiIconCircle} style={{ background: '#FDF0C4', color: '#6B4E00' }}>
-                  <Icon name="schedule" size={14} />
-                </div>
-                <div className={s.aiMetricValRow}>
-                  <span className={s.aiMetricVal}>1.8 sec</span>
-                  <span className={`${s.aiMetricTrend} ${s.trendGreen}`}>↓ 28%</span>
-                </div>
-              </div>
-              <span className={s.aiMetricLabel}>Avg. Processing Time</span>
-            </div>
-          </div>
-        </div>
-
         {/* Card 3: System Activity */}
         <div className={s.cardBox}>
           <div className={s.cardHeader}>
@@ -1152,7 +1000,6 @@ export const SuperAdminDashboard: React.FC = () => {
                 if (action.includes('USER') || action.includes('LOGIN')) icon = '👤';
                 else if (action.includes('COMPLAINT')) icon = '📋';
                 else if (action.includes('DEPT') || action.includes('DEPARTMENT')) icon = '🏢';
-                else if (action.includes('AI') || action.includes('MODEL')) icon = '🤖';
                 else if (action.includes('SECURITY') || action.includes('AUTH')) icon = '🛡️';
 
                 const timeStr = a.created_at || a.timestamp
@@ -1196,7 +1043,6 @@ export const SuperAdminDashboard: React.FC = () => {
             {[
               { icon: '🖥️', name: 'API Server', status: '99.9% uptime' },
               { icon: '🗄️', name: 'Database', status: 'Healthy' },
-              { icon: '🤖', name: 'AI/ML Engine', status: 'Healthy' },
               { icon: '🔔', name: 'Notification Service', status: 'Healthy' },
               { icon: '📁', name: 'File Storage', status: 'Healthy' },
               { icon: '🔒', name: 'Authentication', status: 'Healthy' },
@@ -1319,29 +1165,6 @@ export const SuperAdminDashboard: React.FC = () => {
             <Icon name="chevron_right" size={14} className={s.quickChevron} />
           </Link>
 
-          {/* 5. AI & ML Monitoring */}
-          <div
-            className={s.quickCard}
-            style={{ background: '#FFF4EC', borderColor: '#FFC9A3' }}
-            onClick={() => setActiveModal('ai_inspector')}
-          >
-            <div className={s.quickLeft}>
-              <div
-                className={s.quickIconBox}
-                style={{ background: '#FFE8D6', color: '#7A1F2B' }}
-              >
-                <Icon name="smart_toy" size={15} />
-              </div>
-              <div className={s.quickText}>
-                <span className={s.quickName}>AI & ML Monitoring</span>
-                <span className={s.quickDesc}>
-                  Model performance and training management
-                </span>
-              </div>
-            </div>
-            <Icon name="chevron_right" size={14} className={s.quickChevron} />
-          </div>
-
           {/* 6. System Configuration */}
           <div
             className={s.quickCard}
@@ -1449,117 +1272,6 @@ export const SuperAdminDashboard: React.FC = () => {
           </table>
         </div>
       </section>
-
-      {/* ================= MODAL 1: AI MODEL INSPECTOR ================= */}
-      {activeModal === 'ai_inspector' && (
-        <div className={s.modalBackdrop} onClick={() => setActiveModal(null)}>
-          <div className={s.modalCard} onClick={(e) => e.stopPropagation()}>
-            <div className={s.modalHeader}>
-              <div className={s.modalTitleWrap}>
-                <div className={s.modalIconBox} style={{ background: '#FFF4EC', color: '#7A1F2B' }}>
-                  <Icon name="psychology" size={20} />
-                </div>
-                <div>
-                  <h3 className={s.modalTitle}>AI Model Performance Playground</h3>
-                  <p className={s.modalSub}>Test civic complaint auto-triage inference & trigger model retraining</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                className={s.modalCloseBtn}
-                onClick={() => setActiveModal(null)}
-              >
-                <Icon name="close" size={16} />
-              </button>
-            </div>
-
-            <div className={s.modalBody}>
-              <div className={s.aiTestBox}>
-                <span style={{ fontSize: '12px', fontWeight: 700, color: '#5A4033' }}>
-                  Live Grievance Classifier Playground
-                </span>
-                <textarea
-                  className={s.aiInput}
-                  value={testText}
-                  onChange={(e) => setTestText(e.target.value)}
-                  placeholder="Enter any citizen complaint in English, Hindi, or Odia..."
-                />
-                <button
-                  type="button"
-                  className={s.heroActionBtnPrimary}
-                  style={{ alignSelf: 'flex-start', padding: '7px 14px', borderRadius: '8px' }}
-                  onClick={handleRunAiInference}
-                >
-                  <Icon name="play_arrow" size={15} />
-                  <span>Run Live AI Inference</span>
-                </button>
-
-                {aiInferenceResult && (
-                  <div className={s.aiResultCard}>
-                    <div>
-                      <div style={{ fontSize: '11px', color: '#7D6657' }}>Predicted Category</div>
-                      <div className={s.aiResultCategory}>{aiInferenceResult.category}</div>
-                      <div style={{ fontSize: '11px', color: '#7D6657', marginTop: '3px' }}>
-                        Sentiment: {aiInferenceResult.sentiment} | Suggested Priority: {aiInferenceResult.priority}
-                      </div>
-                    </div>
-                    <span className={s.aiResultConfidence}>
-                      {aiInferenceResult.confidence}% Confidence
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Model Retraining Simulation */}
-              <div style={{ background: '#FFFBF2', padding: '14px', borderRadius: '10px', border: '1px solid #EADFCB' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <div style={{ fontSize: '12.5px', fontWeight: 700, color: '#3B2418' }}>Retrain Classification Model</div>
-                    <div style={{ fontSize: '11px', color: '#7D6657' }}>Incorporate 14,200 newly verified civic resolution samples</div>
-                  </div>
-                  <button
-                    type="button"
-                    className={s.heroActionBtn}
-                    onClick={handleTriggerRetrain}
-                    disabled={isRetraining}
-                  >
-                    <Icon name="model_training" size={14} />
-                    <span>{isRetraining ? 'Retraining...' : 'Trigger Retrain'}</span>
-                  </button>
-                </div>
-
-                {isRetraining && (
-                  <div style={{ marginTop: '10px' }}>
-                    <div style={{ height: '6px', background: '#EADFCB', borderRadius: '9999px', overflow: 'hidden' }}>
-                      <div
-                        style={{
-                          height: '100%',
-                          background: '#FF7722',
-                          width: `${retrainProgress}%`,
-                          transition: 'width 0.4s ease',
-                        }}
-                      ></div>
-                    </div>
-                    <span style={{ fontSize: '10.5px', color: '#7D6657', marginTop: '4px', display: 'block' }}>
-                      Training Epochs: {retrainProgress}% complete...
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className={s.modalFooter}>
-              <button
-                type="button"
-                className={s.heroActionBtn}
-                onClick={() => setActiveModal(null)}
-              >
-                Close Inspector
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ================= MODAL 2: PLATFORM HEALTH DIAGNOSTICS ================= */}
       {activeModal === 'health_diagnostics' && (

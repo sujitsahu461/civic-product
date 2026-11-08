@@ -13,8 +13,8 @@
 
 ### Step 2.1: Clone the Repository
 ```bash
-git clone https://github.com/sujitsahu461/-CivicSetu-AI-Powered-Civic-Engagement-Platform.git
-cd -CivicSetu-AI-Powered-Civic-Engagement-Platform
+git clone https://github.com/sujitsahu461/civic-product.git
+cd civic-product
 ```
 
 ### Step 2.2: Backend Python Environment Setup

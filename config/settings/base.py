@@ -55,8 +55,6 @@ LOCAL_APPS = [
     "apps.complaint_history",
     "apps.notifications",
     "apps.feedback",
-    "apps.ai_predictions",
-    "apps.ai_engine",
     "apps.audit_logs",
     "apps.core",
     "apps.users",
@@ -194,7 +192,6 @@ REST_FRAMEWORK = {
         "anon": "1000/hour",
         "user": "5000/hour",
         "auth": "120/minute",
-        "ai": "60/minute",
     },
 }
 
@@ -209,7 +206,7 @@ SIMPLE_JWT = {
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "CivicSetu API",
-    "DESCRIPTION": "Backend API for the CivicSetu AI-powered civic engagement platform.",
+    "DESCRIPTION": "Backend API for the CivicSetu civic engagement platform.",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "COMPONENT_SPLIT_REQUEST": True,

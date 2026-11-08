@@ -1326,7 +1326,6 @@ export const UserManagement: React.FC = () => {
                         'Citizen verification and biometric KYC bypass',
                         'Authority credential provisioning and department reassignment',
                         'Cryptographic audit trail inspection & tampering detection',
-                        'AI automated triage threshold calibration',
                         'Automated SMS / WhatsApp citizen notification broadcasts',
                       ].map((p, idx) => (
                         <div key={idx} className={s.permItem}>

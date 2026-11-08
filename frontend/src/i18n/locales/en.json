@@ -1,7 +1,7 @@
 {
   "common": {
     "appName": "CivicSetu",
-    "tagline": "AI-Free Transparent Civic Engagement & Grievance Redressal",
+    "tagline": "Transparent Civic Engagement & Grievance Redressal",
     "language": "Language",
     "english": "English",
     "odia": "ଓଡ଼ିଆ",
@@ -506,17 +506,17 @@
       "incidentImageAlt": "Ward 12 Municipal Infrastructure",
       "incidentTitle": "2026 Ward 12 Infrastructure",
       "exploreMap": "Explore Incident Map",
-      "tagAiTriage": "AI Triage",
+      "tagAiTriage": "Category Routing",
       "tagWardDispatch": "Ward Dispatch",
       "metricLabel": "Verified Grievance Resolution Rate",
       "targetSla": "Target SLA: < 24h",
       "efficiency": "+18% MoM Efficiency",
-      "overviewTitle": "AI Routing Overview",
+      "overviewTitle": "Routing Overview",
       "bestRoute": "BEST ROUTE",
       "bestDept": "Road & Infrastructure Dept",
       "bestWard": "Ward 12 Central Division • PWD Cell",
       "matchBadge": "98% MATCH",
-      "confidenceScore": "AI Confidence Score",
+      "confidenceScore": "Match Score",
       "policySla": "Policy SLA Target",
       "emergencyDispatch": "Emergency Dispatch",
       "otherEvaluations": "Other Department Evaluations",
@@ -539,7 +539,7 @@
     "platform": {
       "badge": "ONE PLATFORM",
       "headline": "Full confidence in every civic action.",
-      "subtext": "A single operational interface connecting proactive citizens, AI automated triage, and municipal workforces.",
+      "subtext": "A single operational interface connecting proactive citizens, rule-based triage, and municipal workforces.",
       "sidebar": {
         "dashboard": "Dashboard",
         "dashboardTitle": "Citizen Dashboard",
@@ -555,13 +555,13 @@
         "userRole": "Ward 12 Officer ↗"
       },
       "registryTitle": "Grievance Registry",
-      "registrySub": "Automated AI intake, categorization, and routing queue",
+      "registrySub": "Automated intake, categorization, and routing queue",
       "searchPlaceholder": "Search grievances...",
       "newGrievance": "+ New Grievance",
       "table": {
         "details": "Grievance Details",
         "reported": "Reported",
-        "aiMatch": "AI Match",
+        "aiMatch": "Category Match",
         "department": "Department",
         "priority": "Priority",
         "slaTarget": "SLA Target",
@@ -579,7 +579,7 @@
           "department": "Roads & Infrastructure",
           "status": "Auto-Routed",
           "popHeading": "Tier 1 • Road & Infrastructure",
-          "popText": "AI Classification: High-risk commuter road hazard. Routed to Ward 12 PWD Quick Response Team.",
+          "popText": "Classification: High-risk commuter road hazard. Routed to Ward 12 PWD Quick Response Team.",
           "popAction": "View Details"
         },
         "r2": {
@@ -624,8 +624,8 @@
         "f1Desc": "Frictionless mobile reporting with automatic GPS geotagging, instant photo proof, and zero paperwork.",
         "f2Title": "Scalable and Modular",
         "f2Desc": "Connects all 5 municipal departments onto a unified real-time ledger across wards and zones.",
-        "f3Title": "Automated AI Triage",
-        "f3Desc": "Understands natural language complaints and classifies category, urgency, and routing in milliseconds.",
+        "f3Title": "Rule-Based Routing",
+        "f3Desc": "Sets category, urgency, and routing instantly from the citizen's selection and safety keywords.",
         "f4Title": "Real-Time Decisioning",
         "f4Desc": "Automated SLA timers and escalation alerts ensure public safety issues never sit idle."
       }
@@ -641,10 +641,10 @@
       "geotagAdded": "📍 Geotag Added",
       "photoProof": "📷 Photo Proof",
       "step1Text": "Citizen submits grievance details with mobile photo, GPS location, and voice or text description.",
-      "triageMatrix": "AI TRIAGE MATRIX",
+      "triageMatrix": "TRIAGE MATRIX",
       "triageDept": "Roads & Infrastructure (98.4%)",
       "triageUrgency": "High Urgency • SLA: < 24h",
-      "step2Text": "CivicSetu AI analyzes severity, confirms jurisdictional boundaries, and routes directly to the ward desk.",
+      "step2Text": "CivicSetu analyzes severity, confirms jurisdictional boundaries, and routes directly to the ward desk.",
       "wardPwd": "Ward 12 PWD",
       "dispatched": "✓ Dispatched",
       "citizenNotified": "Citizen notified with tracking link",
@@ -704,7 +704,7 @@
     "signOut": "Sign Out",
     "signInRegister": "Sign In / Register",
     "footer": {
-      "desc": "Empowering residents with transparent, AI-triage municipal grievance registration, real-time SLA accountability, and automated department routing.",
+      "desc": "Empowering residents with transparent, municipal grievance registration, real-time SLA accountability, and automated department routing.",
       "helplineTitle": "24x7 Citizen Emergency Helplines",
       "municipalControl": "Municipal Control:",
       "emergency": "Emergency:",

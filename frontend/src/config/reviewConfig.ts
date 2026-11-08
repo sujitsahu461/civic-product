@@ -3,7 +3,7 @@
  * 
  * REVIEW_PHASE:
  * 1 = Project Review 1 (Core Architecture, Database, Authentication, Citizen Grievance Subsystem - 35% Progress)
- * 2 = Full Project / Review 2 (Full-Stack complete: Authority Hub, AI Engine, Admin Console, Radar Map, Feedback - 100%)
+ * 2 = Full Project / Review 2 (Full-Stack complete: Authority Hub, Admin Console, Radar Map, Feedback - 100%)
  */
 
 export const REVIEW_PHASE: number = 2; // Full Mode (100% Platform Active)
@@ -27,7 +27,6 @@ export const reviewConfig = {
     notifications: true,
     authorityHub: true,
     superAdminPortal: true,
-    aiAutoTriage: true,
     gisRadarMap: true,
     citizenFeedbackRating: true,
     securityAuditLogs: true,

@@ -236,7 +236,7 @@ export const AuthorityLayout: React.FC = () => {
                 <strong style={{ fontSize: 16, color: 'var(--cs-text-strong)' }}>CivicSetu</strong>
               </div>
               <p className={s.footerDesc}>
-                Municipal Authority Grievance Management — AI-powered triage,
+                Municipal Authority Grievance Management — complaint triage,
                 real-time SLA tracking, and automated department routing.
               </p>
             </div>

@@ -70,17 +70,6 @@ CivicSetu exposes a versioned RESTful API under `/api/v1/`. OpenAPI 3.0 specific
 
 ---
 
-## 6. AI Engine Endpoints (`/api/v1/ai/`)
-
-| Method | Endpoint | Description | Access |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/v1/ai/predict-category/` | Classify text into civic category | Authenticated |
-| `POST` | `/api/v1/ai/predict-priority/` | Predict urgency priority level | Authenticated |
-| `POST` | `/api/v1/ai/route-department/` | Route grievance to responsible department | Authenticated |
-| `POST` | `/api/v1/ai/triage/` | Combined automated triage (Category + Priority + Department) | Authenticated |
-
----
-
 ## 7. Citizen Feedback & Notifications
 
 | Method | Endpoint | Description | Access |

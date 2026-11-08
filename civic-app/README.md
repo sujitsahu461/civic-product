@@ -1,20 +1,18 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# CIVIC — citizen web app and mobile app
 
-# Run and deploy your AI Studio app
+Citizen-facing app for CivicSetu: report civic problems, track them and receive updates.
+See the repository root `README.md` (section 15) for how this fits the platform.
 
-This contains everything you need to run your app locally.
+- Web/PWA prototype: root of this folder (`index.html`, `server.js`, `dist/`). Source is not in git yet.
+- Mobile app: `mobile/` (Expo SDK 54). See `docs/ANDROID_BUILD.md`.
+- Design documents: `docs/`.
 
-View your app in AI Studio: https://ai.studio/apps/75f6a4bb-120f-4147-a8b9-a64839803a85
+## Run the web app locally
 
-## Run Locally
+```bash
+npm ci
+npm run dev      # http://localhost:3000
+npm run build && npm start   # production server (server.js)
+```
 
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Set `APP_URL` in `.env.local` if needed (see `.env.example`).

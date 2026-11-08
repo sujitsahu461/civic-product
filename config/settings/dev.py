@@ -11,7 +11,6 @@ REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {  # noqa: F405
     "anon": None,
     "user": None,
     "auth": None,
-    "ai": None,
 }
 
 # In dev, use SMTP backend if EMAIL_HOST_USER or explicit EMAIL_BACKEND is set, else console fallback

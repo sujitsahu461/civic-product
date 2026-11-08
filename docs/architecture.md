@@ -2,7 +2,7 @@
 
 ## 1. System Overview
 
-CivicSetu is an enterprise-grade civic grievance redressal and municipal engagement platform designed to streamline citizen complaint registration, provide AI-assisted automated triage and department routing, and deliver transparent lifecycle tracking with auditability.
+CivicSetu is an enterprise-grade civic grievance redressal and municipal engagement platform designed to streamline citizen complaint registration, apply rule-based priority and department routing, and deliver transparent lifecycle tracking with auditability.
 
 ```
                               ┌─────────────────────────────────────────┐
@@ -18,10 +18,10 @@ CivicSetu is an enterprise-grade civic grievance redressal and municipal engagem
                                       │                         │
                                       ▼                         ▼
         ┌───────────────────────────────────┐     ┌───────────────────────────────────┐
-        │        CivicSetu AI Engine        │     │       Data & Storage Layer        │
-        │  • Category Classifier (TF-IDF)   │     │  • PostgreSQL 18 (ACID, Relational)│
-        │  • Priority Predictor (Pipeline)  │     │  • Media Storage (Images/Proofs)  │
-        │  • Department Router & Lookup     │     │  • Token Blacklist & Audit Logs   │
+        │  Complaint Services (rules)       │     │       Data & Storage Layer        │
+        │  • Category and priority rules    │     │  • PostgreSQL (ACID, Relational)  │
+        │  • Department routing (scoping)   │     │  • Media Storage (Images/Proofs)  │
+        │  • Status workflow                │     │  • Token Blacklist & Audit Logs   │
         └───────────────────────────────────┘     └───────────────────────────────────┘
 ```
 
@@ -29,13 +29,13 @@ CivicSetu is an enterprise-grade civic grievance redressal and municipal engagem
 
 ## 2. Core Architectural Principles
 
-- **Modular Monolith**: Organized into loosely-coupled Django applications under `apps/` with clear domain boundaries (`accounts`, `users`, `departments`, `complaints`, `complaint_history`, `complaint_images`, `authority`, `feedback`, `notifications`, `audit_logs`, `ai_engine`, `ai_predictions`).
+- **Modular Monolith**: Organized into loosely-coupled Django applications under `apps/` with clear domain boundaries (`accounts`, `users`, `departments`, `complaints`, `complaint_history`, `complaint_images`, `authority`, `feedback`, `notifications`, `audit_logs`).
 - **Role-Based Access Control (RBAC)**: Enforced via custom DRF permission classes distinguishing between:
   - `CITIZEN`: Grievance submission, personal tracking, profile management, feedback.
   - `AUTHORITY`: Department-scoped grievance redressal, status updates, evidence submission, analytics.
   - `SUPER_ADMIN`: Cross-department management, user administration, system-wide analytics, audit logs.
 - **Auditable Complaint Lifecycle**: Compliant with a finite state machine (`PENDING` -> `IN_PROGRESS` -> `RESOLVED` / `REJECTED`). Every transition generates immutable `ComplaintHistory` records and administrative audit logs.
-- **Embedded AI/ML Intelligence**: Pre-trained scikit-learn models evaluate grievance content synchronously or upon submission to recommend category classification, urgency prioritization, and municipal department assignment.
+- **Deterministic rules**: Category and priority come from the citizen's selection and fixed keyword lists in `apps/complaints/services.py`; officer visibility is decided in `apps/complaints/scoping.py`. There are no machine-learning models.
 
 ---
 
@@ -45,8 +45,6 @@ CivicSetu is an enterprise-grade civic grievance redressal and municipal engagem
 CivicSetu/
 ├── apps/
 │   ├── accounts/          # Authentication, JWT issuance/refresh, password reset
-│   ├── ai_engine/         # Core ML inference engine (TF-IDF, Priority, Department)
-│   ├── ai_predictions/    # REST endpoints and persistent logging for AI predictions
 │   ├── audit_logs/        # Immutable system and security audit trails
 │   ├── authority/         # Authority dashboard, resolution workflows, analytics
 │   ├── complaint_history/ # Lifecycle state machine history and transition events
