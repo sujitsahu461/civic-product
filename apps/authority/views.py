@@ -33,6 +33,9 @@ from apps.authority.services import (
     AuthorityDashboardService,
     NotificationService,
 )
+from apps.audit_logs.models import AuditAction
+from apps.audit_logs.services import AuditLogService
+from apps.complaints.scoping import scoped_complaint_or_none
 from apps.users.permissions import IsActiveUser
 
 
@@ -145,7 +148,8 @@ class AuthorityComplaintDetailView(APIView):
         description="Retrieve full details, images, and latest history for a complaint.",
     )
     def get(self, request, public_id):
-        complaint = _get_complaint_or_404(public_id)
+        # Officers only see complaints in their departments (404 otherwise).
+        complaint = scoped_complaint_or_none(request.user, public_id)
         if complaint is None:
             return _complaint_not_found()
         return Response(ComplaintDetailSerializer(complaint).data)
@@ -173,6 +177,7 @@ class AuthorityStatusUpdateView(APIView):
         serializer = AuthorityStatusUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
+        old_status = complaint.status
         try:
             complaint = AuthorityComplaintService.update_complaint_status(
                 complaint=complaint,
@@ -183,6 +188,10 @@ class AuthorityStatusUpdateView(APIView):
         except ValueError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
+        AuditLogService.safe_log(
+            AuditAction.COMPLAINT_STATUS_UPDATE, "Complaint", complaint.tracking_code, request=request,
+            metadata={"old_status": old_status, "new_status": complaint.status},
+        )
         return Response(ComplaintDetailSerializer(complaint).data)
 
     post = patch
@@ -219,6 +228,10 @@ class AuthorityResolutionNotesView(APIView):
         except ValueError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
+        AuditLogService.safe_log(
+            AuditAction.COMPLAINT_STATUS_UPDATE, "Complaint", complaint.tracking_code, request=request,
+            metadata={"event": "resolution_notes_updated"},
+        )
         return Response(ComplaintDetailSerializer(complaint).data)
 
     post = patch
@@ -256,6 +269,10 @@ class AuthorityResolutionImageView(APIView):
         except ValueError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
+        AuditLogService.safe_log(
+            AuditAction.COMPLAINT_STATUS_UPDATE, "Complaint", complaint.tracking_code, request=request,
+            metadata={"event": "resolution_proof_uploaded", "image": str(img.public_id)},
+        )
         return Response(ComplaintImageSerializer(img).data, status=status.HTTP_201_CREATED)
 
 
@@ -281,6 +298,7 @@ class AuthorityPriorityUpdateView(APIView):
         serializer = PriorityUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
+        old_priority = complaint.priority
         try:
             complaint = AuthorityComplaintService.update_priority(
                 complaint=complaint,
@@ -291,6 +309,10 @@ class AuthorityPriorityUpdateView(APIView):
         except ValueError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
+        AuditLogService.safe_log(
+            AuditAction.COMPLAINT_PRIORITY_UPDATE, "Complaint", complaint.tracking_code, request=request,
+            metadata={"old_priority": old_priority, "new_priority": complaint.priority},
+        )
         return Response(ComplaintDetailSerializer(complaint).data)
 
     post = patch

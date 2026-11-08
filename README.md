@@ -106,7 +106,7 @@ CivicSetu follows a modular monolithic architecture with a decoupled React SPA f
                                ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                      Data Persistence                       │
-│    MySQL 8.0 (InnoDB)  │  Media Storage  │  Audit Logs      │
+│    PostgreSQL 18 (ACID) │  Media Storage  │  Audit Logs     │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -118,19 +118,19 @@ For detailed architecture documentation, see [`docs/architecture.md`](docs/archi
 
 | Layer | Technology | Purpose |
 | :--- | :--- | :--- |
-| **Backend Framework** | Django 5.0.14 | Core web framework & ORM |
-| **API Framework** | Django REST Framework 3.15.2 | RESTful API endpoints and serializers |
-| **Authentication** | djangorestframework-simplejwt 5.3.1 | JSON Web Token (JWT) auth with token blacklisting |
-| **Database** | MySQL 8.0 (InnoDB engine, `utf8mb4`) | Relational data persistence |
-| **AI / Machine Learning** | scikit-learn 1.6.1, joblib 1.5.3 | NLP text classification, priority & routing models |
-| **Data Processing** | pandas 3.0.6, numpy 2.5.2 | Data feature manipulation and preprocessing |
-| **API Documentation** | drf-spectacular 0.27.2 | OpenAPI 3.0 specification & Swagger UI |
+| **Backend Framework** | Django 6.0.5 | Core web framework & ORM |
+| **API Framework** | Django REST Framework 3.17.1 | RESTful API endpoints and serializers |
+| **Authentication** | djangorestframework-simplejwt 5.5.1 | JSON Web Token (JWT) auth with token blacklisting |
+| **Database** | PostgreSQL 18.0 (`django.db.backends.postgresql` via `psycopg2-binary 2.9.12`) | Relational ACID data persistence |
+| **AI / Machine Learning** | scikit-learn 1.9.0, joblib 1.5.3 | NLP text classification, priority & routing models |
+| **Data Processing** | pandas 3.0.3, numpy 2.4.4 | Data feature manipulation and preprocessing |
+| **API Documentation** | drf-spectacular 0.30.0 | OpenAPI 3.0 specification & Swagger UI |
 | **Frontend Framework** | React 19.2.8 | User interface components and views |
 | **Frontend Build Tool** | Vite 8.2.0 | Development server and client build tooling |
 | **State Management** | Zustand 5.0.14 | Client-side reactive state management |
 | **Mapping** | Leaflet 1.9.4 & React-Leaflet 5.0.0 | Interactive incident location mapping |
 | **Styling** | Vanilla CSS Modules | Glassmorphism design system |
-| **Static Serving** | WhiteNoise 6.7.0 | Production static asset delivery |
+| **Static Serving** | WhiteNoise 6.6.0 | Production static asset delivery |
 | **WSGI Server** | Gunicorn 22.0.0 | Production application server |
 
 ---
@@ -262,9 +262,9 @@ CivicSetu/
 ## 12. Installation
 
 ### Prerequisites
-- Python 3.12+
+- Python 3.12+ (tested on Python 3.14.3)
 - Node.js 18.x or 20.x+
-- MySQL 8.0+
+- PostgreSQL 16+ or 18.x
 - Git
 
 Clone the repository:
@@ -326,11 +326,12 @@ SECRET_KEY=your-secure-development-key
 DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
 
-DB_NAME=civicsetu
-DB_USER=root
-DB_PASSWORD=your_mysql_password
+DB_ENGINE=django.db.backends.postgresql
+DB_NAME=civicsetu_db
+DB_USER=postgres
+DB_PASSWORD=your_postgres_password
 DB_HOST=127.0.0.1
-DB_PORT=3306
+DB_PORT=5432
 
 CSRF_TRUSTED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173
 CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173
@@ -342,9 +343,9 @@ FRONTEND_URL=http://localhost:5173
 
 ## 16. Database Configuration
 
-1. Log into MySQL and create the database:
+1. Create the PostgreSQL database:
    ```sql
-   CREATE DATABASE civicsetu CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   CREATE DATABASE civicsetu_db WITH ENCODING 'UTF8';
    ```
 
 2. Apply migrations:

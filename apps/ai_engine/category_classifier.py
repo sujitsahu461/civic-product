@@ -96,26 +96,35 @@ class CategoryClassifier:
                 "probabilities": {cat: 0.20 for cat in MODEL_TO_DB_CATEGORY_MAP.values()},
             }
 
-        self._ensure_loaded()
+        try:
+            self._ensure_loaded()
 
-        features = self._vectorizer.transform([cleaned])
-        raw_prediction = self._model.predict(features)[0]
-        probabilities_array = self._model.predict_proba(features)[0]
+            features = self._vectorizer.transform([cleaned])
+            raw_prediction = self._model.predict(features)[0]
+            probabilities_array = self._model.predict_proba(features)[0]
 
-        classes = list(self._model.classes_)
-        pred_idx = classes.index(raw_prediction) if raw_prediction in classes else 0
-        confidence_score = float(probabilities_array[pred_idx])
+            classes = list(self._model.classes_)
+            pred_idx = classes.index(raw_prediction) if raw_prediction in classes else 0
+            confidence_score = float(probabilities_array[pred_idx])
 
-        db_category = MODEL_TO_DB_CATEGORY_MAP.get(raw_prediction, "ROAD")
+            db_category = MODEL_TO_DB_CATEGORY_MAP.get(raw_prediction, "ROAD")
 
-        probabilities_dict = {}
-        for class_name, prob in zip(classes, probabilities_array):
-            mapped_db_cat = MODEL_TO_DB_CATEGORY_MAP.get(class_name, class_name)
-            probabilities_dict[mapped_db_cat] = round(float(prob), 4)
+            probabilities_dict = {}
+            for class_name, prob in zip(classes, probabilities_array):
+                mapped_db_cat = MODEL_TO_DB_CATEGORY_MAP.get(class_name, class_name)
+                probabilities_dict[mapped_db_cat] = round(float(prob), 4)
 
-        return {
-            "predicted_category": db_category,
-            "confidence_score": round(confidence_score, 4),
-            "raw_category": raw_prediction,
-            "probabilities": probabilities_dict,
-        }
+            return {
+                "predicted_category": db_category,
+                "confidence_score": round(confidence_score, 4),
+                "raw_category": raw_prediction,
+                "probabilities": probabilities_dict,
+            }
+        except Exception as exc:
+            logger.error("Error executing Category ML model: %s", type(exc).__name__)
+            return {
+                "predicted_category": "ROAD",
+                "confidence_score": 0.50,
+                "raw_category": "Roads",
+                "probabilities": {cat: 0.20 for cat in MODEL_TO_DB_CATEGORY_MAP.values()},
+            }

@@ -20,12 +20,15 @@ from apps.feedback.serializers import (
     FeedbackDetailSerializer,
 )
 from apps.feedback.services import FeedbackService
+from apps.users.permissions import IsActiveUser
+from apps.audit_logs.models import AuditAction
+from apps.audit_logs.services import AuditLogService
 
 
 class SubmitFeedbackView(APIView):
-    """Submit rating and feedback for a resolved complaint."""
+    """Submit rating and feedback for a resolved complaint (owner only, signed in)."""
 
-    permission_classes = []
+    permission_classes = [IsAuthenticated, IsActiveUser]
 
     @extend_schema(
         summary="Submit complaint resolution feedback",
@@ -33,6 +36,7 @@ class SubmitFeedbackView(APIView):
         responses={
             201: FeedbackDetailSerializer,
             400: OpenApiResponse(description="Validation error or invalid status"),
+            401: OpenApiResponse(description="Not signed in"),
             403: OpenApiResponse(description="Citizen does not own complaint"),
             404: OpenApiResponse(description="Complaint not found"),
         },
@@ -50,16 +54,15 @@ class SubmitFeedbackView(APIView):
         except Complaint.DoesNotExist:
             raise NotFound("Complaint not found.")
 
-        # Determine citizen identity
-        if request.user and request.user.is_authenticated:
-            citizen = request.user
-        else:
-            citizen = complaint.citizen
-
+        # Always rate as the signed-in user; the service rejects anyone but the owner.
         feedback = FeedbackService.submit_feedback(
             complaint=complaint,
-            citizen=citizen,
+            citizen=request.user,
             validated_data=serializer.validated_data,
+        )
+        AuditLogService.safe_log(
+            AuditAction.FEEDBACK_SUBMITTED, "Complaint", complaint.tracking_code, request=request,
+            metadata={"rating": feedback.rating, "is_issue_resolved": feedback.is_issue_resolved},
         )
 
         return Response(
@@ -88,8 +91,10 @@ class ComplaintFeedbackDetailView(APIView):
         except Complaint.DoesNotExist:
             raise NotFound("Complaint not found.")
 
-        # Permissions: Citizen can only view their own complaint's feedback
-        if request.user.role == UserRole.CITIZEN and complaint.citizen_id != request.user.id:
+        # Owner, officers of the responsible department, or super admins only.
+        from apps.complaints.scoping import can_access_complaint
+
+        if not can_access_complaint(request.user, complaint):
             raise PermissionDenied("You do not have permission to view feedback for this complaint.")
 
         try:

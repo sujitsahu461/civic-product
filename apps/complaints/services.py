@@ -11,6 +11,7 @@ from apps.accounts.models import UserRole
 from apps.complaint_history.models import ComplaintHistory, HistoryAction
 from apps.complaint_images.models import AttachmentType, ComplaintAttachment, ComplaintImage
 from apps.complaints.models import Complaint, ComplaintCategory, ComplaintPriority, ComplaintStatus
+from apps.complaints.scoping import categories_for_user, officers_for_category, scope_complaints
 
 
 User = get_user_model()
@@ -212,15 +213,35 @@ class ComplaintService:
             else:
                 resolved_category = None
 
-        if not resolved_category or resolved_category == "AUTO":
-            resolved_category = evaluate_deterministic_category(title, description)
+        ai_triage_result = None
+        try:
+            from apps.ai_predictions.services import AITriageService
+            ai_triage_result = AITriageService.classify_complaint(
+                title=title,
+                description=description,
+                location_address=location_address,
+                save_log=False,
+            )
+        except Exception as ai_err:
+            logger.warning("AI triage pre-scoring error: %s", type(ai_err).__name__)
 
-        final_priority = evaluate_deterministic_priority(
-            title=title,
-            description=description,
-            category=resolved_category,
-            requested_priority=priority,
-        )
+        if not resolved_category or resolved_category == "AUTO":
+            if ai_triage_result and ai_triage_result.get("predicted_category"):
+                resolved_category = ai_triage_result["predicted_category"]
+            else:
+                resolved_category = evaluate_deterministic_category(title, description)
+
+        if priority and str(priority).upper() in ComplaintPriority.values:
+            final_priority = str(priority).upper()
+        elif ai_triage_result and ai_triage_result.get("predicted_priority"):
+            final_priority = ai_triage_result["predicted_priority"]
+        else:
+            final_priority = evaluate_deterministic_priority(
+                title=title,
+                description=description,
+                category=resolved_category,
+                requested_priority=priority,
+            )
 
         complaint = Complaint.objects.create(
             citizen=citizen,
@@ -233,6 +254,33 @@ class ComplaintService:
             longitude=longitude,
             status=ComplaintStatus.PENDING,
         )
+
+        # Persist AI prediction record in PostgreSQL
+        try:
+            from apps.ai_predictions.models import AIPredictionLog
+            from apps.ai_predictions.services import AITriageService
+            if not ai_triage_result:
+                ai_triage_result = AITriageService.classify_complaint(
+                    title=title,
+                    description=description,
+                    location_address=location_address,
+                    save_log=False,
+                )
+            AIPredictionLog.objects.create(
+                complaint=complaint,
+                predicted_category=ai_triage_result.get("predicted_category", resolved_category),
+                confidence_score=ai_triage_result.get("confidence_score", 0.85),
+                urgency_score=ai_triage_result.get("urgency_score", 50),
+                predicted_priority=ai_triage_result.get("predicted_priority", final_priority),
+                predicted_department=ai_triage_result.get("predicted_department", ""),
+                requires_human_review=ai_triage_result.get("requires_human_review", False),
+                detected_keywords=ai_triage_result.get("detected_keywords", []),
+                hazard_tags=ai_triage_result.get("hazard_tags", []),
+                sentiment=ai_triage_result.get("sentiment", "NEGATIVE"),
+                estimated_resolution_hours=ai_triage_result.get("estimated_resolution_hours", 48),
+            )
+        except Exception as ai_log_err:
+            logger.warning("Failed to persist AI prediction record: %s", type(ai_log_err).__name__)
 
         # Log creation history
         ComplaintHistory.objects.create(
@@ -264,14 +312,17 @@ class ComplaintService:
                 else:
                     ComplaintService.add_attachment(complaint, citizen, att)
 
-        # Notify ALL authority users of new complaint
+        # Notify the officers whose departments handle this category. If no
+        # department covers it, alert the super admins so it is not missed.
         try:
             from apps.authority.services import NotificationService
             from apps.notifications.models import NotificationType
 
-            authorities = get_user_model().objects.filter(
-                role=UserRole.AUTHORITY, is_active=True
-            )
+            authorities = officers_for_category(complaint.category)
+            if not authorities.exists():
+                authorities = get_user_model().objects.filter(
+                    role=UserRole.SUPER_ADMIN, is_active=True
+                )
             for authority_user in authorities:
                 NotificationService.create_notification(
                     recipient=authority_user,
@@ -321,6 +372,16 @@ class ComplaintService:
                 f"Allowed transitions from {old_status}: {', '.join(sorted(allowed)) if allowed else 'None (terminal state)'}."
             )
 
+        # Closing the loop needs a written record: resolution notes to resolve
+        # (new remarks, or notes already saved), and a reason to reject.
+        has_remarks = bool((remarks or "").strip())
+        if new_status == ComplaintStatus.RESOLVED and not (
+            has_remarks or (complaint.resolution_notes or "").strip()
+        ):
+            raise ValueError("Resolution notes are required to mark a complaint as resolved.")
+        if new_status == ComplaintStatus.REJECTED and not has_remarks:
+            raise ValueError("A reason is required to reject a complaint.")
+
         complaint.status = new_status
         update_fields = ["status", "updated_at"]
 
@@ -366,26 +427,8 @@ class ComplaintService:
         if authority_user.role != UserRole.AUTHORITY and authority_user.role != UserRole.SUPER_ADMIN:
             raise ValueError("Only an authority or super admin can be assigned to handle complaints.")
 
-        if hasattr(authority_user, "department_assignments") and authority_user.department_assignments.exists():
-            dept_names = list(authority_user.department_assignments.values_list("department__name", flat=True))
-            auth_cats = set()
-            for name in dept_names:
-                uname = name.upper()
-                if "ROAD" in uname:
-                    auth_cats.add("ROAD")
-                elif "WATER" in uname:
-                    auth_cats.add("WATER")
-                elif "ELEC" in uname or "LIGHT" in uname:
-                    auth_cats.update(["ELECTRICITY", "STREET_LIGHT"])
-                elif "GARBAGE" in uname or "WASTE" in uname or "SANITATION" in uname:
-                    auth_cats.update(["GARBAGE", "SANITATION"])
-                elif "DRAIN" in uname:
-                    auth_cats.add("DRAINAGE")
-                elif "PARK" in uname:
-                    auth_cats.add("PARKS")
-                elif "TRAFFIC" in uname:
-                    auth_cats.add("TRAFFIC")
-            if auth_cats and complaint.category not in auth_cats:
+        if authority_user.role == UserRole.AUTHORITY and authority_user.department_assignments.exists():
+            if complaint.category not in categories_for_user(authority_user):
                 raise ValueError("Authority does not belong to the department of this complaint.")
 
         complaint.assigned_authority = authority_user
@@ -401,7 +444,7 @@ class ComplaintService:
             action=HistoryAction.ASSIGNED,
             old_status=complaint.status,
             new_status=complaint.status,
-            remarks=remarks or f"Assigned to {authority_user.full_name} ({authority_user.email}).",
+            remarks=remarks or f"Assigned to {authority_user.full_name}.",
         )
 
         logger.info(
@@ -612,34 +655,8 @@ class ComplaintSearchService:
             "citizen", "assigned_authority"
         ).prefetch_related("images")
 
-        # Role-based scoping:
-        if not user or not user.is_authenticated:
-            return Complaint.objects.none()
-
-        if getattr(user, "role", None) == UserRole.CITIZEN:
-            queryset = queryset.filter(citizen=user)
-        elif getattr(user, "role", None) == UserRole.AUTHORITY:
-                if hasattr(user, "department_assignments") and user.department_assignments.exists():
-                    dept_names = list(user.department_assignments.values_list("department__name", flat=True))
-                    cat_filters = []
-                    for name in dept_names:
-                        uname = name.upper()
-                        if "ROAD" in uname:
-                            cat_filters.append("ROAD")
-                        elif "WATER" in uname:
-                            cat_filters.append("WATER")
-                        elif "ELEC" in uname or "LIGHT" in uname:
-                            cat_filters.extend(["ELECTRICITY", "STREET_LIGHT"])
-                        elif "GARBAGE" in uname or "WASTE" in uname or "SANITATION" in uname:
-                            cat_filters.extend(["GARBAGE", "SANITATION"])
-                        elif "DRAIN" in uname:
-                            cat_filters.append("DRAINAGE")
-                        elif "PARK" in uname or "FOREST" in uname:
-                            cat_filters.append("PARKS")
-                        elif "TRAFFIC" in uname:
-                            cat_filters.append("TRAFFIC")
-                    if cat_filters:
-                        queryset = queryset.filter(Q(category__in=cat_filters) | Q(assigned_authority=user))
+        # Role-based scoping (citizen: own; officer: own departments; admin: all).
+        queryset = scope_complaints(queryset, user)
 
         # Free-text search across title, description, tracking_code, location_address
         if query:

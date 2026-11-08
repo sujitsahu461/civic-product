@@ -389,6 +389,24 @@ class UserDetailTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_demoting_super_admin_removes_admin_rights(self):
+        other_admin = _make_user(UserRole.SUPER_ADMIN, email="demote_me@example.com")
+        other_admin.is_staff = True
+        other_admin.is_superuser = True
+        other_admin.save()
+        self.client.force_authenticate(user=self.admin)
+        url = reverse("user-detail", kwargs={"public_id": other_admin.public_id})
+        response = self.client.patch(url, {"role": UserRole.AUTHORITY}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        other_admin.refresh_from_db()
+        self.assertEqual(other_admin.role, UserRole.AUTHORITY)
+        self.assertFalse(other_admin.is_staff)
+        self.assertFalse(other_admin.is_superuser)
+        # The demoted account must no longer pass the super-admin permission.
+        self.client.force_authenticate(user=other_admin)
+        denied = self.client.get("/api/v1/audit-logs/")
+        self.assertEqual(denied.status_code, status.HTTP_403_FORBIDDEN)
+
     def test_nonexistent_user_returns_404(self):
         import uuid
 

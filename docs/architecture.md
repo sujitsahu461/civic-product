@@ -19,7 +19,7 @@ CivicSetu is an enterprise-grade civic grievance redressal and municipal engagem
                                       ▼                         ▼
         ┌───────────────────────────────────┐     ┌───────────────────────────────────┐
         │        CivicSetu AI Engine        │     │       Data & Storage Layer        │
-        │  • Category Classifier (TF-IDF)   │     │  • MySQL 8.0 (InnoDB, Relational) │
+        │  • Category Classifier (TF-IDF)   │     │  • PostgreSQL 18 (ACID, Relational)│
         │  • Priority Predictor (Pipeline)  │     │  • Media Storage (Images/Proofs)  │
         │  • Department Router & Lookup     │     │  • Token Blacklist & Audit Logs   │
         └───────────────────────────────────┘     └───────────────────────────────────┘

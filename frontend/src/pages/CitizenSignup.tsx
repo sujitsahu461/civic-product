@@ -303,12 +303,12 @@ export const CitizenSignup: React.FC = () => {
             <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #F7EFE1', display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '12px' }}>
               <Link to="/signup/authority" style={{ color: '#7A1F2B', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                 <Icon name="badge" size={14} />
-                <span>{t('auth.signup.authorityRegistration')}</span>
+                <span>Officer accounts</span>
               </Link>
               <span style={{ color: '#DCCDB5' }}>•</span>
               <Link to="/signup/superadmin" style={{ color: '#7A1F2B', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                 <Icon name="admin_panel_settings" size={14} />
-                <span>{t('auth.signup.adminSetup')}</span>
+                <span>Admin accounts</span>
               </Link>
             </div>
           </div>

@@ -33,19 +33,22 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class RegisterSerializer(serializers.Serializer):
+    """Public sign-up. Creates citizen accounts only.
+
+    Officer (AUTHORITY) and SUPER_ADMIN accounts are created by a super admin through
+    POST /api/v1/users/create/, or with `manage.py createsuperuser`.
+    """
+
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True, min_length=8)
     full_name = serializers.CharField(max_length=150)
     phone = serializers.CharField(max_length=20, required=False, allow_blank=True, allow_null=True)
     role = serializers.ChoiceField(
-        choices=(UserRole.CITIZEN, UserRole.AUTHORITY, UserRole.SUPER_ADMIN),
+        choices=UserRole.choices,
         default=UserRole.CITIZEN,
         required=False,
     )
     address = serializers.CharField(max_length=255, required=False, allow_blank=True, allow_null=True)
-    department = serializers.CharField(max_length=100, required=False, allow_blank=True, allow_null=True)
-    designation = serializers.CharField(max_length=100, required=False, allow_blank=True, allow_null=True)
-    security_key = serializers.CharField(max_length=100, required=False, allow_blank=True, allow_null=True)
 
     def validate_email(self, value):
         normalized = User.objects.normalize_email(value)
@@ -67,19 +70,16 @@ class RegisterSerializer(serializers.Serializer):
             raise serializers.ValidationError(messages)
         return value
 
-    def validate(self, attrs):
-        role = attrs.get("role", UserRole.CITIZEN)
-        if role == UserRole.SUPER_ADMIN:
-            sec_key = (attrs.get("security_key") or "").strip()
-            valid_keys = {"CIVICSETU-ADMIN-2025", "ADMIN@CIVICSETU", "SUPERADMIN2025"}
-            if not sec_key:
-                raise serializers.ValidationError({"security_key": "Master Administrator Security Passkey is required (e.g. CIVICSETU-ADMIN-2025)."})
-            if sec_key not in valid_keys:
-                raise serializers.ValidationError({"security_key": "Invalid Master Administrator Security Passkey. Access Denied. Use CIVICSETU-ADMIN-2025."})
-        return attrs
+    def validate_role(self, value):
+        if value != UserRole.CITIZEN:
+            raise serializers.ValidationError(
+                "Public sign-up is for citizens only. Officer and administrator accounts "
+                "are created by your municipality's super admin."
+            )
+        return value
 
     def create(self, validated_data):
-        validated_data.pop("security_key", None)
+        validated_data["role"] = UserRole.CITIZEN
         return UserRegistrationService.register_user(**validated_data)
 
 
@@ -96,14 +96,12 @@ class LoginSerializer(serializers.Serializer):
     captcha_code = serializers.CharField(required=False, allow_blank=True)
 
     def validate(self, attrs):
-        # Validate captcha if provided
-        captcha_key = attrs.get("captcha_key")
-        captcha_code = attrs.get("captcha_code")
-        if captcha_key or captcha_code:
-            from apps.accounts.captcha import verify_captcha
-            is_valid, err_msg = verify_captcha(captcha_key, captcha_code)
-            if not is_valid:
-                raise serializers.ValidationError({"captcha_code": err_msg})
+        # The captcha is mandatory: every sign-in must answer a server-signed challenge.
+        from apps.accounts.captcha import verify_captcha
+
+        is_valid, err_msg = verify_captcha(attrs.get("captcha_key"), attrs.get("captcha_code"))
+        if not is_valid:
+            raise serializers.ValidationError({"captcha_code": err_msg})
 
         user = authenticate(
             request=self.context.get("request"),
@@ -135,7 +133,10 @@ class RefreshTokenSerializer(serializers.Serializer):
     refresh = serializers.CharField()
 
     def validate(self, attrs):
-        attrs["tokens"] = TokenService.refresh_tokens(attrs["refresh"])
+        try:
+            attrs["tokens"] = TokenService.refresh_tokens(attrs["refresh"])
+        except ValueError as exc:
+            raise serializers.ValidationError({"refresh": str(exc)}) from exc
         return attrs
 
 

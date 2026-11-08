@@ -2,6 +2,7 @@ from datetime import timedelta
 from pathlib import Path
 
 import environ
+from django.utils.csp import CSP
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -67,6 +68,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "django.middleware.csp.ContentSecurityPolicyMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -99,7 +101,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
 
-DB_ENGINE = env("DB_ENGINE", default="django.db.backends.sqlite3")
+DB_ENGINE = env("DB_ENGINE", default="django.db.backends.postgresql")
 
 if "sqlite" in DB_ENGINE:
     DATABASES = {
@@ -109,20 +111,21 @@ if "sqlite" in DB_ENGINE:
         }
     }
 else:
+    db_options = {}
+    if env("DB_SSLMODE", default=""):
+        db_options["sslmode"] = env("DB_SSLMODE")
+
     DATABASES = {
         "default": {
-            "ENGINE": DB_ENGINE,
-            "NAME": env("DB_NAME", default="civicsetu"),
-            "USER": env("DB_USER", default="root"),
-            "PASSWORD": env("DB_PASSWORD", default="ROOT"),
-            "HOST": env("DB_HOST", default="localhost"),
-            "PORT": env("DB_PORT", default=3306),
-            "OPTIONS": {
-                "charset": "utf8mb4",
-                "init_command": "SET sql_mode='STRICT_TRANS_TABLES', wait_timeout=30, interactive_timeout=30",
-            },
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": env("DB_NAME", default="civicsetu_db"),
+            "USER": env("DB_USER", default="postgres"),
+            "PASSWORD": env("DB_PASSWORD", default=""),
+            "HOST": env("DB_HOST", default="127.0.0.1"),
+            "PORT": env.int("DB_PORT", default=5432),
             "CONN_MAX_AGE": env.int("DB_CONN_MAX_AGE", default=0),
             "CONN_HEALTH_CHECKS": True,
+            "OPTIONS": db_options,
         }
     }
 
@@ -216,6 +219,39 @@ SPECTACULAR_SETTINGS = {
 
 CORS_ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS")
 CORS_ALLOW_CREDENTIALS = True
+
+
+# Content-Security-Policy (Django's built-in CSP middleware).
+# The web app keeps JWTs in localStorage, so the main defence against token theft
+# is that no injected or third-party script can run: scripts load only from this
+# site (plus jsDelivr for the Swagger UI at /api/docs/). Inline style attributes
+# are allowed because the React UI uses them; inline <script> is not.
+# Set CSP_REPORT_ONLY=True in .env to trial a change without blocking anything.
+_CSP_POLICY = {
+    "default-src": [CSP.SELF],
+    "script-src": [CSP.SELF, "https://cdn.jsdelivr.net"],
+    "style-src": [CSP.SELF, CSP.UNSAFE_INLINE, "https://fonts.googleapis.com", "https://cdn.jsdelivr.net"],
+    "font-src": [CSP.SELF, "https://fonts.gstatic.com", "data:"],
+    "img-src": [
+        CSP.SELF,
+        "data:",
+        "blob:",
+        "https://*.tile.openstreetmap.org",
+        "https://server.arcgisonline.com",
+        "https://unpkg.com",
+        "https://cdn.jsdelivr.net",
+    ],
+    "media-src": [CSP.SELF, "blob:"],
+    "connect-src": [CSP.SELF, "https://nominatim.openstreetmap.org", "https://api.bigdatacloud.net"],
+    "object-src": [CSP.NONE],
+    "base-uri": [CSP.SELF],
+    "form-action": [CSP.SELF],
+    "frame-ancestors": [CSP.NONE],
+}
+if env.bool("CSP_REPORT_ONLY", default=False):
+    SECURE_CSP_REPORT_ONLY = _CSP_POLICY
+else:
+    SECURE_CSP = _CSP_POLICY
 
 
 # SMTP Email Configuration (Password Reset & Redressal Notifications)

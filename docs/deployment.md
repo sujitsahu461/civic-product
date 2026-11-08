@@ -2,27 +2,29 @@
 
 ## 1. Production Architecture
 
-In a production environment, CivicSetu is recommended to run behind a reverse proxy (e.g., NGINX, Cloudflare) with Gunicorn as the WSGI application server, MySQL 8.0 for relational persistence, and WhiteNoise for static asset serving.
+In a production environment, CivicSetu runs with a decoupled or unified architecture: a React 19 SPA (deployable to Vercel or served via Django) and a Django REST Framework backend API with PostgreSQL 18 for ACID relational persistence, Gunicorn WSGI, and WhiteNoise for static asset serving.
 
 ```
-[ Internet ] ──HTTPS──> [ NGINX Reverse Proxy ]
-                              │
+[ Internet ] ──HTTPS──> [ Vercel / NGINX ]
+                               │
                 ┌─────────────┴─────────────┐
                 │                           │
-          /static/, /media/               /api/, /
+          [ Vercel CDN ]              [ API Backend ]
+       (React Vite SPA)               [ Gunicorn WSGI ]
                 │                           │
-         [ Static/Media Files ]     [ Gunicorn WSGI ]
-                                            │
-                                    [ Django Backend ]
-                                            │
-                                    [ MySQL 8.0 DB ]
+                └───────────┬───────────────┘
+                            ▼
+                    [ Django Backend ]
+                            │
+                  [ PostgreSQL 18 DB ]
 ```
 
 ---
 
 ## 2. Environment Configuration
 
-Create a production `.env` file on your server:
+### Backend Environment (`.env`):
+Create a production `.env` file on your backend server:
 
 ```ini
 DJANGO_ENV=production
@@ -31,14 +33,17 @@ SECRET_KEY=generate-a-strong-random-50-character-secret-key
 DEBUG=False
 ALLOWED_HOSTS=yourdomain.com,api.yourdomain.com
 
+DB_ENGINE=django.db.backends.postgresql
 DB_NAME=civicsetu_prod
 DB_USER=civicsetu_app
 DB_PASSWORD=strong_database_password
 DB_HOST=127.0.0.1
-DB_PORT=3306
+DB_PORT=5432
+DB_CONN_MAX_AGE=60
+DB_SSLMODE=prefer
 
-CSRF_TRUSTED_ORIGINS=https://yourdomain.com
-CORS_ALLOWED_ORIGINS=https://yourdomain.com
+CSRF_TRUSTED_ORIGINS=https://yourdomain.com,https://your-frontend.vercel.app
+CORS_ALLOWED_ORIGINS=https://yourdomain.com,https://your-frontend.vercel.app
 
 STATIC_ROOT=/var/www/civicsetu/staticfiles
 MEDIA_ROOT=/var/www/civicsetu/media
@@ -51,6 +56,13 @@ EMAIL_USE_TLS=True
 EMAIL_HOST_USER=apikey
 EMAIL_HOST_PASSWORD=your_sendgrid_api_key
 DEFAULT_FROM_EMAIL=CivicSetu Redressal <noreply@yourdomain.com>
+```
+
+### Frontend Environment (Vercel):
+Configure only the public backend API base URL in your Vercel project environment variables. **Never expose database credentials in the frontend.**
+
+```ini
+VITE_API_BASE_URL=https://api.yourdomain.com/api/v1
 ```
 
 ---

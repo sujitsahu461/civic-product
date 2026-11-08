@@ -56,9 +56,6 @@ export const authService = {
   async forgotPassword(payload: ForgotPasswordPayload): Promise<{
     message: string;
     detail?: string;
-    sent?: boolean;
-    smtp_error?: string;
-    reset_url?: string;
   }> {
     const res = await api.post('/auth/forgot-password/', payload);
     return res.data;

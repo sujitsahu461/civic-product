@@ -459,6 +459,65 @@ class ComplaintAPIViewTests(TestCase):
         self.assertEqual(response.data["tracking_code"], complaint.tracking_code)
         self.assertEqual(response.data["title"], "Streetlight Failure")
 
+    def test_guest_filing_uses_locked_account(self):
+        url = reverse("complaint-create")
+        response = self.client.post(
+            url,
+            {"title": "Guest report", "description": "Filed without signing in.", "location_address": "Ward 3"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        guest = User.objects.get(email="guest_citizen@civicsetu.local")
+        self.assertFalse(guest.is_active)
+        self.assertFalse(guest.has_usable_password())
+        # Nobody can sign in as the guest account.
+        from django.contrib.auth import authenticate
+        self.assertIsNone(authenticate(username=guest.email, password=""))
+
+    def test_public_tracking_hides_evidence_from_strangers(self):
+        complaint = ComplaintService.create_complaint(
+            citizen=self.citizen,
+            department=self.dept,
+            title="Exposed Wire",
+            description="Wire hanging low.",
+            location_address="Lane 7",
+        )
+        url = reverse("complaint-track", kwargs={"tracking_code": complaint.tracking_code})
+
+        stranger = self.client.get(url)
+        self.client.force_authenticate(user=self.citizen)
+        owner = self.client.get(url)
+
+        self.assertEqual(stranger.status_code, status.HTTP_200_OK)
+        self.assertTrue(stranger.data["evidence_hidden"])
+        self.assertEqual(stranger.data["images"], [])
+        self.assertEqual(stranger.data["attachments"], [])
+        self.assertFalse(owner.data["evidence_hidden"])
+
+    def test_public_timeline_hides_names_and_emails(self):
+        complaint = ComplaintService.create_complaint(
+            citizen=self.citizen,
+            department=self.dept,
+            title="Flickering Light",
+            description="Light flickers at night.",
+            location_address="Park Road",
+        )
+        ComplaintService.update_status(
+            complaint, self.authority, ComplaintStatus.IN_PROGRESS,
+            remarks="Escalated to lineman@example.com for repair.",
+        )
+        url = reverse("complaint-timeline", kwargs={"public_id": complaint.public_id})
+
+        public = self.client.get(url).data
+        self.client.force_authenticate(user=self.citizen)
+        owner = self.client.get(url).data
+
+        self.assertNotIn("full_name", public[0]["actor"])
+        self.assertNotIn("lineman@example.com", public[-1]["remarks"])
+        self.assertIn("full_name", owner[0]["actor"])
+        self.assertIn("lineman@example.com", owner[-1]["remarks"])
+
     def test_public_tracking_invalid_code_returns_404(self):
         url = reverse("complaint-track", kwargs={"tracking_code": "CMP-99999999-INVALID"})
         response = self.client.get(url)
@@ -472,14 +531,38 @@ class ComplaintAPIViewTests(TestCase):
             description="Testing invalid transitions.",
             location_address="Test Location",
         )
-        # Valid: PENDING -> RESOLVED
-        ComplaintService.update_status(complaint, self.authority, ComplaintStatus.RESOLVED)
+        # Valid: PENDING -> RESOLVED (resolution notes are required)
+        ComplaintService.update_status(
+            complaint, self.authority, ComplaintStatus.RESOLVED, remarks="Repaired and verified."
+        )
         complaint.refresh_from_db()
         self.assertEqual(complaint.status, ComplaintStatus.RESOLVED)
 
         # Invalid: RESOLVED -> PENDING must raise ValueError
         with self.assertRaises(ValueError):
             ComplaintService.update_status(complaint, self.authority, ComplaintStatus.PENDING)
+
+    def test_resolve_and_reject_require_notes(self):
+        complaint = ComplaintService.create_complaint(
+            citizen=self.citizen,
+            department=self.dept,
+            title="Notes Required",
+            description="Testing mandatory resolution notes.",
+            location_address="Test Location",
+        )
+        with self.assertRaises(ValueError):
+            ComplaintService.update_status(complaint, self.authority, ComplaintStatus.RESOLVED)
+        with self.assertRaises(ValueError):
+            ComplaintService.update_status(complaint, self.authority, ComplaintStatus.REJECTED, remarks="   ")
+        complaint.refresh_from_db()
+        self.assertEqual(complaint.status, ComplaintStatus.PENDING)
+
+        # Notes saved earlier (via the notes endpoint) satisfy the rule for Resolved.
+        complaint.resolution_notes = "Cover replaced."
+        complaint.save(update_fields=["resolution_notes"])
+        ComplaintService.update_status(complaint, self.authority, ComplaintStatus.RESOLVED)
+        complaint.refresh_from_db()
+        self.assertEqual(complaint.status, ComplaintStatus.RESOLVED)
 
         # Invalid: RESOLVED -> IN_PROGRESS must raise ValueError
         with self.assertRaises(ValueError):
@@ -500,7 +583,8 @@ class ComplaintAPIViewTests(TestCase):
         self.assertNotIn("email", actor_data)
         self.assertNotIn("phone", actor_data)
         self.assertIn("role", actor_data)
-        self.assertIn("full_name", actor_data)
+        # Anonymous viewers no longer see the complainant's (or officer's) name.
+        self.assertNotIn("full_name", actor_data)
 
     def test_image_upload_disallowed_extension_raises(self):
         complaint = ComplaintService.create_complaint(

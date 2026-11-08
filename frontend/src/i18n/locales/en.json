@@ -162,7 +162,7 @@
       "errSendFailed": "Failed to dispatch reset email.",
       "errResetFailed": "Failed to reset password. Please check your registered email address.",
       "errResetShort": "Failed to reset password.",
-      "linkSentToast": "Password reset request processed! Check your email or use the link below.",
+      "linkSentToast": "Password reset request processed! Check your email.",
       "resetSuccessToast": "Password successfully reset! You can now log in with your new password."
     }
   },

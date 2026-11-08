@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
@@ -5,9 +7,13 @@ from apps.accounts.models import UserRole
 from apps.complaint_history.models import ComplaintHistory, HistoryAction
 from apps.complaint_images.models import AttachmentType, ComplaintAttachment, ComplaintImage
 from apps.complaints.models import Complaint, ComplaintCategory, ComplaintPriority, ComplaintStatus
+from apps.complaints.scoping import can_access_complaint
 
 
 User = get_user_model()
+
+# Masks email addresses in timeline remarks shown to the public.
+_EMAIL_PATTERN = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
 
 
 # ---------------------------------------------------------------------------
@@ -62,7 +68,12 @@ class ComplaintAttachmentSerializer(serializers.ModelSerializer):
 
 
 class ComplaintHistorySerializer(serializers.ModelSerializer):
-    """Read-only audit history timeline entry."""
+    """Read-only audit history timeline entry.
+
+    With ``context={"public": True}`` (viewer is not the owner, a responsible
+    officer or a super admin) the actor is reduced to their role and any email
+    addresses in the remarks are masked.
+    """
 
     actor = PublicComplaintUserInlineSerializer(read_only=True)
 
@@ -70,6 +81,14 @@ class ComplaintHistorySerializer(serializers.ModelSerializer):
         model = ComplaintHistory
         fields = ("public_id", "actor", "action", "old_status", "new_status", "remarks", "created_at")
         read_only_fields = fields
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if self.context.get("public"):
+            actor = data.get("actor")
+            data["actor"] = {"role": actor.get("role")} if actor else None
+            data["remarks"] = _EMAIL_PATTERN.sub("[hidden]", data.get("remarks") or "")
+        return data
 
 
 # ---------------------------------------------------------------------------
@@ -306,7 +325,27 @@ class ComplaintFilterSerializer(serializers.Serializer):
 
 
 class ComplaintTrackingSerializer(serializers.ModelSerializer):
-    """Public read-only tracking serializer."""
+    """Public read-only tracking serializer.
+
+    Evidence files (photos, audio, video) are only included when the viewer may
+    access the complaint (owner, responsible officer, super admin). Anyone else
+    holding the tracking code sees status and text details only. Pass the
+    request in the serializer context.
+    """
+
+    EVIDENCE_FIELDS = ("images", "attachments")
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        if not can_access_complaint(user, instance):
+            for field in self.EVIDENCE_FIELDS:
+                data[field] = []
+            data["evidence_hidden"] = True
+        else:
+            data["evidence_hidden"] = False
+        return data
 
     category_display = serializers.CharField(source="get_category_display", read_only=True)
     images = ComplaintImageSerializer(many=True, read_only=True)

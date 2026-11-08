@@ -2,7 +2,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path, re_path
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerSplitView
 from django.views.generic import TemplateView
 
 
@@ -43,7 +43,9 @@ urlpatterns = [
 
     # API Schema & Swagger Docs
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
-    path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
+    # Split view loads its start-up script from a URL instead of inline, so it
+    # works under the Content-Security-Policy.
+    path("api/docs/", SpectacularSwaggerSplitView.as_view(url_name="schema"), name="swagger-ui"),
 
     # Direct root asset handler for images, icons, and static documents
     re_path(r"^(?P<path>[^/]+\.(?:png|jpg|jpeg|svg|webp|ico|gif|json|xml|txt))$", root_asset_view),

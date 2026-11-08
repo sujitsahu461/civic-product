@@ -15,6 +15,16 @@ from apps.accounts.permissions import IsAuthority, IsCitizen, IsSuperAdmin
 User = get_user_model()
 
 
+def _solved_captcha(answer=7):
+    """A valid server-signed captcha challenge and its answer, for login tests."""
+    from django.core.signing import TimestampSigner
+
+    from apps.accounts.captcha import CAPTCHA_SALT
+
+    key = TimestampSigner(salt=CAPTCHA_SALT).sign(f"math:{answer}")
+    return {"captcha_key": key, "captcha_code": str(answer)}
+
+
 class AuthenticationAPITests(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -37,7 +47,8 @@ class AuthenticationAPITests(TestCase):
         self.assertIn("refresh", response.data["tokens"])
         self.assertTrue(User.objects.filter(email="citizen@example.com").exists())
 
-    def test_register_creates_authority_when_role_is_allowed(self):
+    def test_register_rejects_authority_role(self):
+        # Officer accounts are created by a super admin, never by public sign-up.
         response = self.client.post(
             reverse("auth-register"),
             {
@@ -49,8 +60,26 @@ class AuthenticationAPITests(TestCase):
             format="json",
         )
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data["user"]["role"], UserRole.AUTHORITY)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("role", response.data)
+        self.assertFalse(User.objects.filter(email="authority@example.com").exists())
+
+    def test_register_rejects_super_admin_even_with_old_passkey(self):
+        response = self.client.post(
+            reverse("auth-register"),
+            {
+                "email": "sneaky@example.com",
+                "password": "StrongPass123!",
+                "full_name": "Not An Admin",
+                "role": UserRole.SUPER_ADMIN,
+                "security_key": "CIVICSETU-ADMIN-2025",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(User.objects.filter(email="sneaky@example.com").exists())
+        self.assertFalse(User.objects.filter(is_superuser=True).exists())
 
     def test_register_rejects_super_admin_role(self):
         response = self.client.post(
@@ -76,13 +105,58 @@ class AuthenticationAPITests(TestCase):
 
         response = self.client.post(
             reverse("auth-login"),
-            {"email": "login@example.com", "password": "StrongPass123!"},
+            {"email": "login@example.com", "password": "StrongPass123!", **_solved_captcha()},
             format="json",
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("access", response.data["tokens"])
         self.assertIn("refresh", response.data["tokens"])
+
+    def test_login_success_and_failure_are_audited(self):
+        from apps.audit_logs.models import AuditAction, AuditLog
+
+        user = User.objects.create_user(
+            email="audited@example.com",
+            password="StrongPass123!",
+            full_name="Audited User",
+            role=UserRole.CITIZEN,
+        )
+        self.client.post(
+            reverse("auth-login"),
+            {"email": "audited@example.com", "password": "WrongPass999!", **_solved_captcha()},
+            format="json",
+        )
+        self.client.post(
+            reverse("auth-login"),
+            {"email": "audited@example.com", "password": "StrongPass123!", **_solved_captcha()},
+            format="json",
+        )
+
+        self.assertTrue(AuditLog.objects.filter(action=AuditAction.AUTH_LOGIN, actor=user).exists())
+        failed = AuditLog.objects.get(action=AuditAction.SYSTEM_EVENT, entity_id="audited@example.com")
+        self.assertEqual(failed.metadata["event"], "login_failed")
+
+    def test_login_requires_signed_captcha(self):
+        User.objects.create_user(
+            email="nocaptcha@example.com",
+            password="StrongPass123!",
+            full_name="No Captcha",
+            role=UserRole.CITIZEN,
+        )
+        credentials = {"email": "nocaptcha@example.com", "password": "StrongPass123!"}
+
+        missing = self.client.post(reverse("auth-login"), credentials, format="json")
+        local_bypass = self.client.post(
+            reverse("auth-login"),
+            {**credentials, "captcha_key": "local", "captcha_code": "1"},
+            format="json",
+        )
+
+        self.assertEqual(missing.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("captcha_code", missing.data)
+        self.assertEqual(local_bypass.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("captcha_code", local_bypass.data)
 
     def test_me_requires_authentication(self):
         response = self.client.get(reverse("auth-me"))
@@ -131,7 +205,7 @@ class AuthenticationAPITests(TestCase):
         )
         login_response = self.client.post(
             reverse("auth-login"),
-            {"email": "logout@example.com", "password": "StrongPass123!"},
+            {"email": "logout@example.com", "password": "StrongPass123!", **_solved_captcha()},
             format="json",
         )
         self.client.force_authenticate(user=user)
@@ -160,6 +234,33 @@ class AuthenticationAPITests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(mail.outbox), 1)
+
+    @override_settings(
+        DEBUG=True,
+        EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend",
+        EMAIL_HOST_USER="",
+        EMAIL_HOST_PASSWORD="",
+    )
+    def test_forgot_password_never_returns_reset_link(self):
+        # Email cannot be sent (no SMTP credentials) and DEBUG is on: the response
+        # must still not contain the reset link, SMTP errors or account existence.
+        User.objects.create_user(
+            email="victim@example.com",
+            password="StrongPass123!",
+            full_name="Victim User",
+        )
+
+        known = self.client.post(
+            reverse("auth-forgot-password"), {"email": "victim@example.com"}, format="json"
+        )
+        unknown = self.client.post(
+            reverse("auth-forgot-password"), {"email": "nobody@example.com"}, format="json"
+        )
+
+        self.assertEqual(known.status_code, status.HTTP_200_OK)
+        for key in ("reset_url", "smtp_error", "sent"):
+            self.assertNotIn(key, known.data)
+        self.assertEqual(known.data, unknown.data)
 
     def test_reset_password_updates_password(self):
         user = User.objects.create_user(

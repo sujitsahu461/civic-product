@@ -80,6 +80,8 @@ export interface Complaint {
   image_count?: number;
   images?: ComplaintImage[];
   attachments?: ComplaintAttachment[];
+  /** Public tracking only: true when photos, audio and video were withheld from this viewer. */
+  evidence_hidden?: boolean;
   feedback_rating?: number | null;
   feedback_comments?: string | null;
   feedback?: {

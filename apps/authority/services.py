@@ -74,10 +74,13 @@ class NotificationService:
 
 
 def _authority_scoped_complaints(user):
-    """Return QuerySet of ALL complaints.
-    Both AUTHORITY and SUPER_ADMIN see every complaint — no department filtering.
-    """
-    return Complaint.objects.select_related("citizen", "assigned_authority")
+    """Complaints this user may see: super admins see all; officers see their
+    departments' categories plus complaints assigned to them directly."""
+    from apps.complaints.scoping import scope_complaints
+
+    return scope_complaints(
+        Complaint.objects.select_related("citizen", "assigned_authority"), user
+    )
 
 
 class AuthorityDashboardService:

@@ -2,9 +2,9 @@
 
 ## 1. System Requirements
 
-- **Python**: 3.12+
+- **Python**: 3.12+ (tested with Python 3.14.3 and Django 6.0.5)
 - **Node.js**: 18.x or 20.x+ (npm 9.x+)
-- **MySQL Server**: 8.0+
+- **PostgreSQL**: 16+ or 18.x (tested on PostgreSQL 18.0 / 18.6)
 - **Git**: 2.30+
 
 ---
@@ -48,20 +48,21 @@ cd -CivicSetu-AI-Powered-Civic-Engagement-Platform
    DEBUG=True
    ALLOWED_HOSTS=localhost,127.0.0.1
 
-   DB_NAME=civicsetu
-   DB_USER=root
-   DB_PASSWORD=your_mysql_password
+   DB_ENGINE=django.db.backends.postgresql
+   DB_NAME=civicsetu_db
+   DB_USER=postgres
+   DB_PASSWORD=your_postgres_password
    DB_HOST=127.0.0.1
-   DB_PORT=3306
+   DB_PORT=5432
 
    CSRF_TRUSTED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173
    CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173
    ```
 
 ### Step 2.4: Database Initialization
-1. Ensure MySQL server is running and create the database:
+1. Ensure PostgreSQL server is running and create the database:
    ```sql
-   CREATE DATABASE civicsetu CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   CREATE DATABASE civicsetu_db WITH ENCODING 'UTF8';
    ```
 
 2. Run migrations to provision tables:

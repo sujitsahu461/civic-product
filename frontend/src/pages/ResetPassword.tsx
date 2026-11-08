@@ -32,7 +32,6 @@ export const ResetPassword: React.FC = () => {
   const [isDone, setIsDone] = useState(false);
   const [sendingLink, setSendingLink] = useState(false);
   const [emailLinkSent, setEmailLinkSent] = useState(false);
-  const [generatedResetUrl, setGeneratedResetUrl] = useState('');
 
   const handleSendEmailLink = async () => {
     if (!email.trim()) {
@@ -42,11 +41,9 @@ export const ResetPassword: React.FC = () => {
     setFormError('');
     setSendingLink(true);
     try {
-      const res: any = await forgotPassword(email.trim());
+      // The API never returns the reset link; it only arrives by email.
+      await forgotPassword(email.trim());
       setEmailLinkSent(true);
-      if (res?.reset_url) {
-        setGeneratedResetUrl(res.reset_url);
-      }
       success(t('auth.reset.linkSentToast'));
     } catch (err: any) {
       let msg = t('auth.reset.errSendFailed');
@@ -297,25 +294,6 @@ export const ResetPassword: React.FC = () => {
                         components={{ bold: <strong /> }}
                       />
                     </p>
-                    {generatedResetUrl && (
-                      <div style={{ marginTop: '8px' }}>
-                        <span style={{ fontSize: '11px', fontWeight: 700, color: '#1F6B3F' }}>{t('auth.reset.devLink')}</span>
-                        <a
-                          href={generatedResetUrl}
-                          style={{
-                            display: 'block',
-                            marginTop: '4px',
-                            wordBreak: 'break-all',
-                            color: '#7A1F2B',
-                            textDecoration: 'underline',
-                            fontSize: '12px',
-                            fontWeight: 600
-                          }}
-                        >
-                          {generatedResetUrl}
-                        </a>
-                      </div>
-                    )}
                   </div>
                 )}
 
