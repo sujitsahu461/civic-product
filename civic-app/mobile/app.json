@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "CivicSetu",
+    "slug": "civicsetu",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "scheme": "civicsetu",
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "CivicSetu uses your photos as evidence for a civic report."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "CivicSetu uses your camera to capture evidence for a civic report."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "CivicSetu uses your location to place a civic report."
+        }
+      ],
+      "expo-sqlite"
+    ],
+    "android": {
+      "package": "com.civicsetu.mobile",
+      "versionCode": 1,
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ]
+    },
+    "ios": {
+      "bundleIdentifier": "com.civicsetu.mobile"
+    }
+  }
+}

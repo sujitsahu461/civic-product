@@ -1,0 +1,1428 @@
+<title>CivicSetu Architecture Audit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* Layout: a filed engineering audit. A sticky section index on the left, one reading column on the right; wide tables and diagrams scroll inside their own frames. */
+:root{
+  --paper:#F3F6F6; --surface:#FFFFFF; --ink:#13211F; --ink-2:#4A5C5A; --rule:#D3DEDC;
+  --accent:#0A676A; --accent-soft:#DCEEEE; --mark:#9C4A0B; --mark-soft:#FBEEE1;
+  --crit:#AE2A20; --crit-soft:#FAE8E6; --high:#AD4710; --high-soft:#FCEDE2;
+  --med:#735A00; --med-soft:#F7F0D5; --low:#34557A; --low-soft:#E5ECF5;
+  --ok:#1C6A45; --ok-soft:#E0F1E7; --code:#E9F0EF;
+  --f-display:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0D1514; --surface:#14201F; --ink:#E2ECEA; --ink-2:#9BB0AD; --rule:#273836;
+    --accent:#5CC3C4; --accent-soft:#12302F; --mark:#F0A55E; --mark-soft:#33240F;
+    --crit:#FF8C82; --crit-soft:#3A1715; --high:#FFA46E; --high-soft:#3A2111;
+    --med:#E6C863; --med-soft:#322A0D; --low:#9DB9E0; --low-soft:#182436;
+    --ok:#7AD1A0; --ok-soft:#11301F; --code:#0F1C1B; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0D1514; --surface:#14201F; --ink:#E2ECEA; --ink-2:#9BB0AD; --rule:#273836;
+  --accent:#5CC3C4; --accent-soft:#12302F; --mark:#F0A55E; --mark-soft:#33240F;
+  --crit:#FF8C82; --crit-soft:#3A1715; --high:#FFA46E; --high-soft:#3A2111;
+  --med:#E6C863; --med-soft:#322A0D; --low:#9DB9E0; --low-soft:#182436;
+  --ok:#7AD1A0; --ok-soft:#11301F; --code:#0F1C1B; color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font:400 16px/1.6 var(--f-body);-webkit-text-size-adjust:100%}
+a{color:var(--accent);text-underline-offset:2px}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+code,kbd{font-family:var(--f-mono);font-size:.86em;background:var(--code);padding:.08em .35em;border-radius:3px;overflow-wrap:anywhere}
+.page{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 72px}
+.layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:48px;align-items:start}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px);font-size:14px;max-height:calc(100vh - 40px);overflow:auto}
+.toc h2{font:600 12px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);margin:0 0 12px}
+.toc ol{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.toc a{display:grid;grid-template-columns:22px 1fr;gap:6px;padding:5px 8px;border-radius:4px;color:var(--ink);text-decoration:none}
+.toc a:hover{background:var(--accent-soft)}
+.toc a span{font-family:var(--f-mono);font-weight:600;color:var(--accent)}
+main{min-width:0}
+header.doc{border-bottom:2px solid var(--ink);padding-bottom:24px;margin-bottom:8px}
+.ref{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;font:500 13px/1.4 var(--f-mono);color:var(--ink-2);text-transform:uppercase;letter-spacing:.06em}
+.ref b{color:var(--accent);font-weight:600}
+h1{font:700 clamp(34px,5vw,52px)/1.05 var(--f-display);letter-spacing:-.01em;margin:14px 0 14px;text-wrap:balance}
+.lede{font-size:18px;max-width:68ch;color:var(--ink);margin:0 0 18px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:6px;overflow:hidden;margin-top:8px}
+.facts div{background:var(--surface);padding:12px 14px;min-width:0}
+.facts dt{font:600 11px/1.3 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.facts dd{margin:4px 0 0;font-size:14.5px;overflow-wrap:anywhere}
+section{padding-top:40px}
+section>h2{font:700 30px/1.15 var(--f-display);margin:0 0 6px;display:flex;gap:14px;align-items:baseline;text-wrap:balance}
+section>h2 .letter{font:600 15px/1 var(--f-mono);color:var(--surface);background:var(--accent);padding:6px 9px;border-radius:4px;transform:translateY(-4px)}
+.sub{color:var(--ink-2);max-width:70ch;margin:0 0 8px}
+h3{font:600 21px/1.25 var(--f-display);margin:30px 0 8px;text-wrap:balance}
+h4{font:600 15px/1.3 var(--f-body);margin:20px 0 6px}
+p,li{max-width:72ch}
+ul,ol{padding-left:1.25em}
+li{margin:4px 0}
+.panel{border-radius:6px;padding:18px 20px;margin:18px 0;border:1px solid var(--rule);background:var(--surface)}
+.panel h3{margin-top:0}
+.panel .label{font:600 11px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;display:inline-block;margin-bottom:8px}
+.panel.reco{background:var(--accent-soft);border-color:transparent}
+.panel.reco .label{color:var(--accent)}
+.panel.ask{background:var(--mark-soft);border-color:transparent}
+.panel.ask .label{color:var(--mark)}
+.panel.ask ol{display:grid;gap:10px;margin:8px 0 0}
+.panel.ask li{max-width:none}
+.tbl{overflow-x:auto;margin:14px 0;border:1px solid var(--rule);border-radius:6px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;line-height:1.5}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--rule)}
+th{font:600 11.5px/1.3 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);background:var(--paper);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.path{font-family:var(--f-mono);font-size:13px;white-space:nowrap}
+.tbl.wide table{min-width:880px}
+.chip{display:inline-block;font:600 11.5px/1.5 var(--f-mono);letter-spacing:.03em;padding:1px 8px;border-radius:999px;white-space:nowrap}
+.crit{color:var(--crit);background:var(--crit-soft)}
+.high{color:var(--high);background:var(--high-soft)}
+.med{color:var(--med);background:var(--med-soft)}
+.low{color:var(--low);background:var(--low-soft)}
+.ok{color:var(--ok);background:var(--ok-soft)}
+.keep{color:var(--ok);background:var(--ok-soft)}
+.refactor{color:var(--low);background:var(--low-soft)}
+.extract{color:var(--accent);background:var(--accent-soft)}
+.deprecate{color:var(--ink-2);background:var(--code)}
+.new{color:var(--mark);background:var(--mark-soft)}
+.diagram{overflow-x:auto;background:var(--surface);border:1px solid var(--rule);border-radius:6px;padding:16px;margin:14px 0}
+.diagram pre.mermaid{margin:0;background:transparent;font-family:var(--f-mono);font-size:12px;min-width:min-content}
+figure{margin:0}
+figcaption{font-size:13.5px;color:var(--ink-2);margin:-6px 0 14px}
+pre.code{overflow-x:auto;background:var(--code);border-radius:6px;padding:14px 16px;font:13px/1.55 var(--f-mono);margin:12px 0}
+pre.code code{background:none;padding:0;font-size:inherit}
+details.phase{border:1px solid var(--rule);border-radius:6px;background:var(--surface);margin:10px 0}
+details.phase>summary{cursor:pointer;list-style:none;display:grid;grid-template-columns:78px minmax(0,1fr) auto;gap:12px;align-items:baseline;padding:13px 16px}
+details.phase>summary::-webkit-details-marker{display:none}
+details.phase>summary .pno{font:600 13px/1 var(--f-mono);color:var(--accent)}
+details.phase>summary .ptitle{font:600 17px/1.3 var(--f-display)}
+details.phase>summary .ptitle small{display:block;font:400 14px/1.45 var(--f-body);color:var(--ink-2);margin-top:2px}
+details.phase[open]>summary{border-bottom:1px solid var(--rule)}
+.pbody{padding:6px 18px 16px}
+.pbody dl{display:grid;grid-template-columns:150px minmax(0,1fr);gap:8px 18px;margin:12px 0}
+.pbody dt{font:600 11.5px/1.6 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.pbody dd{margin:0;min-width:0}
+.pbody dd ul{margin:0}
+details.inv{border:1px solid var(--rule);border-radius:6px;background:var(--surface);margin:8px 0}
+details.inv>summary{cursor:pointer;padding:10px 14px;font-weight:600}
+details.inv>summary code{font-weight:500}
+details.inv .tbl{margin:0;border:0;border-top:1px solid var(--rule);border-radius:0 0 6px 6px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.two>*{min-width:0}
+.small{font-size:14px;color:var(--ink-2)}
+footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--rule);font-size:14px;color:var(--ink-2)}
+@media (max-width:960px){
+  .layout{grid-template-columns:minmax(0,1fr);gap:8px}
+  .toc{position:static;max-height:none;border:1px solid var(--rule);border-radius:6px;background:var(--surface);padding:14px}
+  .toc ol{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+}
+@media (max-width:560px){
+  .pbody dl{grid-template-columns:minmax(0,1fr);gap:2px 0}
+  .pbody dd{margin-bottom:10px}
+  details.phase>summary{grid-template-columns:minmax(0,1fr)}
+  section>h2{font-size:25px}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+
+<div class="page">
+<div class="layout">
+<nav class="toc" aria-label="Sections">
+  <h2>Audit file</h2>
+  <ol>
+    <li><a href="#summary"><span>·</span>Summary and decisions</a></li>
+    <li><a href="#existing"><span>A</span>Existing architecture</a></li>
+    <li><a href="#problems"><span>B</span>Problems and bottlenecks</a></li>
+    <li><a href="#boundaries"><span>C</span>Microservices and customization</a></li>
+    <li><a href="#azure"><span>D</span>Azure infrastructure</a></li>
+    <li><a href="#database"><span>E</span>Database transition</a></li>
+    <li><a href="#security"><span>F</span>Security and reliability</a></li>
+    <li><a href="#cost"><span>G</span>Cost estimate</a></li>
+    <li><a href="#plan"><span>H</span>Phased migration plan</a></li>
+    <li><a href="#risks"><span>I</span>Risks and rollback</a></li>
+    <li><a href="#adr"><span>+</span>Decision records</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="doc">
+  <div class="ref"><b>AUD-20261108-CVS1</b><span>Architecture audit mode</span><span>Phase 1 of 15</span><span>Revision 2</span></div>
+  <h1>CivicSetu Architecture Audit</h1>
+  <p class="lede">A read of both repositories before any change: what exists today, what blocks the 1,000-concurrent-user target, and a phased path to a production platform on Azure. No file in either repository has been modified.</p>
+  <dl class="facts">
+    <div><dt>Audited</dt><dd>8 Nov 2026</dd></div>
+    <div><dt>civicsetu-v1</dt><dd><code>main</code> @ a45d389, <code>design/premium-ui</code> @ 443b361, <code>fix/security-hardening</code> @ b0a5182</dd></div>
+    <div><dt>CIVIC--Powered-by-CivicSetu</dt><dd><code>main</code> @ df792a6 (single commit)</dd></div>
+    <div><dt>Backend tests</dt><dd>237 / 237 pass on <code>design/premium-ui</code> (run during this audit)</dd></div>
+  </dl>
+</header>
+
+<section id="summary">
+  <h2>Summary</h2>
+  <ul>
+    <li><strong>There is one backend today and no BFFs.</strong> <code>civicsetu-v1</code> is a Django modular monolith: 13 apps, 68 REST endpoints, about 8,500 lines of Python outside tests and migrations, and 237 tests. The website is built into the same Django process and served from it.</li>
+    <li><strong>The CIVIC mobile app isn't connected to the backend yet.</strong> By default it opens the CIVIC web app in a WebView, and that web app keeps complaints, tracking codes and sign-ins in browser storage. Its source (<code>src/</code> and <code>mobile/src/</code>) isn't in the repository; only compiled bundles are.</li>
+    <li><strong><code>main</code> is missing critical security fixes.</strong> They sit on the unmerged branch <code>fix/security-hardening</code> along with the move to PostgreSQL. <code>main</code> has since gained a separate UI redesign, so the two lines have diverged.</li>
+    <li><strong>Supabase isn't in use.</strong> The branch targets PostgreSQL 18 on the development PC. Your only Supabase project is paused and located in Tokyo, far from Indian users and from Azure Central India.</li>
+    <li><strong>It can't run on more than one server yet.</strong> Uploads go to local disk, rate limits are counted in each process's memory, logs go to a local file, and there are no health checks, containers or pipelines.</li>
+    <li><strong>The foundations are good.</strong> Business logic lives in service classes, complaint visibility rules are in one module (<code>apps/complaints/scoping.py</code>), and the October data ledger lists about 1,230 rows. A gradual migration is practical.</li>
+  </ul>
+
+  <div class="panel reco">
+    <span class="label">Recommendation</span>
+    <p style="margin:0">Build CivicSetu as <strong>nine domain microservices and two BFFs</strong>: Identity, Grievance, Department &amp; Routing, Triage, Media, Notification, Feedback, Reporting and Audit. Each owns its own data schema, API, pipeline and scaling, talks to others through versioned APIs and events, and is carved out of today's Django app one at a time behind the BFFs, so the product keeps working throughout. A seven-layer <a href="#customization">customization model</a> lets you change business rules, features, settings, themes, providers and infrastructure without touching code, or with a change to one small place. Cost rises to about $420–880 a month in production, from $280–590 for the earlier four-deployable design.</p>
+  </div>
+
+  <div class="panel ask">
+    <span class="label">Needed from you before Phase 0</span>
+    <ol>
+      <li><strong>Push the CIVIC source code.</strong> Commit the web app's <code>src/</code> and the mobile app's <code>mobile/src/</code> to <code>CIVIC--Powered-by-CivicSetu</code>. Its own <code>docs/BASELINE.md</code> says the work happened in a folder without git. Without the source, the mobile app can't be changed or pointed at a BFF.</li>
+      <li><strong>Choose which UI to keep when merging.</strong> <code>main</code> has the kesari palette and guided report flow (a45d389, today). <code>design/premium-ui</code> has the calm petrol and sage restyle (443b361). Both rewrite the same stylesheets. The backend fixes merge either way.</li>
+      <li><strong>Choose the database host.</strong> (a) A new Supabase Pro project in Mumbai (<code>ap-south-1</code>); the Tokyo project can't change region. (b) Azure Database for PostgreSQL Flexible Server in Central India, which keeps the database inside the Azure network. I recommend (a) because it matches your brief and its trade-offs are manageable (section E).</li>
+      <li><strong>Approve the revised shape:</strong> nine services, two BFFs and the customization layers in section C, at the higher cost in section G.</li>
+      <li><strong>Product call on AI triage.</strong> <code>docs/AI_REMOVAL_PLAN.md</code> removes the ML models; commit 69f94a6 on the branch turns them back on ahead of the keyword rules. Either works; pick one so code, tests and docs agree.</li>
+    </ol>
+  </div>
+</section>
+
+<section id="existing">
+  <h2><span class="letter">A</span>Existing architecture</h2>
+  <p class="sub">Everything here comes from the source in the two repositories. Row counts come from the repository's own October migration ledger; I couldn't reach the database itself.</p>
+
+  <h3>A.1 What the repositories contain</h3>
+  <div class="tbl wide"><table>
+    <thead><tr><th>Component</th><th>Location</th><th>Stack</th><th>State</th></tr></thead>
+    <tbody>
+      <tr><td>Backend API</td><td class="path">civicsetu-v1/apps, config</td><td>Django 5.0.14 on <code>main</code>, 6.0.5 on the branch; DRF 3.15–3.17, SimpleJWT, drf-spectacular, WhiteNoise, Gunicorn</td><td>13 apps, 68 endpoints under <code>/api/v1</code>, Django admin, Swagger at <code>/api/docs/</code></td></tr>
+      <tr><td>CivicSetu website</td><td class="path">civicsetu-v1/frontend</td><td>React 19, Vite 8, TypeScript and JSX, Zustand, axios, i18next (English, Hindi, Odia), Leaflet</td><td>Citizen, officer and super-admin portals. The built bundle is committed to <code>static/react</code> and served by Django on the same origin</td></tr>
+      <tr><td>CIVIC web app</td><td class="path">CIVIC--Powered-by-CivicSetu/ (root)</td><td>React 19, Vite, Tailwind 4, PWA service worker; Express <code>server.js</code></td><td>Citizen-only prototype. <strong>Source missing</strong>, only <code>dist/</code>. Data seeded into <code>localStorage</code>; reads <code>VITE_CIVICSETU_API_URL</code> through <code>process.env</code>, which Vite leaves empty, so it never calls the API. Preview hosted from Google AI Studio on Cloud Run (asia-southeast1)</td></tr>
+      <tr><td>CIVIC mobile app</td><td class="path">CIVIC--Powered-by-CivicSetu/mobile</td><td>Expo SDK 54, React Native 0.81, SecureStore, SQLite, NetInfo, camera, location</td><td>Default <code>website</code> mode wraps the CIVIC web app in a WebView at a LAN address. <code>native</code> mode has real screens, a typed Django client, offline drafts. <strong><code>mobile/src</code> missing</strong>; only a 2.4 MB Hermes bundle</td></tr>
+      <tr><td>Database</td><td>config/settings/base.py</td><td><code>main</code>: SQLite by default, MySQL in docs. Branch: PostgreSQL 18 on <code>127.0.0.1</code></td><td>21 tables in use; about 1,230 rows (21 users, 38 complaints, 364 notifications)</td></tr>
+      <tr><td>Supabase</td><td>Supabase account</td><td>PostgreSQL 17, <code>ap-northeast-1</code> (Tokyo)</td><td>One project, status inactive (paused). Not referenced anywhere in code</td></tr>
+      <tr><td>ML models</td><td class="path">civicsetu-v1/*.pkl</td><td>scikit-learn TF-IDF and classifiers via joblib</td><td>Three models of 3–7 KB, loaded lazily once per process</td></tr>
+      <tr><td>Media</td><td><code>MEDIA_ROOT</code></td><td>Local filesystem</td><td>Served publicly at <code>/media/</code></td></tr>
+      <tr><td>Email</td><td class="path">apps/accounts/services.py</td><td>Gmail SMTP</td><td>Sent inside the request (password reset)</td></tr>
+      <tr><td>Outside services</td><td>frontends</td><td>OpenStreetMap tiles, Nominatim, BigDataCloud, ipapi.co, api.qrserver.com, Unsplash, Google Fonts</td><td>Called from browsers, not servers</td></tr>
+      <tr><td>Containers, CI/CD, IaC</td><td>—</td><td>—</td><td>None in either repository</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>A.2 The two lines of <code>civicsetu-v1</code> have diverged</h3>
+  <figure><div class="diagram"><pre class="mermaid">
+flowchart LR
+  c1["9323bc3 baseline"] --> c2["4354829 multilingual portal"] --> c3["810e293 category grid"]
+  c3 --> m1["a45d389 kesari UI - main, 8 Nov"]
+  c3 --> s1["efb2551 security fixes"] --> s2["d6bf9ff PostgreSQL 18"] --> s3["69f94a6 AI triage first"] --> s4["f1fb1f6 refresh returns 400"] --> s5["b0a5182 mobile hand-off guide"]
+  s5 --> p1["443b361 calm UI - design/premium-ui"]
+  s5 -.- sh["fix/security-hardening ends here"]
+</pre></div><figcaption>Neither line contains the other. Both UI commits restyle the same files, so the merge needs a UI decision.</figcaption></figure>
+
+  <h3>A.3 System architecture today</h3>
+  <figure><div class="diagram"><pre class="mermaid">
+flowchart LR
+  subgraph clients [Clients]
+    web["CivicSetu website - React SPA"]
+    pwa["CIVIC web app - prototype"]
+    mob["CIVIC mobile - Expo 54"]
+  end
+  subgraph dj ["Django monolith - one process"]
+    spa["SPA and static files - WhiteNoise"]
+    api["REST API /api/v1 - 68 endpoints"]
+    ml["scikit-learn models in process"]
+  end
+  db[("PostgreSQL 18 on dev PC")]
+  media[("Local disk /media")]
+  smtp["Gmail SMTP"]
+  node["Express server.js - static files and mock geo API"]
+  ls[("Browser localStorage")]
+  sq[("SQLite drafts on phone")]
+  spa --- web
+  web -->|"JWT, same origin"| api
+  api --> db
+  api --> media
+  api -->|"inside the request"| smtp
+  api --- ml
+  node --> pwa
+  pwa --> ls
+  mob -->|"default: WebView"| pwa
+  mob -.->|"native mode: REST and JWT"| api
+  mob -.-> sq
+</pre></div><figcaption>Solid lines are what runs today. Dotted lines exist in code that isn't in the repository.</figcaption></figure>
+
+  <h3>A.4 Module dependency map</h3>
+  <figure><div class="diagram"><pre class="mermaid">
+flowchart TD
+  accounts["accounts - User, JWT, captcha, password reset"]
+  users["users - profiles, user admin"]
+  departments["departments"]
+  complaints["complaints - services and scoping"]
+  images["complaint_images"]
+  history["complaint_history"]
+  feedback["feedback"]
+  notifications["notifications - model and 3 views"]
+  authority["authority - officer views and NotificationService"]
+  aip["ai_predictions"]
+  aie["ai_engine"]
+  audit["audit_logs"]
+  complaints --> accounts
+  complaints --> images
+  complaints --> history
+  complaints -->|"triage at create"| aip
+  complaints -->|"notify officers"| authority
+  complaints -->|"keyword match on department names"| departments
+  aip --> aie
+  authority --> notifications
+  authority --> complaints
+  feedback --> complaints
+  users --> accounts
+  departments --> accounts
+  complaints -.-> audit
+  users -.-> audit
+  feedback -.-> audit
+</pre></div><figcaption>The notification service lives in <code>authority</code>, so complaints depend on officer code to send a notification. Department ownership of a complaint is inferred from words in the department's name.</figcaption></figure>
+
+  <h3>A.5 Database schema today</h3>
+  <figure><div class="diagram"><pre class="mermaid">
+erDiagram
+  USERS ||--o{ COMPLAINTS : files
+  USERS |o--o{ COMPLAINTS : "assigned to"
+  USERS ||--o{ DEPARTMENT_AUTHORITIES : "serves in"
+  DEPARTMENTS ||--o{ DEPARTMENT_AUTHORITIES : has
+  COMPLAINTS ||--o{ COMPLAINT_IMAGES : has
+  COMPLAINTS ||--o{ COMPLAINT_ATTACHMENTS : has
+  COMPLAINTS ||--o{ COMPLAINT_HISTORY : logs
+  COMPLAINTS ||--o| FEEDBACK : "rated by"
+  COMPLAINTS |o--o{ NOTIFICATIONS : about
+  COMPLAINTS |o--o{ AI_PREDICTION_LOGS : scored
+  USERS ||--o{ NOTIFICATIONS : receives
+  USERS |o--o{ COMPLAINT_HISTORY : acts
+  USERS |o--o{ AUDIT_LOGS : performs
+  USERS ||--o{ FEEDBACK : writes
+  USERS ||--o{ TOKEN_OUTSTANDING : holds
+  TOKEN_OUTSTANDING ||--o| TOKEN_BLACKLISTED : revoked
+  USERS {
+    bigint id PK
+    uuid public_id UK
+    string email UK
+    string phone UK
+    string role "CITIZEN AUTHORITY SUPER_ADMIN"
+    string status
+    string department "free text, duplicates department_authorities"
+  }
+  DEPARTMENTS {
+    bigint id PK
+    uuid public_id UK
+    string name UK
+    string slug UK
+    string status
+  }
+  DEPARTMENT_AUTHORITIES {
+    bigint id PK
+    bigint department_id FK
+    bigint user_id FK
+    bool is_head
+  }
+  COMPLAINTS {
+    bigint id PK
+    uuid public_id UK
+    string tracking_code UK "CMP-YYYYMMDD-XXXX"
+    bigint citizen_id FK
+    bigint assigned_authority_id FK
+    string category "no department FK"
+    string status
+    string priority
+    decimal latitude
+    decimal longitude
+  }
+  COMPLAINT_IMAGES {
+    bigint id PK
+    bigint complaint_id FK
+    string image
+  }
+  COMPLAINT_ATTACHMENTS {
+    bigint id PK
+    bigint complaint_id FK
+    string file
+    string attachment_type "IMAGE AUDIO VIDEO"
+    bigint uploader_id FK
+  }
+  COMPLAINT_HISTORY {
+    bigint id PK
+    bigint complaint_id FK
+    bigint actor_id FK
+    string action
+  }
+  FEEDBACK {
+    bigint id PK
+    bigint complaint_id FK "one per complaint"
+    bigint citizen_id FK
+    int rating
+  }
+  NOTIFICATIONS {
+    bigint id PK
+    bigint recipient_id FK
+    bigint complaint_id FK
+    bool is_read
+  }
+  AI_PREDICTION_LOGS {
+    bigint id PK
+    bigint complaint_id FK
+    string predicted_category
+    float confidence_score
+  }
+  AUDIT_LOGS {
+    bigint id PK
+    bigint actor_id FK
+    string action
+    string entity_id
+    string ip_address
+    json metadata
+  }
+  TOKEN_OUTSTANDING {
+    bigint id PK
+    bigint user_id FK
+    string jti UK
+  }
+  TOKEN_BLACKLISTED {
+    bigint id PK
+    bigint token_id FK
+  }
+</pre></div><figcaption>Every image is written twice, once to <code>complaint_images</code> and once to <code>complaint_attachments</code>, and the file is stored twice on disk. The October ledger shows the duplicate hashes.</figcaption></figure>
+
+  <h3>A.6 API inventory</h3>
+  <p>68 endpoints under <code>/api/v1/</code>, plus <code>/admin/</code>, <code>/api/schema/</code> and <code>/api/docs/</code>. Access as implemented on the branch; differences on <code>main</code> are noted. “Scoped” means the rule in <code>scoping.py</code>: the citizen who filed it, officers whose department covers the category or who are assigned to it, and super admins.</p>
+
+  <details class="inv"><summary><code>/auth/</code> · 9 endpoints</summary><div class="tbl"><table>
+    <thead><tr><th>Path</th><th>Methods</th><th>Access</th></tr></thead><tbody>
+    <tr><td class="path">captcha/</td><td>GET</td><td>Public</td></tr>
+    <tr><td class="path">register/</td><td>POST</td><td>Public. Citizens only on the branch; on <code>main</code> any role, including Super Admin</td></tr>
+    <tr><td class="path">login/</td><td>POST</td><td>Public, captcha required</td></tr>
+    <tr><td class="path">logout/</td><td>POST</td><td>Signed in</td></tr>
+    <tr><td class="path">refresh/</td><td>POST</td><td>Public with refresh token</td></tr>
+    <tr><td class="path">verify/</td><td>POST</td><td>Public</td></tr>
+    <tr><td class="path">me/</td><td>GET</td><td>Signed in</td></tr>
+    <tr><td class="path">forgot-password/</td><td>POST</td><td>Public</td></tr>
+    <tr><td class="path">reset-password/</td><td>POST</td><td>Public with uid and token</td></tr>
+  </tbody></table></div></details>
+
+  <details class="inv"><summary><code>/users/</code> · 9 endpoints</summary><div class="tbl"><table>
+    <thead><tr><th>Path</th><th>Methods</th><th>Access</th></tr></thead><tbody>
+    <tr><td class="path">profile/citizen/</td><td>GET</td><td>Citizen</td></tr>
+    <tr><td class="path">profile/authority/</td><td>GET</td><td>Officer</td></tr>
+    <tr><td class="path">profile/admin/</td><td>GET</td><td>Super admin</td></tr>
+    <tr><td class="path">profile/update/</td><td>PUT, PATCH</td><td>Signed in</td></tr>
+    <tr><td class="path">profile/upload-image/</td><td>POST</td><td>Signed in</td></tr>
+    <tr><td class="path">change-password/</td><td>POST</td><td>Signed in</td></tr>
+    <tr><td class="path">search/</td><td>GET</td><td>Officer, super admin (all users)</td></tr>
+    <tr><td class="path">create/</td><td>POST</td><td>Super admin</td></tr>
+    <tr><td class="path">{id}/</td><td>GET · PATCH, DELETE</td><td>GET: officer, super admin · PATCH, DELETE: super admin</td></tr>
+  </tbody></table></div></details>
+
+  <details class="inv"><summary><code>/departments/</code> · 10 endpoints</summary><div class="tbl"><table>
+    <thead><tr><th>Path</th><th>Methods</th><th>Access</th></tr></thead><tbody>
+    <tr><td class="path">(list)</td><td>GET</td><td>Signed in</td></tr>
+    <tr><td class="path">create/</td><td>POST</td><td>Super admin</td></tr>
+    <tr><td class="path">{id}/</td><td>GET</td><td>Signed in</td></tr>
+    <tr><td class="path">{id}/update/</td><td>PUT, PATCH</td><td>Super admin</td></tr>
+    <tr><td class="path">{id}/deactivate/</td><td>POST</td><td>Super admin</td></tr>
+    <tr><td class="path">{id}/authorities/</td><td>GET</td><td>Officer, super admin</td></tr>
+    <tr><td class="path">{id}/authorities/assign/</td><td>POST</td><td>Super admin</td></tr>
+    <tr><td class="path">{id}/authorities/{user}/</td><td>DELETE</td><td>Super admin</td></tr>
+    <tr><td class="path">{id}/authorities/{user}/update/</td><td>PATCH</td><td>Super admin</td></tr>
+    <tr><td class="path">{id}/statistics/</td><td>GET</td><td>Officer, super admin</td></tr>
+  </tbody></table></div></details>
+
+  <details class="inv"><summary><code>/complaints/</code> · 9 endpoints</summary><div class="tbl"><table>
+    <thead><tr><th>Path</th><th>Methods</th><th>Access</th></tr></thead><tbody>
+    <tr><td class="path">(list)</td><td>GET</td><td>Signed in, scoped</td></tr>
+    <tr><td class="path">create/</td><td>POST</td><td>Public, guests allowed (multipart: images, audio, video)</td></tr>
+    <tr><td class="path">track/{code}/</td><td>GET</td><td>Public; evidence hidden unless scoped (branch)</td></tr>
+    <tr><td class="path">{id}/</td><td>GET</td><td>Scoped</td></tr>
+    <tr><td class="path">{id}/status/</td><td>PATCH</td><td>Scoped officer, super admin</td></tr>
+    <tr><td class="path">{id}/assign/</td><td>PATCH</td><td>Scoped officer, super admin</td></tr>
+    <tr><td class="path">{id}/images/</td><td>POST</td><td>Scoped</td></tr>
+    <tr><td class="path">{id}/attachments/</td><td>POST</td><td>Scoped</td></tr>
+    <tr><td class="path">{id}/timeline/</td><td>GET</td><td>Public; names masked unless scoped</td></tr>
+  </tbody></table></div></details>
+
+  <details class="inv"><summary><code>/authority/</code> · 15 endpoints</summary><div class="tbl"><table>
+    <thead><tr><th>Path</th><th>Methods</th><th>Access</th></tr></thead><tbody>
+    <tr><td class="path">dashboard/summary/, dashboard/recent/</td><td>GET</td><td>Officer, super admin (scoped)</td></tr>
+    <tr><td class="path">complaints/, complaints/{id}/</td><td>GET</td><td>Officer, super admin (scoped)</td></tr>
+    <tr><td class="path">complaints/{id}/status/, notes/, priority/</td><td>PATCH</td><td>Scoped officer, super admin</td></tr>
+    <tr><td class="path">complaints/{id}/resolution-image/</td><td>POST</td><td>Scoped officer, super admin</td></tr>
+    <tr><td class="path">analytics/stats/, analytics/department/, analytics/priority/</td><td>GET</td><td>Officer, super admin (scoped)</td></tr>
+    <tr><td class="path">notifications/, notifications/unread-count/</td><td>GET</td><td>Signed in</td></tr>
+    <tr><td class="path">notifications/mark-read/, notifications/mark-all-read/</td><td>POST</td><td>Signed in</td></tr>
+  </tbody></table></div></details>
+
+  <details class="inv"><summary><code>/notifications/</code>, <code>/feedback/</code>, <code>/ai/</code>, <code>/audit-logs/</code> · 16 endpoints</summary><div class="tbl"><table>
+    <thead><tr><th>Path</th><th>Methods</th><th>Access</th></tr></thead><tbody>
+    <tr><td class="path">notifications/</td><td>GET</td><td>Signed in (different response shape from the <code>/authority/</code> copy)</td></tr>
+    <tr><td class="path">notifications/mark-all-read/, {id}/mark-read/</td><td>POST</td><td>Signed in</td></tr>
+    <tr><td class="path">feedback/submit/</td><td>POST</td><td>Owner of the complaint (branch); anyone signed in on <code>main</code></td></tr>
+    <tr><td class="path">feedback/my-feedbacks/</td><td>GET</td><td>Citizen</td></tr>
+    <tr><td class="path">feedback/complaint/{id}/</td><td>GET</td><td>Scoped</td></tr>
+    <tr><td class="path">feedback/department/{category}/stats/</td><td>GET</td><td>Officer, super admin</td></tr>
+    <tr><td class="path">feedback/authority/stats/, authority/feedbacks/</td><td>GET</td><td>Officer (and super admin for the list)</td></tr>
+    <tr><td class="path">ai/classify/</td><td>POST</td><td>Public, 60 per minute</td></tr>
+    <tr><td class="path">ai/detect-duplicates/</td><td>POST</td><td>Signed in</td></tr>
+    <tr><td class="path">ai/city-insights/</td><td>GET</td><td>Signed in, any role, city-wide</td></tr>
+    <tr><td class="path">ai/complaint/{id}/prediction/</td><td>GET</td><td>Scoped; writes a log row on every call</td></tr>
+    <tr><td class="path">audit-logs/, summary/, {id}/</td><td>GET</td><td>Super admin</td></tr>
+  </tbody></table></div></details>
+
+  <p class="small">CIVIC <code>server.js</code> adds <code>GET /api/geo/complaints/near</code>, <code>POST /api/geo/query</code> and <code>GET /healthz</code>. The geo routes return four hard-coded Gunupur complaints dressed up as MongoDB 2dsphere results.</p>
+
+  <h3>A.7 Authentication and roles today</h3>
+  <div class="two">
+    <div class="tbl" style="margin:0"><table>
+      <thead><tr><th>Role</th><th>What it can do</th></tr></thead><tbody>
+      <tr><td><code>CITIZEN</code></td><td>File and follow own complaints, rate resolved ones, profile</td></tr>
+      <tr><td><code>AUTHORITY</code></td><td>Queue, status, priority, notes and proof for its departments' categories; analytics; user search</td></tr>
+      <tr><td><code>SUPER_ADMIN</code></td><td>Everything, plus users, departments, audit logs. Also granted to any <code>is_staff</code> or <code>is_superuser</code> account</td></tr>
+      <tr><td>Guest</td><td>File a complaint without signing in (owned by a locked shared account), track by code</td></tr>
+    </tbody></table></div>
+    <div>
+      <p style="margin-top:0">JWT access tokens last 15 minutes and refresh tokens 7 days, with rotation and blacklisting. Sign-in requires a server-signed arithmetic captcha (branch). The website stores both tokens in <code>localStorage</code>; the native mobile mode stores them in SecureStore.</p>
+    </div>
+  </div>
+  <figure><div class="diagram"><pre class="mermaid">
+sequenceDiagram
+  participant B as Website in browser
+  participant D as Django API
+  participant DB as PostgreSQL
+  B->>D: GET /auth/captcha/
+  D-->>B: signed key and SVG, valid 5 min
+  B->>D: POST /auth/login/ with email, password, captcha
+  D->>DB: check PBKDF2 hash, record outstanding token
+  D-->>B: access token 15 min and refresh token 7 days
+  Note over B: both tokens kept in localStorage
+  B->>D: API call with Bearer access token
+  D-->>B: 401 once the access token expires
+  B->>D: POST /auth/refresh/
+  D->>DB: blacklist old refresh token, issue a new pair
+  D-->>B: new pair
+  Note over B,D: Two calls that hit 401 together both refresh with the same token. The second is rejected and the user is signed out.
+  B->>D: POST /auth/logout/ with refresh token
+  D->>DB: blacklist refresh token
+</pre></div></figure>
+
+  <h3>A.8 Deployment today</h3>
+  <figure><div class="diagram"><pre class="mermaid">
+flowchart LR
+  pc["Developer PC - Windows"] --> run["Django runserver :8000"]
+  pc --> vite["Vite dev :5173"]
+  pc --> pg[("PostgreSQL 18 :5432")]
+  pc --> expo["Expo dev server"]
+  phone["Android phone on the same Wi-Fi"] -->|"WebView to LAN IP :3000"| civic["CIVIC Vite dev :3000"]
+  studio["AI Studio preview on Cloud Run, asia-southeast1"] --> srv["CIVIC server.js"]
+  guide["docs/deployment.md"] -.->|"described, not built"| vm["NGINX and Gunicorn on a VM, or Vercel"]
+</pre></div><figcaption>No production deployment of the Django backend is defined in either repository.</figcaption></figure>
+
+  <h3>A.9 Storage, background work and integrations</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Concern</th><th>Today</th></tr></thead><tbody>
+    <tr><td>Files and images</td><td>Local disk under <code>media/</code>, public URL, original filename kept. Images 5 MB, audio 10 MB, video 25 MB. Pillow verifies images</td></tr>
+    <tr><td>Background tasks</td><td>None. Notifications, email, AI triage and file checks all run inside the request</td></tr>
+    <tr><td>Scheduled tasks</td><td>None. Expired JWT records are never cleaned up</td></tr>
+    <tr><td>Notifications</td><td>Database rows, polled by clients. No push, no email for status changes</td></tr>
+    <tr><td>Third parties</td><td>Gmail SMTP from the server; map tiles and geocoding from browsers</td></tr>
+  </tbody></table></div>
+</section>
+
+<section id="problems">
+  <h2><span class="letter">B</span>Problems and bottlenecks</h2>
+  <p class="sub">Severity reflects the platform as it would be exposed on the internet. Items marked <code>main</code> are fixed on the branch and need the merge in Phase 0.</p>
+
+  <h3>B.1 Security assessment</h3>
+  <div class="tbl wide"><table>
+    <thead><tr><th>Severity</th><th>Finding</th><th>Where</th><th>Fix</th></tr></thead><tbody>
+    <tr><td><span class="chip crit">Critical</span></td><td>Forgot-password returns the reset link in the API response whenever email isn't sent, which is always while SMTP isn't configured. Anyone can take over any account.</td><td class="path">main: apps/accounts/views.py</td><td>Fixed on branch · Phase 0</td></tr>
+    <tr><td><span class="chip crit">Critical</span></td><td>Public sign-up accepts the Super Admin role with a passkey, and the error message prints the passkey. Officer accounts can also self-register.</td><td class="path">main: apps/accounts/serializers.py:70</td><td>Fixed on branch · Phase 0</td></tr>
+    <tr><td><span class="chip crit">Critical</span></td><td>The captcha is skipped when the client sends the key <code>local</code>.</td><td class="path">main: apps/accounts/captcha.py:133</td><td>Fixed on branch · Phase 0</td></tr>
+    <tr><td><span class="chip crit">Critical</span></td><td>Officers can read and change every department's complaints; any signed-in user can rate any complaint.</td><td><code>main</code></td><td>Fixed on branch · Phase 0</td></tr>
+    <tr><td><span class="chip high">High</span></td><td>Django 5.0 on <code>main</code> stopped receiving security fixes in April 2025.</td><td class="path">main: requirements.txt</td><td>Branch uses 6.0.5 · Phase 0</td></tr>
+    <tr><td><span class="chip high">High</span></td><td>Changing a Super Admin to Authority leaves <code>is_staff</code> and <code>is_superuser</code> set, and <code>IsSuperAdmin</code> accepts <code>is_staff</code>, so the account keeps full admin rights.</td><td class="path">apps/users/views.py (UserDetailView.patch)</td><td>Reset flags on every role change · Phase 0</td></tr>
+    <tr><td><span class="chip high">High</span></td><td>Evidence files are public. <code>/media/</code> is served without a check (the deployment guide's NGINX block does the same), so anyone with the URL bypasses the API's evidence rules.</td><td class="path">config/urls.py, docs/deployment.md</td><td>Private Blob container and short-lived SAS · Phase 8</td></tr>
+    <tr><td><span class="chip high">High</span></td><td>Anyone can file complaints with uploads, without signing in or a captcha: up to 100 files per request (Django's default), so roughly 500 MB per request, at 1,000 requests an hour per IP.</td><td class="path">apps/complaints/views.py, serializers.py</td><td>Captcha, file count and size caps, per-IP quotas · Phase 10</td></tr>
+    <tr><td><span class="chip high">High</span></td><td>The website keeps JWTs in <code>localStorage</code>, where any injected script can read a 7-day refresh token. The branch's CSP reduces the risk; <code>main</code> has no CSP.</td><td class="path">frontend/src/services/api.ts</td><td>Web BFF with httpOnly cookies · Phase 5</td></tr>
+    <tr><td><span class="chip high">High</span></td><td>Officers can search all users and read any user's profile, including citizens' phone numbers and addresses.</td><td class="path">apps/users/views.py (UserSearchView, UserDetailView.get)</td><td>Limit to staff, or to citizens on scoped complaints · Phase 10</td></tr>
+    <tr><td><span class="chip med">Medium</span></td><td>Tracking codes carry 4 random characters per date (about 1.7 million per day) on a public lookup that returns title, description and address. Enumerable once volume grows.</td><td class="path">apps/complaints/models.py</td><td>8+ random characters for new codes, old ones stay valid · Phase 10</td></tr>
+    <tr><td><span class="chip med">Medium</span></td><td>A solved captcha can be reused for 5 minutes, and challenges come from <code>random</code> rather than <code>secrets</code>. No per-account lockout after failed sign-ins.</td><td class="path">apps/accounts/captcha.py</td><td>Single-use captcha in Redis, lockout · Phase 10</td></tr>
+    <tr><td><span class="chip med">Medium</span></td><td>Audit logs record the first <code>X-Forwarded-For</code> value, which the client controls.</td><td class="path">apps/audit_logs/services.py</td><td>Read the client IP set by Front Door · Phase 10</td></tr>
+    <tr><td><span class="chip med">Medium</span></td><td>Rate limits are stored in each process's memory, so with N processes the real limit is N times higher.</td><td class="path">config/settings/base.py (no CACHES)</td><td>Redis cache · Phase 4</td></tr>
+    <tr><td><span class="chip med">Medium</span></td><td>The branch leaves libraries unpinned (<code>scikit-learn&gt;=1.6.1</code>, pandas, numpy) while the models are pickles tied to one scikit-learn version. Pickles run code when loaded.</td><td class="path">requirements.txt, *.pkl</td><td>Lock file, model checksums · Phase 0 and 10</td></tr>
+    <tr><td><span class="chip med">Medium</span></td><td>No dependency, container image or secret scanning anywhere.</td><td>—</td><td>Pipeline scans · Phase 11</td></tr>
+    <tr><td><span class="chip med">Medium</span></td><td>When Supabase is adopted, tables in the <code>public</code> schema are reachable through its Data API with the project's public key unless RLS is enabled or the API is switched off.</td><td>Supabase project settings</td><td>Decide at project creation · Phase 3</td></tr>
+    <tr><td><span class="chip low">Low</span></td><td><code>/ai/classify/</code> is public; Swagger and the schema are public in production; the JWT carries the user's email.</td><td class="path">apps/ai_predictions/views.py, config/urls.py</td><td>Phase 5 and 10</td></tr>
+  </tbody></table></div>
+  <p class="small">No raw SQL was found (the ORM is used throughout), and React escapes output, so SQL injection and XSS exposure are low. Server code makes no outbound requests to user-supplied URLs.</p>
+
+  <h3>B.2 What stops it running on more than one server</h3>
+  <div class="tbl wide"><table>
+    <thead><tr><th>Blocker</th><th>Effect with two or more replicas</th><th>Fix</th><th>Phase</th></tr></thead><tbody>
+    <tr><td>Uploads on local disk</td><td>A file saved on one replica is missing on the others and lost on restart</td><td>Azure Blob through django-storages</td><td>4, then direct upload in 8</td></tr>
+    <tr><td>No shared cache</td><td>Rate limits and caches per process</td><td>Redis</td><td>4</td></tr>
+    <tr><td>Logs written to <code>logs/civicsetu.log</code>; the folder is created on import</td><td>Fails on a read-only container filesystem; logs vanish on restart</td><td>JSON to stdout, collected by Log Analytics</td><td>4</td></tr>
+    <tr><td>No health or readiness endpoint</td><td>The platform can't detect a broken replica</td><td><code>/healthz</code> and <code>/readyz</code></td><td>4</td></tr>
+    <tr><td><code>SECURE_SSL_REDIRECT</code> without <code>SECURE_PROXY_SSL_HEADER</code></td><td>Infinite redirect behind any TLS-terminating ingress</td><td>Trust <code>X-Forwarded-Proto</code> from the ingress</td><td>4</td></tr>
+    <tr><td><code>STATICFILES_STORAGE</code> on Django 6</td><td>Silently ignored (removed in 5.1): no compression, no hashed file names</td><td>Use the <code>STORAGES</code> setting</td><td>4</td></tr>
+    <tr><td><code>CONN_MAX_AGE=0</code></td><td>A new database connection, with TLS, for every request</td><td>Pooler and persistent connections</td><td>4</td></tr>
+    <tr><td>No containers, pipeline or infrastructure code</td><td>Every release is manual and unrepeatable</td><td>Docker, GitHub Actions, Bicep</td><td>4 and 11</td></tr>
+  </tbody></table></div>
+
+  <h3>B.3 Performance assessment</h3>
+  <ul>
+    <li><strong>Filing a complaint does everything in one request and one transaction:</strong> AI triage (twice if the first call fails), one notification insert per officer in the category (or per super admin), Pillow checks, each image written twice, history rows and an audit row. The database connection is held while uploads are processed.</li>
+    <li><strong>Password reset sends SMTP inside the request</strong> with a 10-second timeout, blocking a worker.</li>
+    <li><strong>Analytics run one COUNT per status, category and priority</strong> (6 + 10 + 4 queries) and loop over every resolved complaint in Python to average resolution time.</li>
+    <li><strong>Search uses <code>icontains</code> on four text columns</strong>, a full table scan. Fine at 38 rows, slow at 100,000.</li>
+    <li><strong>Redundant indexes:</strong> <code>tracking_code</code> and department <code>slug</code> each have a unique index plus a second plain index.</li>
+    <li><strong>The deployment guide runs 4 sync Gunicorn workers with a 120-second timeout</strong>, so a few slow uploads block the whole server. Its NGINX limit of 10 MB rejects the 25 MB videos the API allows.</li>
+    <li><strong>The website's axios client has no timeout</strong>, and concurrent 401s race the token refresh (A.7).</li>
+    <li><strong>JWT tables only grow</strong>: 377 outstanding and 125 blacklisted rows in October, with no cleanup job.</li>
+    <li><strong>The ML models aren't a bottleneck.</strong> They're 3–7 KB and load once per process.</li>
+  </ul>
+
+  <h3>B.4 Technical debt and coupling</h3>
+  <ul>
+    <li><strong>Diverged branches and committed build output:</strong> <code>static/react</code>, CIVIC <code>dist/</code>, a 2.4 MB mobile bundle and a 900 KB zip of docs are in git, while the CIVIC source isn't.</li>
+    <li><strong>Department routing by keyword:</strong> <code>scoping.py</code> decides which officers see a complaint from words like “WATER” in the department name. Renaming “Water Supply” to “Jal Board” would hide water complaints from its own officers. The same category mapping is repeated three more times in <code>create_complaint</code>, and <code>users.department</code> is free text that duplicates <code>department_authorities</code>.</li>
+    <li><strong><code>create_complaint</code> can save the category <code>TRAFFIC</code></strong>, which isn't one of the allowed choices.</li>
+    <li><strong>Duplicated routes:</strong> notifications at two paths with different response shapes, status changes at two paths. <code>NotificationService</code> lives in the <code>authority</code> app.</li>
+    <li><strong>AI direction conflict</strong> between <code>docs/AI_REMOVAL_PLAN.md</code> and commit 69f94a6.</li>
+    <li><strong>Leftovers from academic reviews:</strong> <code>REVIEW_PHASE</code> and <code>toggle_review_mode.py</code> have no effect on the backend.</li>
+    <li><strong>Repository clutter:</strong> PDFs, report generators and model files at the root; the same images in <code>static/</code>, <code>static/images/</code> and <code>frontend/public/</code>.</li>
+    <li><strong>The website mixes JavaScript and TypeScript</strong> (<code>App.jsx</code>, <code>Landing.jsx</code>) and has no tests.</li>
+  </ul>
+
+  <h3>B.5 Test baseline</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Check</th><th>Result</th></tr></thead><tbody>
+    <tr><td>Backend suite, <code>design/premium-ui</code>, Python 3.14.3, Django 6.0.5, SQLite in memory</td><td><span class="chip ok">Pass</span> 237 tests in 12 s</td></tr>
+    <tr><td><code>makemigrations --check</code> on the branch</td><td><span class="chip ok">Pass</span> No changes detected</td></tr>
+    <tr><td>Backend suite on <code>main</code></td><td><span class="chip low">Not run</span> Pins Django 5.0, which doesn't support the Python 3.14 here</td></tr>
+    <tr><td>PostgreSQL test settings</td><td><span class="chip low">Not run</span> No database server in this environment</td></tr>
+    <tr><td>Website build, CIVIC builds, mobile tests</td><td><span class="chip low">Not run</span> Website build skipped in the audit; CIVIC and mobile source missing</td></tr>
+    <tr><td>Load test</td><td><span class="chip low">Not run</span> No capacity claim is made until Phase 12</td></tr>
+  </tbody></table></div>
+</section>
+
+<section id="boundaries">
+  <h2><span class="letter">C</span>Microservices architecture</h2>
+  <p class="sub">Each module of the product becomes a service that can be changed, deployed and scaled on its own. The boundaries follow the Django apps that exist today and the data each one writes.</p>
+
+  <h3>C.1 Service catalogue</h3>
+  <div class="tbl wide"><table>
+    <thead><tr><th>Service</th><th>Responsibility</th><th>Built from today's code</th><th>Owns (schema)</th><th>Publishes</th><th>Listens to</th><th>Scales on</th></tr></thead><tbody>
+    <tr><td><strong>Identity</strong></td><td>Sign-up, sign-in, captcha, staff MFA, tokens and signing keys, password reset, roles, staff accounts, profiles</td><td>accounts, users</td><td class="path">identity</td><td>user.registered, user.updated, user.role_changed, user.suspended, user.erasure_requested, auth.password_reset_requested</td><td>—</td><td>Sign-ins</td></tr>
+    <tr><td><strong>Grievance</strong></td><td>Complaint lifecycle and workflow, tracking codes, public tracking, timeline, assignment, priority, resolution notes</td><td>complaints, complaint_history, officer actions in authority</td><td class="path">grievance</td><td>complaint.created, status_changed, assigned, priority_changed, resolved</td><td>routing.rules_changed, officer.assigned, officer.removed, triage.completed, media.file_ready, user.suspended</td><td>Requests</td></tr>
+    <tr><td><strong>Department &amp; Routing</strong></td><td>Departments, officers in each department, categories, category-to-department routing, SLA targets</td><td>departments, complaints/scoping.py</td><td class="path">directory</td><td>department.*, officer.assigned, officer.removed, category.changed, routing.rules_changed</td><td>user.role_changed, user.suspended</td><td>Low traffic</td></tr>
+    <tr><td><strong>Triage</strong></td><td>Category and priority suggestions from configurable rules and ML models, duplicate detection, model versions</td><td>ai_engine, ai_predictions, keyword rules in complaints/services.py</td><td class="path">triage</td><td>triage.completed</td><td>complaint.created, category.changed</td><td>CPU</td></tr>
+    <tr><td><strong>Media</strong></td><td>Upload and view links, type and size checks, thumbnails, malware scan, retention</td><td>complaint_images, complaint attachments, profile images</td><td class="path">media</td><td>media.file_ready, media.file_rejected</td><td>Blob-created events</td><td>Upload volume</td></tr>
+    <tr><td><strong>Notification</strong></td><td>In-app inbox, email, push, SMS later; templates per event, channel and language; user preferences</td><td>notifications, NotificationService, email code in accounts</td><td class="path">notify</td><td>notification.delivered, notification.failed</td><td>complaint.*, officer.assigned, feedback.submitted, user.*, auth.password_reset_requested</td><td>Queue length</td></tr>
+    <tr><td><strong>Feedback</strong></td><td>Ratings after resolution, who may rate, survey questions</td><td>feedback</td><td class="path">feedback</td><td>feedback.submitted</td><td>complaint.resolved, complaint.status_changed</td><td>Low traffic</td></tr>
+    <tr><td><strong>Reporting</strong></td><td>Dashboards, officer and department analytics, city insights, CSV and PDF exports</td><td>authority analytics, ai city-insights, department and feedback statistics</td><td class="path">reporting</td><td>report.ready</td><td>Every domain event</td><td>Query load</td></tr>
+    <tr><td><strong>Audit</strong></td><td>Append-only trail from every service, search for super admins, export to immutable storage</td><td>audit_logs</td><td class="path">audit</td><td>—</td><td>audit.recorded from all services</td><td>Event volume</td></tr>
+    <tr><td><strong>Web BFF</strong></td><td>Website sign-in with httpOnly cookies, page-shaped responses, serves the website build</td><td>new</td><td>none</td><td>—</td><td>—</td><td>Requests</td></tr>
+    <tr><td><strong>Mobile BFF</strong></td><td>Versioned app API, idempotent submits, push-token registration, small payloads</td><td>new</td><td>none</td><td>—</td><td>—</td><td>Requests</td></tr>
+  </tbody></table></div>
+  <p class="small">Profiles stay inside Identity in their own table, separate from credentials. A separate Profile service can be split off later without changing other services, because they only ever see a user's public ID and display name.</p>
+
+  <h3>C.2 Rules that keep the services independent</h3>
+  <p>Without these rules, separate services slowly turn into a distributed monolith: they still have to be released together, only now over a network.</p>
+  <ul>
+    <li><strong>Each service owns its data.</strong> No service reads or writes another service's schema; each one gets a database role that can only see its own.</li>
+    <li><strong>No foreign keys between services.</strong> They refer to each other by public UUID.</li>
+    <li><strong>At most one synchronous hop between domain services per request</strong> (Grievance asking Triage at filing time, with a fallback). Anything else a service needs comes from a local copy kept current by events.</li>
+    <li><strong>Each service owns a versioned API</strong> (<code>/v1</code>) described in OpenAPI. A breaking change ships as <code>/v2</code> next to <code>/v1</code> until every caller has moved.</li>
+    <li><strong>Events leave only through each service's outbox</strong>, and every consumer ignores duplicates.</li>
+    <li><strong>One shared technical library, no shared business code.</strong> The library handles tokens, errors, logging, tracing, configuration, outbox and health checks; models and rules never cross services.</li>
+    <li><strong>Each service has its own pipeline, image, revisions, scale rules, managed identity, database role and configuration namespace.</strong> A service deploys alone when its contract tests pass.</li>
+  </ul>
+
+  <h3>C.3 Target architecture</h3>
+  <figure><div class="diagram"><pre class="mermaid">
+flowchart LR
+  browser["Website - citizens, officers, admins"] --> fd["Azure Front Door and WAF"]
+  app["CIVIC mobile app"] --> fd
+  fd --> webbff["Web BFF"]
+  fd --> mobbff["Mobile BFF"]
+  subgraph svc ["Domain services - internal only"]
+    idn["Identity"]
+    grv["Grievance"]
+    dir["Department and Routing"]
+    tri["Triage"]
+    med["Media"]
+    ntf["Notification"]
+    fbk["Feedback"]
+    rep["Reporting"]
+    aud["Audit"]
+  end
+  webbff --> svc
+  mobbff --> svc
+  grv -->|"sync, 300 ms, fallback"| tri
+  bus[["Azure Service Bus - one topic per service"]]
+  svc -->|"events via outbox"| bus
+  bus -->|"subscriptions"| svc
+  svc --> pg[("PostgreSQL - one schema per service")]
+  med --> blob[("Blob Storage - private")]
+  ntf --> prov["Email, push and SMS providers"]
+  cfg["App Configuration and Key Vault"] -.-> svc
+</pre></div></figure>
+
+  <h3>C.4 Services and data ownership</h3>
+  <figure><div class="diagram"><pre class="mermaid">
+flowchart TB
+  idn["Identity - role identity_svc"] --> s1[("identity schema")]
+  grv["Grievance - role grievance_svc"] --> s2[("grievance schema")]
+  dir["Department and Routing - role directory_svc"] --> s3[("directory schema")]
+  tri["Triage - role triage_svc"] --> s4[("triage schema")]
+  med["Media - role media_svc"] --> s5[("media schema")]
+  ntf["Notification - role notify_svc"] --> s6[("notify schema")]
+  fbk["Feedback - role feedback_svc"] --> s7[("feedback schema")]
+  rep["Reporting - role reporting_svc"] --> s8[("reporting schema")]
+  aud["Audit - role audit_svc, insert only"] --> s9[("audit schema")]
+  med --> b1[("Blob: evidence and avatars")]
+  tri --> b2[("Blob: model files")]
+  subgraph cluster ["One PostgreSQL cluster today, separate databases later"]
+    s1
+    s2
+    s3
+    s4
+    s5
+    s6
+    s7
+    s8
+    s9
+  end
+</pre></div><figcaption>Moving a service to its own database later means dumping its schema and changing one connection secret.</figcaption></figure>
+
+  <h3>C.5 Request lifecycle: filing a complaint with photos</h3>
+  <figure><div class="diagram"><pre class="mermaid">
+sequenceDiagram
+  participant A as CIVIC app
+  participant M as Mobile BFF
+  participant G as Grievance
+  participant T as Triage
+  participant MD as Media
+  participant B as Blob Storage
+  participant S as Service Bus
+  A->>M: POST complaint with Idempotency-Key and 2 declared photos
+  M->>M: verify token with cached Identity public keys
+  M->>G: create complaint, 3 s timeout
+  G->>T: suggest category and priority, 300 ms timeout
+  alt Triage answers in time
+    T-->>G: category, priority, confidence
+  else timeout or error
+    G->>G: keep citizen's category, MEDIUM priority, triage pending
+  end
+  G->>G: one transaction - complaint, history, outbox events, idempotency record
+  G-->>M: 201 with tracking code and a signed attachment grant
+  G->>S: complaint.created and audit.recorded through the outbox relay
+  M->>MD: ask for 2 upload links with the grant
+  MD-->>M: write-only links, valid 5 min
+  M-->>A: tracking code and upload links
+  A->>B: upload photos directly
+  B->>MD: blob-created event through Event Grid
+  MD->>MD: check type, size and malware, make thumbnail
+  MD->>S: media.file_ready
+  S->>G: attach the file to the complaint
+</pre></div><figcaption>The attachment grant is a short-lived token signed by Grievance. Media checks its signature, so it never has to call Grievance to ask who owns a complaint.</figcaption></figure>
+
+  <h3>C.6 Authentication lifecycle</h3>
+  <figure><div class="diagram"><pre class="mermaid">
+sequenceDiagram
+  participant W as Website
+  participant WB as Web BFF
+  participant I as Identity
+  participant G as Grievance
+  participant KV as Key Vault
+  I->>KV: load signing keys, rotated every 90 days
+  W->>WB: sign in with email, password, captcha
+  WB->>I: POST /identity/v1/sessions
+  I-->>WB: RS256 access token, 10 min, and refresh token
+  WB-->>W: httpOnly Secure cookies and a CSRF token
+  W->>WB: open dashboard
+  WB->>G: request with user token and managed-identity service token
+  G->>G: verify both locally with cached public keys
+  G-->>WB: data scoped to this user
+  Note over WB,I: Only Identity issues or refreshes tokens. No service calls Identity to check one.
+  W->>WB: sign out
+  WB->>I: revoke refresh token
+  WB-->>W: cookies cleared
+</pre></div><figcaption>The mobile app follows the same flow through the Mobile BFF, keeping tokens in SecureStore. Both clients refresh through one shared request, which removes today's refresh race.</figcaption></figure>
+
+  <h3>C.7 Service-to-service communication</h3>
+  <figure><div class="diagram"><pre class="mermaid">
+flowchart LR
+  bff["Web and Mobile BFF"] -->|"REST, 3 s, circuit breaker"| svc["Domain services"]
+  grv["Grievance"] -->|"REST, 300 ms, rule fallback"| tri["Triage"]
+  bff -->|"links issued against a signed grant"| med["Media"]
+  subgraph async ["Everything else: events"]
+    ob[("Outbox table in each service")] -->|"relay sidecar"| topic[["Topic of the producing service"]]
+    topic -->|"filtered subscription"| sub["Consuming service"]
+    sub -->|"skip if already processed"| inbox[("Inbox table in the consumer")]
+    topic -.->|"after 10 failed deliveries"| dlq[["Dead-letter queue"]]
+  end
+</pre></div></figure>
+  <div class="tbl wide"><table>
+    <thead><tr><th>Synchronous call</th><th>Purpose</th><th>Timeout</th><th>Retries</th><th>If it fails</th></tr></thead><tbody>
+    <tr><td>BFF → any domain service</td><td>User requests</td><td>3 s</td><td>One retry with jitter on GET; POST only with an Idempotency-Key</td><td>Breaker opens; 503 with Retry-After, or a cached read</td></tr>
+    <tr><td>Grievance → Triage</td><td>Category and priority when filing</td><td>300 ms</td><td>None</td><td>Citizen's category and MEDIUM priority; Triage scores it from the event shortly after</td></tr>
+    <tr><td>BFF → Media</td><td>Upload and view links</td><td>2 s</td><td>One retry</td><td>The complaint is already saved; the app retries the upload later</td></tr>
+    <tr><td>Everything else</td><td colspan="4">Events through Service Bus, queued until the consumer is available</td></tr>
+  </tbody></table></div>
+  <p>Inside the Container Apps environment, traffic between apps is encrypted with mutual TLS, domain services accept traffic only from inside the environment, and every call carries a managed-identity token whose audience must match the service it calls. Services find each other by the platform's built-in app names, so no service registry is needed. Breakers open after 5 consecutive failures or more than half of the last 20 calls, and test again after 15 seconds. Each BFF keeps a separate connection pool per service, so one slow service can't use up the connections the others need.</p>
+
+  <h3>C.8 Events</h3>
+  <div class="tbl wide"><table>
+    <thead><tr><th>Topic</th><th>Events (v1)</th><th>Main consumers</th></tr></thead><tbody>
+    <tr><td class="path">identity-events</td><td>user.registered, user.updated, user.role_changed, user.suspended, user.erasure_requested, auth.password_reset_requested</td><td>Notification, Department &amp; Routing, Grievance, Reporting, every service for erasure</td></tr>
+    <tr><td class="path">grievance-events</td><td>complaint.created, complaint.status_changed, complaint.assigned, complaint.priority_changed, complaint.resolved</td><td>Notification, Triage, Feedback, Reporting</td></tr>
+    <tr><td class="path">directory-events</td><td>department.created, department.updated, department.deactivated, officer.assigned, officer.removed, category.changed, routing.rules_changed</td><td>Grievance, Triage, Notification, Reporting</td></tr>
+    <tr><td class="path">triage-events</td><td>triage.completed</td><td>Grievance, Reporting</td></tr>
+    <tr><td class="path">media-events</td><td>media.file_ready, media.file_rejected</td><td>Grievance, Identity (avatars)</td></tr>
+    <tr><td class="path">feedback-events</td><td>feedback.submitted</td><td>Notification, Reporting</td></tr>
+    <tr><td class="path">audit-events</td><td>audit.recorded, from every service in the same transaction as the action</td><td>Audit</td></tr>
+    <tr><td class="path">each service's topic</td><td><code>&lt;service&gt;.config_changed</code> when a rule or setting changes</td><td>Services that keep a copy of that rule</td></tr>
+  </tbody></table></div>
+  <p>Every message uses one envelope: <code>id</code> (also the Service Bus MessageId, so duplicates are detected), <code>type</code>, <code>version</code>, <code>occurred_at</code>, <code>producer</code>, <code>correlation_id</code>, <code>traceparent</code> and <code>data</code>. Adding a field keeps the version; removing or renaming one publishes a new version beside the old until every consumer has moved. Schemas live in <code>contracts/events/</code> and CI checks every producer and consumer against them.</p>
+
+  <h3 id="customization">C.9 Customization model</h3>
+  <p>Changes you're likely to make should need no code at all, and changes that do need code should touch one small, isolated place. Seven layers cover that:</p>
+  <div class="tbl wide"><table>
+    <thead><tr><th>Layer</th><th>What you can change</th><th>Where it lives</th><th>Who changes it</th><th>Takes effect</th></tr></thead><tbody>
+    <tr><td>1. Business rules</td><td>Categories with labels in English, Hindi and Odia; departments and routing; SLA targets; priority keywords and thresholds; complaint statuses, allowed transitions and required notes; upload types and size limits; feedback questions; notification templates per event, channel and language; format of new tracking codes</td><td>Rule tables in the owning service's schema, versioned and audited</td><td>Super admin, in the admin portal</td><td>Seconds, through a <code>config_changed</code> event</td></tr>
+    <tr><td>2. Feature flags</td><td>Guest complaints, ML triage, voice notes, video, map, push, SMS, new features rolled out by role or percentage</td><td>Azure App Configuration feature flags</td><td>Admin or engineer</td><td>About 30 s, no redeploy</td></tr>
+    <tr><td>3. Technical settings</td><td>Timeouts, retries, rate limits, page sizes, token lifetimes, captcha expiry, log level, trace sampling, per service and per environment</td><td>App Configuration keys labelled dev, staging, prod; secrets as Key Vault references; kept as code in <code>config/</code></td><td>Engineer, by pull request</td><td>Refresh, or a new revision</td></tr>
+    <tr><td>4. Look and feel</td><td>Name, logo, colour themes (kesari and calm as two themes), languages and translations, which portal modules appear</td><td>Theme tokens and translation files in Blob behind Front Door; module visibility from layer 2</td><td>Super admin or designer</td><td>Next page load</td></tr>
+    <tr><td>5. Providers</td><td>Email (Azure Communication Services or SMTP), SMS (an Indian provider), push (Expo or FCM), storage, triage engine (rules, ML, a hosted model later), map tiles</td><td>One adapter interface per kind inside the service; the active one picked by a config key</td><td>Engineer</td><td>Config change; a new provider is one adapter class</td></tr>
+    <tr><td>6. Infrastructure</td><td>Replicas, CPU and memory, scale rules, alerts, per service and environment</td><td>Bicep parameter files</td><td>Engineer, by pull request</td><td>Next pipeline run</td></tr>
+    <tr><td>7. New services</td><td>A new module with health checks, logging, tracing, auth, outbox, Dockerfile, pipeline and Bicep module already wired</td><td><code>templates/service/</code> (generated with copier)</td><td>Engineer</td><td>Deployable the same day</td></tr>
+  </tbody></table></div>
+  <figure><div class="diagram"><pre class="mermaid">
+flowchart LR
+  admin["Super admin console"] -->|"edit a rule"| owner["Owning service"]
+  owner -->|"validate, version, audit"| rules[("Rule tables in its schema")]
+  owner -->|"config_changed event"| bus[["Service Bus"]]
+  bus --> copies["Services holding a copy refresh it"]
+  eng["Engineer pull request to config/"] -->|"pipeline sync"| ac["Azure App Configuration"]
+  kv["Key Vault"] -->|"secret references"| ac
+  ac -->|"refresh about every 30 s"| all["All services and BFFs"]
+  design["Theme tokens and translations"] --> blobt[("Blob behind Front Door")]
+  blobt --> clients["Website, CIVIC web app, mobile app"]
+  params["Bicep parameter files"] -->|"deploy"| infra["Replicas, CPU, memory, scale rules"]
+</pre></div></figure>
+  <h4>Guardrails on every change</h4>
+  <ul>
+    <li><strong>Validated</strong> against a schema, with a clear reason when rejected (for example, a category with no department).</li>
+    <li><strong>Versioned</strong> with who, when and what, and a one-step return to any earlier version.</li>
+    <li><strong>Audited</strong> through the Audit service.</li>
+    <li><strong>Tried in staging first</strong> when you want: export a configuration bundle from staging and import it into production.</li>
+    <li><strong>Flags have an owner and an end date</strong>, so finished experiments get removed instead of piling up.</li>
+  </ul>
+
+  <h3>C.10 Where today's code goes</h3>
+  <div class="tbl wide"><table>
+    <thead><tr><th>Today</th><th>Goes to</th><th>Decision</th></tr></thead><tbody>
+    <tr><td>accounts, users</td><td>Identity</td><td><span class="chip extract">Extract</span> last, after token signing is proven</td></tr>
+    <tr><td>complaints, complaint_history, officer actions in authority</td><td>Grievance</td><td><span class="chip keep">Keep</span> what remains of the Django app becomes this service</td></tr>
+    <tr><td>departments, scoping.py</td><td>Department &amp; Routing</td><td><span class="chip extract">Extract</span> keyword matching replaced by routing rules</td></tr>
+    <tr><td>ai_engine, ai_predictions, keyword priority rules</td><td>Triage</td><td><span class="chip extract">Extract</span> ML on or off by flag</td></tr>
+    <tr><td>complaint_images, attachments, profile images, local media</td><td>Media and Blob</td><td><span class="chip extract">Extract</span> <span class="chip refactor">Replace storage</span></td></tr>
+    <tr><td>notifications, NotificationService, Gmail SMTP</td><td>Notification and ACS Email</td><td><span class="chip extract">Extract</span> first</td></tr>
+    <tr><td>feedback</td><td>Feedback</td><td><span class="chip extract">Extract</span></td></tr>
+    <tr><td>authority analytics, city insights, statistics</td><td>Reporting</td><td><span class="chip extract">Extract</span></td></tr>
+    <tr><td>audit_logs</td><td>Audit</td><td><span class="chip extract">Extract</span></td></tr>
+    <tr><td>CivicSetu website</td><td>Web BFF</td><td><span class="chip keep">Keep</span> only <code>api.ts</code> and <code>authStore.ts</code> change</td></tr>
+    <tr><td>CIVIC web app</td><td>Mobile BFF</td><td><span class="chip refactor">Refactor</span> data layer moves off localStorage; needs the source</td></tr>
+    <tr><td>CIVIC mobile app</td><td>Mobile BFF</td><td><span class="chip keep">Keep</span> native mode becomes the main mode</td></tr>
+    <tr><td><code>server.js</code> geo mock, duplicate routes, <code>REVIEW_PHASE</code></td><td>—</td><td><span class="chip deprecate">Deprecate</span> nearby search moves to Grievance</td></tr>
+  </tbody></table></div>
+
+  <h3>C.11 Repository layout</h3>
+  <p>One repository, but each service builds, tests and deploys on its own when only its folder changes. It grows out of <code>civicsetu-v1</code> so the history stays. Each service folder is self-contained, so it can move to its own repository later if separate teams take them over. The CIVIC repository stays separate because the app has its own release cycle.</p>
+<pre class="code"><code>civicsetu-platform/              grows out of civicsetu-v1, history kept
+├── services/
+│   ├── identity/   grievance/   directory/   triage/   media/
+│   └── notification/   feedback/   reporting/   audit/
+├── bff/
+│   ├── web/
+│   └── mobile/
+├── libs/civicsetu-chassis/      tokens, errors, logging, tracing, config, outbox, health
+├── contracts/
+│   ├── openapi/                 one spec per service
+│   └── events/                  JSON Schema per event and version
+├── config/                      App Configuration as code, per environment
+├── infra/bicep/                 platform modules, one module per service, env parameters
+├── templates/service/           starting point for a new service
+├── frontend/                    CivicSetu website, same place as today
+├── loadtest/k6/
+└── .github/workflows/           one pipeline per service, triggered by its folder</code></pre>
+
+  <h3>C.12 Trade-offs</h3>
+  <p>Eleven deployables cost more to run than four (section G), dashboards built from events can lag a few seconds behind the live data, and a bug can span several services. The plan offsets this with one service template, distributed tracing from the first extraction, contract tests that gate every deploy, and per-service runbooks.</p>
+</section>
+
+<section id="azure">
+  <h2><span class="letter">D</span>Proposed Azure infrastructure</h2>
+  <p class="sub">Region: Azure Central India (Pune), paired with Supabase in Mumbai so the database is a few milliseconds away and all data stays in India. Prices are list estimates in USD; confirm them in the Azure Pricing Calculator for Central India before committing.</p>
+
+  <h3>D.1 Services</h3>
+  <div class="tbl wide"><table>
+    <thead><tr><th>Service</th><th>Why, and the problem it solves</th><th>Connects to</th><th>At launch</th><th class="num">≈ $/month</th><th>Scaling</th></tr></thead><tbody>
+    <tr><td>Container Apps (one environment per stage, VNet-integrated)</td><td>Runs the 11 apps, their outbox relay sidecars and scheduled jobs, with revisions, probes, scale rules, mutual TLS between apps and one managed identity per app, without running a cluster</td><td>Front Door, ACR, Key Vault, App Configuration, Service Bus, Redis, Blob, Supabase through NAT</td><td>Yes</td><td class="num">200–450</td><td>Per-app rules on HTTP concurrency, queue length or CPU; 0–30 replicas each</td></tr>
+    <tr><td>Container Registry, Basic</td><td>One image repository per service, tagged by git SHA</td><td>Container Apps, GitHub Actions</td><td>Yes</td><td class="num">5</td><td>Standard tier for more storage</td></tr>
+    <tr><td>Front Door Standard with WAF policy</td><td>The only public entry: TLS, custom domains, edge caching for the website, themes and translations, rate limits, WAF custom rules</td><td>Azure DNS; BFF origins locked to Front Door</td><td>Yes</td><td class="num">40–60</td><td>Global and managed. Premium (about $330) adds managed OWASP rules and Private Link</td></tr>
+    <tr><td>Service Bus Standard</td><td>One topic per producing service, a subscription per consumer, dead-lettering, duplicate detection</td><td>Every service</td><td>From Phase 6</td><td class="num">10–20</td><td>Priced per operation. Premium for private endpoints and isolation</td></tr>
+    <tr><td>Event Grid system topic</td><td>Tells Media when a file lands in Blob, without trusting the client to report it</td><td>Storage account, Service Bus</td><td>From Phase 8a</td><td class="num">0–1</td><td>Per event</td></tr>
+    <tr><td>App Configuration, Standard</td><td>Settings and feature flags per service and environment, change history, Key Vault references, refresh without redeploy</td><td>All apps, through managed identity</td><td>Yes (Free tier for dev)</td><td class="num">≈ 36</td><td>Request quotas per store; replicas for other regions</td></tr>
+    <tr><td>Azure Managed Redis, smallest tier</td><td>Shared rate limits, single-use captcha, short caches, with keys separated per service. Microsoft is moving customers from Azure Cache for Redis to this product, so new work should start here</td><td>BFFs, Identity, Reporting</td><td>Yes</td><td class="num">15–50</td><td>Larger tiers; holds no source data</td></tr>
+    <tr><td>Key Vault</td><td>Database passwords per service role, token signing keys, provider keys</td><td>All apps</td><td>Yes</td><td class="num">1–5</td><td>—</td></tr>
+    <tr><td>Blob Storage (StorageV2)</td><td>Private evidence and avatars, model files, theme and translation files, immutable backup container</td><td>Media, Triage, Front Door, backup job</td><td>Yes</td><td class="num">5–10</td><td>Practically unlimited; ZRS in production</td></tr>
+    <tr><td>Log Analytics and Application Insights</td><td>Logs, distributed traces, service map, metrics, dashboards</td><td>All apps through OpenTelemetry</td><td>Yes</td><td class="num">25–60</td><td>Per GB ingested; sampling and retention control cost</td></tr>
+    <tr><td>Azure Monitor alerts and action group</td><td>Paging on errors, latency, dead letters, failed deploys and spend</td><td>Log Analytics</td><td>Yes</td><td class="num">1–5</td><td>—</td></tr>
+    <tr><td>Virtual Network and NAT Gateway</td><td>Private network for the apps and one static outbound IP for the Supabase allowlist</td><td>Container Apps environment, Supabase</td><td>Yes</td><td class="num">37–45</td><td>Extra IPs for more outbound connections</td></tr>
+    <tr><td>Private Endpoints</td><td>Keep Key Vault, App Configuration and Blob traffic off the internet</td><td>VNet</td><td>Phase 10</td><td class="num">≈ 8 each</td><td>—</td></tr>
+    <tr><td>Azure DNS</td><td>Zones for the CivicSetu domains</td><td>Front Door</td><td>Yes</td><td class="num">1</td><td>—</td></tr>
+    <tr><td>Azure Communication Services Email</td><td>Replaces Gmail SMTP</td><td>Notification</td><td>From Phase 6</td><td class="num">1–5</td><td>Per message</td></tr>
+    <tr><td>GitHub Actions with OIDC</td><td>One pipeline per service where the code already lives, with no stored Azure passwords</td><td>ACR, Container Apps, Bicep</td><td>Yes</td><td class="num">0–15</td><td>Per minute</td></tr>
+    <tr><td>Supabase Pro (outside Azure, AWS Mumbai)</td><td>PostgreSQL with the Supavisor pooler and daily backups; nine schemas, one role per service</td><td>All services over TLS, from the NAT IP only</td><td>Yes</td><td class="num">45–110</td><td>Compute add-ons; separate projects per service later; point-in-time recovery adds about $100</td></tr>
+  </tbody></table></div>
+
+  <h3>D.2 Considered and not chosen</h3>
+  <ul>
+    <li><strong>API Management:</strong> the BFFs already handle authentication and response shaping, and Front Door handles edge routing and rate limits. Add it later if partner systems, such as other municipal software, need a managed external API.</li>
+    <li><strong>AKS:</strong> becomes worth it around 20–30 services or when you need service-mesh features. Container Apps already gives per-app revisions, scale rules and mutual TLS.</li>
+    <li><strong>Dapr:</strong> built into Container Apps, but left out at first to keep each service plain Django that runs the same on a laptop.</li>
+    <li><strong>App Service:</strong> fine for web apps, weaker for queue-driven consumers and jobs.</li>
+    <li><strong>Application Gateway WAF v2:</strong> regional and about $250 a month before traffic; Front Door covers TLS, WAF and the edge for less.</li>
+    <li><strong>Event Hubs or Kafka:</strong> streaming platforms for far larger volumes than CivicSetu produces.</li>
+    <li><strong>Azure DevOps:</strong> code and issues are on GitHub.</li>
+    <li><strong>Terraform:</strong> Bicep is native to Azure and has no state file to secure; Supabase is managed through its CLI. Terraform remains an option if you later want one tool for both.</li>
+  </ul>
+
+  <h3>D.3 Deployment architecture</h3>
+  <figure><div class="diagram"><pre class="mermaid">
+flowchart TB
+  dns["Azure DNS"] --> fd["Front Door Standard and WAF"]
+  subgraph rg ["rg-civicsetu-prod - Central India"]
+    subgraph vnet ["VNet 10.40.0.0/16"]
+      subgraph cae ["Container Apps environment - mutual TLS between apps"]
+        web["web-bff"]
+        mob["mobile-bff"]
+        subgraph dom ["Domain services - internal ingress, relay sidecars"]
+          idn["identity"]
+          grv["grievance"]
+          dir["directory"]
+          tri["triage"]
+          med["media"]
+          ntf["notification"]
+          fbk["feedback"]
+          rep["reporting"]
+          aud["audit"]
+        end
+        jobs["jobs: migrations, cleanup, exports, backups"]
+      end
+      nat["NAT Gateway - static outbound IP"]
+    end
+    acr["Container Registry"]
+    kv["Key Vault"]
+    ac["App Configuration"]
+    sb["Service Bus Standard"]
+    eg["Event Grid - blob events"]
+    redis["Azure Managed Redis"]
+    st["Storage account"]
+    law["Log Analytics and App Insights"]
+  end
+  fd -->|"Front Door traffic only"| web
+  fd --> mob
+  web --> dom
+  mob --> dom
+  dom --> sb
+  dom --> st
+  st --> eg --> sb
+  cae --> nat --> supa[("Supabase PostgreSQL - AWS ap-south-1")]
+  gh["GitHub Actions - OIDC"] -->|"push images"| acr
+  gh -->|"Bicep and revisions"| cae
+  acr -.-> cae
+  kv -.-> cae
+  ac -.-> cae
+  cae -.-> law
+</pre></div><figcaption>Front Door Standard can't reach private origins, so the BFF ingress is public but accepts only the Front Door service tag and your Front Door ID header. Domain services have no public ingress at all.</figcaption></figure>
+
+  <h3>D.4 Environments</h3>
+  <div class="tbl wide"><table>
+    <thead><tr><th></th><th>Development</th><th>Staging</th><th>Production</th></tr></thead><tbody>
+    <tr><td>Where</td><td>Docker Compose on a laptop, all 11 apps or only the ones you work on</td><td>Azure, <code>rg-civicsetu-stg</code></td><td>Azure, <code>rg-civicsetu-prod</code></td></tr>
+    <tr><td>Database</td><td>PostgreSQL 17 container with the same nine schemas and roles</td><td>Supabase project <code>civicsetu-stg</code></td><td>Supabase project <code>civicsetu-prod</code>, Small or Medium compute</td></tr>
+    <tr><td>Messaging and storage</td><td>Service Bus emulator, Azurite</td><td>Own namespace and storage account</td><td>Own namespace, ZRS storage</td></tr>
+    <tr><td>Configuration</td><td>Local files with the same keys</td><td>App Configuration, label <code>staging</code></td><td>App Configuration, label <code>prod</code></td></tr>
+    <tr><td>Replicas</td><td>1 each</td><td>0–1 each (scale to zero)</td><td>BFFs, Identity and Grievance min 2; the other seven min 1</td></tr>
+    <tr><td>Data</td><td><code>seed_civic_data.py</code></td><td>Anonymized copy</td><td>Real</td></tr>
+    <tr><td>Release</td><td><code>docker compose up</code></td><td>Automatic per service on merge to <code>main</code></td><td>Per service, with manual approval in a GitHub environment</td></tr>
+  </tbody></table></div>
+</section>
+
+<section id="database">
+  <h2><span class="letter">E</span>Database transition strategy</h2>
+  <p class="sub">One PostgreSQL cluster to start, with a schema and a role per service and no foreign keys between services. Each service is ready to move to its own database without code changes. No distributed transactions.</p>
+
+  <h3>E.1 Where each table goes</h3>
+  <div class="tbl wide"><table>
+    <thead><tr><th>Table today</th><th class="num">Rows (Oct ledger)</th><th>Service</th><th>New home</th></tr></thead><tbody>
+    <tr><td class="path">users</td><td class="num">21</td><td>Identity</td><td><code>identity.users</code> (credentials, role, status) and <code>identity.profiles</code> (name, phone, address, bio)</td></tr>
+    <tr><td class="path">token_blacklist_*</td><td class="num">377 / 125</td><td>Identity</td><td><code>identity.refresh_tokens</code>, cleaned nightly</td></tr>
+    <tr><td class="path">departments, department_authorities</td><td class="num">7 / 15</td><td>Department &amp; Routing</td><td><code>directory.departments</code>, <code>department_officers</code>, plus new <code>categories</code>, <code>routing_rules</code>, <code>sla_policies</code></td></tr>
+    <tr><td class="path">complaints</td><td class="num">38</td><td>Grievance</td><td><code>grievance.complaints</code> with citizen, officer and department referenced by public UUID</td></tr>
+    <tr><td class="path">complaint_history</td><td class="num">126</td><td>Grievance</td><td><code>grievance.history</code></td></tr>
+    <tr><td class="path">complaint_images, complaint_attachments</td><td class="num">33 / 0</td><td>Media</td><td><code>media.files</code>; Grievance keeps a list of file IDs per complaint</td></tr>
+    <tr><td class="path">feedback</td><td class="num">6</td><td>Feedback</td><td><code>feedback.ratings</code></td></tr>
+    <tr><td class="path">notifications</td><td class="num">364</td><td>Notification</td><td><code>notify.notifications</code></td></tr>
+    <tr><td class="path">ai_prediction_logs</td><td class="num">19</td><td>Triage</td><td><code>triage.predictions</code></td></tr>
+    <tr><td class="path">audit_logs</td><td class="num">3</td><td>Audit</td><td><code>audit.events</code>, insert-only</td></tr>
+    <tr><td class="path">django_session, auth_*, django_*</td><td class="num">≈ 100</td><td>Each service</td><td>Each Django service keeps its own framework tables (migrations, content types) in its schema</td></tr>
+  </tbody></table></div>
+
+  <h3>E.2 How the split happens</h3>
+  <ol>
+    <li><strong>Schemas first, inside today's app (Phase 2).</strong> Create the nine schemas and move each table with <code>ALTER TABLE … SET SCHEMA</code>, which changes only metadata and takes milliseconds. Django finds tables through each role's <code>search_path</code>, so table names in code don't change.</li>
+    <li><strong>Cut foreign keys between services.</strong> Add UUID reference columns, backfill them, switch the code, then drop the old foreign-key columns in a later release.</li>
+    <li><strong>One role per service</strong>, allowed only on its own schema. While the old app still runs, its role keeps access to the schemas it hasn't handed over.</li>
+    <li><strong>On extraction</strong>, the new service connects with its own role and the old app's access to that schema is removed.</li>
+    <li><strong>Own database when needed:</strong> <code>pg_dump --schema=&lt;service&gt;</code> into a new database and change one connection secret. Likely first candidates are Grievance and Reporting.</li>
+  </ol>
+
+  <h3>E.3 Patterns evaluated</h3>
+  <div class="tbl wide"><table>
+    <thead><tr><th>Pattern</th><th>Use</th><th>Why</th></tr></thead><tbody>
+    <tr><td>Shared cluster, schema per service</td><td><span class="chip ok">Yes, Phase 2</span></td><td>Clear ownership enforced by roles, at the cost of one database</td></tr>
+    <tr><td>Service-owned tables</td><td><span class="chip ok">Yes</span></td><td>Exactly one service writes each table</td></tr>
+    <tr><td>Database per service</td><td><span class="chip ok">Ready from day one</span></td><td>Move a service when its load or isolation needs justify the extra cost</td></tr>
+    <tr><td>Transactional outbox and inbox</td><td><span class="chip ok">Every service</span></td><td>Events are never lost when Service Bus is down, never sent for a rolled-back change, and never applied twice</td></tr>
+    <tr><td>Saga, choreographed</td><td><span class="chip ok">Where a workflow spans services</span></td><td>Account erasure under India's DPDP Act: Identity asks every service to anonymize, each one confirms. Suspending an officer: Identity, then Department &amp; Routing removes assignments, then Grievance unassigns open complaints. Filing a complaint needs no saga</td></tr>
+    <tr><td>Eventual consistency</td><td><span class="chip ok">For copies of data</span></td><td>Routing rules held by Grievance, contacts held by Notification and everything in Reporting lag by seconds. A complaint's own state is always consistent inside Grievance</td></tr>
+    <tr><td>Distributed transactions</td><td><span class="chip crit">No</span></td><td>Unsupported across Supabase and Service Bus, and unnecessary</td></tr>
+  </tbody></table></div>
+
+  <h3>E.4 Database architecture</h3>
+  <figure><div class="diagram"><pre class="mermaid">
+flowchart LR
+  subgraph apps [Services]
+    a1["identity"]
+    a2["grievance"]
+    a3["seven more services"]
+  end
+  a1 -->|"role identity_svc"| pool["Supavisor pooler - transaction mode :6543"]
+  a2 -->|"role grievance_svc"| pool
+  a3 -->|"one role each"| pool
+  mig["Migration job per service"] -->|"owner role, session mode :5432"| sess["Supavisor session mode"]
+  pool --> pg[("PostgreSQL 17 - Supabase Mumbai - nine schemas")]
+  sess --> pg
+  pg -->|"daily backups, PITR in prod"| bk[("Supabase backups")]
+  pg --> job["Weekly backup job"]
+  job -->|"pg_dump per schema"| imm[("Immutable Blob container, 35 days")]
+</pre></div><figcaption>Supabase direct connections are IPv6-only unless you buy the IPv4 add-on, and Container Apps egress is IPv4, so everything goes through the pooler. The pooler keeps a separate pool per role.</figcaption></figure>
+
+  <h3>E.5 Connection pooling</h3>
+  <ul>
+    <li>Gunicorn <code>gthread</code> with 2 workers × 2 threads gives at most 4 connections per replica. About 18 replicas plus relays and jobs come to roughly 90 client connections, which the pooler multiplexes onto far fewer server connections. Supabase Medium compute gives comfortable headroom; confirm the limits for the size you pick.</li>
+    <li>Django settings: <code>DISABLE_SERVER_SIDE_CURSORS = True</code> (required in transaction mode), <code>CONN_MAX_AGE = 60</code> with health checks, <code>connect_timeout = 3</code>, <code>sslmode = verify-full</code> with Supabase's CA certificate.</li>
+    <li><code>search_path</code> and <code>statement_timeout</code> are set on each role, because the transaction pooler doesn't pass start-up options.</li>
+    <li>Migrations run from each service's pipeline before its new revision gets traffic, never at container start.</li>
+  </ul>
+
+  <h3>E.6 Roles and new tables, Grievance as the example</h3>
+  <p>Every service gets the same pattern. Django migrations create the tables; the SQL is here for review.</p>
+<pre class="code"><code>CREATE SCHEMA grievance;
+CREATE ROLE grievance_owner NOLOGIN;                 -- owns the tables
+CREATE ROLE grievance_migrator LOGIN IN ROLE grievance_owner;
+CREATE ROLE grievance_svc LOGIN;                     -- runtime; password in Key Vault
+ALTER SCHEMA grievance OWNER TO grievance_owner;
+GRANT USAGE ON SCHEMA grievance TO grievance_svc;
+ALTER DEFAULT PRIVILEGES FOR ROLE grievance_owner IN SCHEMA grievance
+  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO grievance_svc;
+ALTER ROLE grievance_svc SET search_path = grievance;
+ALTER ROLE grievance_svc SET statement_timeout = '10s';
+
+CREATE TABLE grievance.outbox_events (
+  id             uuid        PRIMARY KEY,
+  event_type     text        NOT NULL,
+  event_version  smallint    NOT NULL DEFAULT 1,
+  aggregate_id   uuid        NOT NULL,
+  payload        jsonb       NOT NULL,
+  correlation_id text        NOT NULL DEFAULT '',
+  created_at     timestamptz NOT NULL DEFAULT now(),
+  published_at   timestamptz,
+  attempts       integer     NOT NULL DEFAULT 0
+);
+CREATE INDEX outbox_unpublished_idx
+  ON grievance.outbox_events (created_at) WHERE published_at IS NULL;
+
+CREATE TABLE grievance.processed_messages (
+  message_id   uuid        NOT NULL,
+  handler      text        NOT NULL,
+  processed_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (message_id, handler)
+);
+
+CREATE TABLE grievance.idempotency_keys (
+  id              bigserial   PRIMARY KEY,
+  user_public_id  uuid,                              -- null for guests
+  endpoint        text        NOT NULL,
+  key             varchar(80) NOT NULL,
+  request_hash    char(64)    NOT NULL,
+  response_status smallint,
+  response_body   jsonb,
+  created_at      timestamptz NOT NULL DEFAULT now(),
+  expires_at      timestamptz NOT NULL,
+  UNIQUE NULLS NOT DISTINCT (user_public_id, endpoint, key)
+);
+
+-- Audit is append-only: its runtime role can add and read, never change.
+GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA audit TO audit_svc;</code></pre>
+
+  <h3>E.7 Index changes</h3>
+  <ul>
+    <li><code>grievance.complaints</code>: add <code>(citizen_public_id, created_at DESC)</code>, <code>(department_public_id, status, created_at DESC)</code> and <code>(officer_public_id, status)</code>.</li>
+    <li><code>notify.notifications</code>: <code>(recipient_public_id, is_read, created_at DESC)</code>.</li>
+    <li><code>pg_trgm</code> GIN indexes for complaint search on title, description and address.</li>
+    <li>Drop the redundant <code>idx_complaint_tracking</code> and <code>idx_dept_slug</code>.</li>
+    <li>Indexes are created with <code>AddIndexConcurrently</code> so tables stay writable.</li>
+  </ul>
+
+  <h3>E.8 Moving the data</h3>
+  <ol>
+    <li><strong>Rehearse (Phase 3).</strong> Restore the local PostgreSQL 18 database into a scratch Supabase project. Restoring an 18 dump into 17 isn't officially supported; if <code>pg_restore</code> rejects it, use Django <code>dumpdata</code> and <code>loaddata</code>. Check every table's row count against the October ledger and reset sequences.</li>
+    <li><strong>Media.</strong> Copy <code>media/</code> into the private container with <code>azcopy</code> and compare SHA-256 hashes.</li>
+    <li><strong>Cutover (Phase 14).</strong> Pause writes with a maintenance page, take a verified backup, move the data, verify, then switch connection secrets. At this data size it takes minutes.</li>
+  </ol>
+
+  <h3>E.9 Backup and recovery</h3>
+  <ul>
+    <li>Supabase Pro daily backups kept 7 days; point-in-time recovery in production.</li>
+    <li>Weekly <code>pg_dump</code> per schema to an immutable Blob container, kept 35 days, so one service can be restored without touching the others.</li>
+    <li>Blob soft delete for 14 days and versioning on the media container.</li>
+    <li>Targets: at most 15 minutes of data loss with PITR (24 hours without), service back within 4 hours.</li>
+    <li>A restore drill into staging every quarter, timed and recorded.</li>
+  </ul>
+</section>
+
+<section id="security">
+  <h2><span class="letter">F</span>Security and reliability improvements</h2>
+
+  <h3>F.1 What the microservice design adds to security</h3>
+  <div class="tbl wide"><table>
+    <thead><tr><th>Control</th><th>What it protects</th></tr></thead><tbody>
+    <tr><td>A managed identity and a database role per service</td><td>A compromised service can't read other services' data. Password hashes are reachable only by Identity</td></tr>
+    <tr><td>Personal data held only by Identity and Notification</td><td>Other services see public IDs and display names, so a leak elsewhere exposes far less</td></tr>
+    <tr><td>Only the two BFFs reachable, and only through Front Door</td><td>Domain services have no internet address</td></tr>
+    <tr><td>Mutual TLS between apps and a managed-identity token on every internal call</td><td>A call from inside the network is still checked; nothing is trusted because of where it comes from</td></tr>
+    <tr><td>RS256 tokens checked locally, 10-minute lifetime, keys in Key Vault rotated every 90 days</td><td>Stolen tokens expire quickly; signing keys never leave Key Vault's control</td></tr>
+    <tr><td>Service Bus rights per service: send to its own topic, read its own subscriptions</td><td>A service can't forge another service's events</td></tr>
+    <tr><td>Insert-only audit store</td><td>No service, including Audit, can edit or delete the trail</td></tr>
+    <tr><td>Small images, scanned per service</td><td>A vulnerable library affects one service and its fix ships alone</td></tr>
+  </tbody></table></div>
+  <p>More services also means more to secure. The shared chassis and policy checks in CI keep every service on the same baseline, so a new service starts secure instead of being hardened later.</p>
+
+  <h3>F.2 OWASP Top 10 checklist</h3>
+  <div class="tbl wide"><table>
+    <thead><tr><th>OWASP 2021</th><th>Today</th><th>Planned controls</th></tr></thead><tbody>
+    <tr><td>A01 Broken access control</td><td>Role escalation and open officer scope on <code>main</code>; demotion bug and officer user search on both</td><td>Merge the branch, fix demotion, a per-service endpoint-by-role permission test matrix in CI</td></tr>
+    <tr><td>A02 Cryptographic failures</td><td>Public media; database TLS optional</td><td>Private Blob with SAS, <code>verify-full</code> TLS, mutual TLS inside the environment, encryption at rest on Supabase and Azure Storage</td></tr>
+    <tr><td>A03 Injection</td><td>ORM only, React escaping</td><td>Keep; Bandit and Semgrep in every service pipeline</td></tr>
+    <tr><td>A04 Insecure design</td><td>Anonymous uploads, short tracking codes, no idempotency</td><td>Quotas and captcha, longer codes, idempotency keys, attachment grants</td></tr>
+    <tr><td>A05 Security misconfiguration</td><td>No proxy SSL header, public Swagger</td><td>Configuration as code per environment, <code>manage.py check --deploy</code> in CI</td></tr>
+    <tr><td>A06 Vulnerable components</td><td>Unsupported Django on <code>main</code>, unpinned libraries</td><td>Lock files per service, Dependabot, pip-audit, npm audit, Trivy</td></tr>
+    <tr><td>A07 Authentication failures</td><td>Reusable captcha, refresh race, tokens in localStorage, no lockout</td><td>Single-use captcha, cookie tokens on the web, single refresh request, lockout, TOTP for officers and admins</td></tr>
+    <tr><td>A08 Integrity failures</td><td>Pickled models from the repository, no build provenance</td><td>Model checksums, images built only in CI, protected branches</td></tr>
+    <tr><td>A09 Logging and monitoring failures</td><td>Spoofable IP, local log files, no alerts</td><td>Trusted client IP, central logs with secret scrubbing, alerts on sign-in failure spikes</td></tr>
+    <tr><td>A10 SSRF</td><td>No user-controlled server requests</td><td>Keep; outbound traffic only through the NAT gateway</td></tr>
+  </tbody></table></div>
+
+  <h3>F.3 Threat model</h3>
+  <div class="tbl wide"><table>
+    <thead><tr><th>Threat</th><th>Example against CivicSetu</th><th>Mitigation</th></tr></thead><tbody>
+    <tr><td>Spoofing</td><td>Stolen officer password used to close complaints; a rogue internal caller</td><td>Captcha, lockout, TOTP for staff; managed-identity tokens on internal calls</td></tr>
+    <tr><td>Tampering</td><td>Officer edits complaints outside their department; evidence swapped</td><td>Scoping in Grievance on every write, blob versioning, file hash recorded at upload</td></tr>
+    <tr><td>Repudiation</td><td>An officer denies rejecting a complaint</td><td>Audit event in the same transaction as the action, insert-only store</td></tr>
+    <tr><td>Information disclosure</td><td>Citizen phone, address or photos leak</td><td>Personal data kept in two services, private blobs, longer tracking codes, log scrubbing</td></tr>
+    <tr><td>Denial of service</td><td>Anonymous upload floods, sign-in floods</td><td>Front Door rate limits and WAF, quotas, per-service autoscale caps</td></tr>
+    <tr><td>Elevation of privilege</td><td>Public admin sign-up (<code>main</code>), demotion bug</td><td>Phase 0 fixes, permission test matrix</td></tr>
+  </tbody></table></div>
+
+  <h3>F.4 When one service is down</h3>
+  <div class="tbl wide"><table>
+    <thead><tr><th>Service down</th><th>What still works</th><th>What users see</th></tr></thead><tbody>
+    <tr><td>Identity</td><td>Everyone already signed in keeps working until their access token expires (up to 10 minutes), because tokens are checked locally</td><td>New sign-ins and refreshes show “Sign-in is temporarily unavailable”</td></tr>
+    <tr><td>Grievance</td><td>Notifications inbox, reports, feedback history, admin pages</td><td>Filing and tracking unavailable; the app keeps drafts and offers to retry</td></tr>
+    <tr><td>Department &amp; Routing</td><td>Filing and routing continue on Grievance's local copy of the rules</td><td>Admins can't edit departments until it returns</td></tr>
+    <tr><td>Triage</td><td>Filing continues with the citizen's category and MEDIUM priority</td><td>Nothing; complaints get scored when Triage returns</td></tr>
+    <tr><td>Media</td><td>Complaints are filed without their files</td><td>The app keeps the photos and uploads them later; evidence shows “temporarily unavailable”</td></tr>
+    <tr><td>Notification</td><td>Everything else; events wait in the queue</td><td>Notifications arrive late, none are lost</td></tr>
+    <tr><td>Feedback</td><td>Everything else</td><td>The rating form is unavailable</td></tr>
+    <tr><td>Reporting</td><td>Everything else</td><td>Dashboards show the last cached figures with their time</td></tr>
+    <tr><td>Audit</td><td>Everything else; audit events wait in the outboxes and queue</td><td>Nothing; no audit entry is lost</td></tr>
+  </tbody></table></div>
+
+  <h3>F.5 Failure-handling matrix</h3>
+  <div class="tbl wide"><table>
+    <thead><tr><th>Scenario</th><th>Today</th><th>After the migration</th><th>How we notice</th></tr></thead><tbody>
+    <tr><td>1. A microservice becomes unavailable</td><td>The whole site is down</td><td>Only that service's features stop (F.4). Failed replicas restart; busy services run at least two replicas across zones; the BFF breaker opens and returns 503 with Retry-After</td><td>Probe failures, per-service 5xx alert</td></tr>
+    <tr><td>2. PostgreSQL briefly unavailable</td><td>500 on every request</td><td><code>/readyz</code> fails so replicas leave rotation; requests fail fast after 3 s with a clear 503; public tracking served from a 60-second cache; outbox rows exist only for committed changes, so no events are lost</td><td>Dependency failures, readiness alert</td></tr>
+    <tr><td>3. Redis unavailable</td><td>Not used</td><td>Fail open: rate limits fall back to per-process memory, caches miss to the database, captcha falls back to time-limited mode. No one is signed out, because tokens live in cookies and SecureStore</td><td>Redis dependency alert</td></tr>
+    <tr><td>4. The queue stops processing</td><td>Nothing is queued</td><td>Services keep working; events wait in outboxes and topics and drain in order when consumers return. Poison messages dead-letter after 10 tries; <code>manage.py replay_dlq</code> re-sends after a fix</td><td>Outbox age over 5 min, subscription depth over 500, any dead letter</td></tr>
+    <tr><td>5. An external API times out</td><td>Password reset request hangs up to 10 s</td><td>Only Notification calls email, push and SMS: 5 s timeout, 5 retries with backoff, then dead-letter. Geocoding runs in the browser and the form accepts a typed address</td><td>Provider failure rate</td></tr>
+    <tr><td>6. A release is faulty</td><td>Manual redeploy</td><td>Only the changed service is released. Its new revision starts with 0% traffic, smoke tests hit its own URL, traffic moves 10% then 100% within error and latency limits. Rollback moves traffic back in seconds without touching other services</td><td>Per-revision metrics, smoke job</td></tr>
+    <tr><td>7. Traffic suddenly increases</td><td>One process saturates</td><td>Each service scales on its own signal: BFFs and Grievance on concurrent requests, Notification and Audit on queue length, Triage on CPU, up to set caps; Front Door rate-limits per IP; the pooler protects the database</td><td>CPU, replica count, 429 rate</td></tr>
+    <tr><td>8. A container crashes</td><td>Down until someone restarts it</td><td>Liveness probe restarts it while other replicas serve; Gunicorn finishes in-flight requests on SIGTERM (25 s); unfinished messages return to the queue when their lock expires</td><td>Restart count alert</td></tr>
+  </tbody></table></div>
+
+  <h3>F.6 Failure recovery</h3>
+  <figure><div class="diagram"><pre class="mermaid">
+flowchart TD
+  r["Request reaches a BFF"] --> b{"Breaker for that service open?"}
+  b -->|"yes"| fb["503 with Retry-After, or cached read"]
+  b -->|"no"| call["Call the service, 3 s timeout"]
+  call --> ok{"Succeeded?"}
+  ok -->|"yes"| done["Respond"]
+  ok -->|"timeout or 5xx"| safe{"GET, or POST with Idempotency-Key?"}
+  safe -->|"yes, first failure"| retry["Retry once after jittered delay"]
+  retry --> call2["Second call"]
+  call2 -->|"ok"| done
+  call2 -->|"fails"| count["Record failure, may open breaker"]
+  safe -->|"no"| count
+  count --> fb
+  subgraph platform [Platform]
+    p1["Liveness and readiness probes"] --> p2["Restart replica or remove from rotation"]
+  end
+  subgraph msgs [Messages]
+    m1["Delivery to a consumer"] --> m2{"Handler ok?"}
+    m2 -->|"yes"| m3["Complete and record message id"]
+    m2 -->|"no"| m4["Abandon, redeliver with backoff"]
+    m4 --> m5{"10 attempts?"}
+    m5 -->|"no"| m1
+    m5 -->|"yes"| m6["Dead-letter queue and alert"]
+  end
+</pre></div></figure>
+  <p>Secrets stay out of source control and frontend bundles: Key Vault holds them, apps read them through managed identity, and every pipeline runs gitleaks. The mobile app ships only the public BFF address.</p>
+</section>
+
+<section id="cost">
+  <h2><span class="letter">G</span>Cost estimate</h2>
+  <p class="sub">Monthly list prices in USD, before tax and discounts, for the eleven-app design in section D. Development runs locally at no cloud cost.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Item</th><th class="num">Staging</th><th class="num">Production</th></tr></thead><tbody>
+    <tr><td>Container Apps (11 apps, relays, jobs)</td><td class="num">20–70</td><td class="num">200–450</td></tr>
+    <tr><td>Front Door Standard and WAF</td><td class="num">0–10 (shared profile)</td><td class="num">40–60</td></tr>
+    <tr><td>Container Registry</td><td class="num">shared</td><td class="num">5</td></tr>
+    <tr><td>Service Bus Standard and Event Grid</td><td class="num">10</td><td class="num">10–21</td></tr>
+    <tr><td>App Configuration</td><td class="num">0 (Free)</td><td class="num">36</td></tr>
+    <tr><td>Azure Managed Redis</td><td class="num">15</td><td class="num">15–50</td></tr>
+    <tr><td>Key Vault, DNS, alerts, email</td><td class="num">2–5</td><td class="num">4–16</td></tr>
+    <tr><td>Blob Storage</td><td class="num">1–3</td><td class="num">5–10</td></tr>
+    <tr><td>Log Analytics and Application Insights</td><td class="num">8–20</td><td class="num">25–60</td></tr>
+    <tr><td>NAT Gateway and public IP</td><td class="num">0–37</td><td class="num">37–45</td></tr>
+    <tr><td>Supabase (Pro plan counted once, plus compute)</td><td class="num">10</td><td class="num">45–110</td></tr>
+    <tr><td>GitHub Actions</td><td class="num" colspan="2">0–15, shared</td></tr>
+    <tr><td><strong>Total</strong></td><td class="num"><strong>≈ 65–180</strong></td><td class="num"><strong>≈ 420–880</strong></td></tr>
+    <tr><td>Optional: Supabase point-in-time recovery</td><td class="num">—</td><td class="num">+ 100</td></tr>
+  </tbody></table></div>
+  <p>That is roughly $140–290 a month more in production than the four-deployable design in revision 1, mostly from extra running containers and logs. The biggest levers: minimum replicas for the seven quieter services, replica sizes, log retention, and whether staging keeps a NAT gateway. Budgets with alerts at 50%, 80% and 100% go in during Phase 11.</p>
+</section>
+
+<section id="plan">
+  <h2><span class="letter">H</span>Phased migration plan</h2>
+  <p class="sub">Services are carved out of today's Django app one at a time, behind the BFFs, so the product keeps working at every step. Each phase lands as reviewed pull requests, ends with a git tag, and doesn't start until the previous phase has no open critical failures.</p>
+
+  <details class="phase" open><summary><span class="pno">Phase 0</span><span class="ptitle">Reconcile the codebase<small>One branch with the security fixes, the CIVIC source in git, locked dependencies.</small></span></summary><div class="pbody"><dl>
+    <dt>Changes</dt><dd><ul><li>Merge <code>fix/security-hardening</code> into <code>main</code> through a pull request, keeping <code>main</code>'s UI and adding the calm palette as a theme (pending your confirmation).</li><li>Fix the role-demotion bug and add tests for it.</li><li>Commit CIVIC <code>src/</code> and <code>mobile/src/</code>; stop committing <code>dist/</code>, <code>mobile/dist/</code> and <code>static/react</code>.</li><li>Lock Python dependencies with pip-tools; record model file checksums.</li></ul></dd>
+    <dt>Files</dt><dd><code>requirements.in</code> (new), <code>requirements.txt</code>, <code>.gitignore</code> in both repos, <code>apps/users/views.py</code>, <code>apps/users/tests.py</code></dd>
+    <dt>Commands</dt><dd><code>git switch -c chore/reconcile origin/main</code>, <code>git merge origin/fix/security-hardening</code>, <code>python manage.py test</code>, <code>python manage.py makemigrations --check</code>, <code>npm ci &amp;&amp; npm run build</code> in <code>frontend/</code>, <code>npm run typecheck &amp;&amp; npm test</code> in <code>mobile/</code></dd>
+    <dt>Expected output</dt><dd>All backend tests pass; “No changes detected”; both web builds succeed; mobile typecheck and tests pass</dd>
+    <dt>Acceptance</dt><dd>Forgot-password returns only the generic message; public sign-up can't create staff accounts; each role can use its portal</dd>
+    <dt>Rollback</dt><dd>Tag <code>pre-reconcile</code> on <code>main</code>; revert the merge commit</dd>
+  </dl></div></details>
+
+  <details class="phase"><summary><span class="pno">Phase 1</span><span class="ptitle">Architecture audit<small>This document, revision 2.</small></span></summary><div class="pbody"><dl>
+    <dt>Status</dt><dd>Complete, pending your approval of this revision</dd>
+  </dl></div></details>
+
+  <details class="phase"><summary><span class="pno">Phase 2</span><span class="ptitle">Split the modules inside today's app<small>Nine clean modules and nine schemas before anything leaves the process.</small></span></summary><div class="pbody"><dl>
+    <dt>Changes</dt><dd><ul><li>Regroup the Django apps into the nine service modules; move <code>NotificationService</code> out of <code>authority</code>.</li><li>Create the nine schemas and move tables (E.2 step 1).</li><li>Replace foreign keys between modules with UUID references (expand now, contract later).</li><li>Add category, routing-rule and SLA tables; switch <code>scoping.py</code> to them; fix the <code>TRAFFIC</code> bug.</li><li>Import-linter contracts so one module can't import another's models.</li></ul></dd>
+    <dt>Files</dt><dd>Moves under <code>apps/</code>, migrations per module, <code>scripts/db/schemas.sql</code>, <code>.importlinter</code></dd>
+    <dt>Commands</dt><dd><code>python manage.py migrate</code>, <code>lint-imports</code>, <code>python manage.py test</code></dd>
+    <dt>Tests</dt><dd>No foreign key crosses a schema (a test reads the catalog); renaming a department doesn't change who sees its complaints</dd>
+    <dt>Acceptance</dt><dd>Each module touches only its own schema; all tests pass</dd>
+    <dt>Rollback</dt><dd>Schema moves are reversible with <code>SET SCHEMA public</code>; reference columns are additive</dd>
+  </dl></div></details>
+
+  <details class="phase"><summary><span class="pno">Phase 3</span><span class="ptitle">Contracts, ownership and customization catalogue<small>Every API, event and setting written down before services exist.</small></span></summary><div class="pbody"><dl>
+    <dt>Changes</dt><dd><ul><li>ADR-001 to ADR-011 in <code>docs/adr/</code>.</li><li>OpenAPI spec per service, cut from today's drf-spectacular schema; JSON Schema per event.</li><li>Configuration catalogue: every rule, flag and setting with its owner, default, allowed values and layer (C.9).</li><li>Staging database with the Data API off or RLS on, network restrictions, and one owner, migrator and runtime role per service; data move rehearsed (E.8).</li></ul></dd>
+    <dt>Files</dt><dd><code>docs/adr/*.md</code>, <code>contracts/openapi/*.yaml</code>, <code>contracts/events/**/*.json</code>, <code>config/catalogue.yaml</code>, <code>scripts/db/roles.sql</code>, <code>scripts/db/verify_parity.py</code></dd>
+    <dt>Acceptance</dt><dd>Row counts and media hashes match after the rehearsal; restore time recorded; Supabase security advisor clean</dd>
+    <dt>Rollback</dt><dd>Nothing points at the new database yet</dd>
+  </dl></div></details>
+
+  <details class="phase"><summary><span class="pno">Phase 4</span><span class="ptitle">Service chassis, template and local platform<small>The shared foundation every service is built on.</small></span></summary><div class="pbody"><dl>
+    <dt>Changes</dt><dd><ul><li><code>libs/civicsetu-chassis</code>: token checks via JWKS, standard error format (RFC 9457), JSON logging, OpenTelemetry, App Configuration client with local fallback, outbox and inbox, <code>/healthz</code> and <code>/readyz</code>, request IDs.</li><li><code>templates/service</code> that generates a ready service with Dockerfile, tests, pipeline and Bicep module.</li><li>Today's app made stateless: <code>STORAGES</code>, Blob, Redis, stdout logs, <code>SECURE_PROXY_SSL_HEADER</code>, pooler settings.</li><li>Compose stack with PostgreSQL 17, Redis, Azurite and the Service Bus emulator.</li><li>Basic CI per folder (lint, tests, image build), brought forward from Phase 11 because every extracted service needs its own pipeline from its first day.</li></ul></dd>
+    <dt>Commands</dt><dd><code>copier copy templates/service services/sample</code>, <code>docker compose up --build</code>, <code>curl http://localhost:8000/readyz</code></dd>
+    <dt>Expected output</dt><dd><code>{"status":"ok","database":"ok","cache":"ok"}</code>; the generated sample service passes its own tests and pipeline</dd>
+    <dt>Acceptance</dt><dd>Two replicas of today's app share uploads and rate limits; a change in one folder triggers only that folder's pipeline</dd>
+    <dt>Rollback</dt><dd>Additive; <code>runserver</code> still works</dd>
+  </dl></div></details>
+
+  <details class="phase"><summary><span class="pno">Phase 5</span><span class="ptitle">BFFs, gateway and token signing<small>Clients move to their BFFs, which become the switchboard for extraction.</small></span></summary><div class="pbody"><dl>
+    <dt>Changes</dt><dd><ul><li>Web BFF (cookie sign-in, CSRF, page-shaped reads) and Mobile BFF (<code>/bff/mobile/v1</code>, Idempotency-Key, push tokens).</li><li>A routing table in each BFF's configuration says which backend serves each route: today's app or a new service. Moving a route is a config change.</li><li>Token signing moves to RS256 with a JWKS endpoint; both old and new tokens are accepted during the switch.</li><li>Website <code>api.ts</code> and <code>authStore.ts</code> switch to cookies and a single refresh request behind a flag.</li></ul></dd>
+    <dt>Tests</dt><dd>Contract tests from each OpenAPI spec (Schemathesis), BFF consumer tests, Playwright flows for every role</dd>
+    <dt>Acceptance</dt><dd>Both clients work fully through their BFFs; no token readable by JavaScript; each BFF hop adds under 30 ms at p95</dd>
+    <dt>Rollback</dt><dd>Website flag off; Front Door route back to <code>/api/v1</code></dd>
+  </dl></div></details>
+
+  <details class="phase"><summary><span class="pno">Phase 6</span><span class="ptitle">First service: Notification<small>Lowest risk: it only listens to events.</small></span></summary><div class="pbody"><dl>
+    <dt>Changes</dt><dd><ul><li>Outbox in today's app; events emitted inside the same transaction.</li><li>Notification service from the template: in-app inbox API, email through Azure Communication Services, push; templates per event, channel and language editable by the super admin (first customization rules).</li><li>Flag <code>notifications.mode = legacy | service</code>.</li></ul></dd>
+    <dt>Tests</dt><dd>Duplicate delivery creates one notification; poison message reaches the dead-letter queue; 10,000-event soak with zero loss; template preview in all three languages</dd>
+    <dt>Acceptance</dt><dd>Notifications appear within 30 s at p95; complaint filing is faster than before</dd>
+    <dt>Rollback</dt><dd>Flag back to <code>legacy</code></dd>
+  </dl></div></details>
+
+  <details class="phase"><summary><span class="pno">Phase 7</span><span class="ptitle">Messaging foundation and the Audit service<small>Topics per service, recovery tooling, flags, and a second listener-only service.</small></span></summary><div class="pbody"><dl>
+    <dt>Changes</dt><dd><ul><li>Topic per producing service, filtered subscriptions, dead-letter replay command, outbox-age and subscription-depth metrics, event schema checks in CI.</li><li>Audit service consuming <code>audit.recorded</code>; super-admin search moves to it.</li><li>Idempotency keys on complaint creation, so app drafts in the UNKNOWN state retry safely.</li><li>App Configuration and feature flags wired into every app; scheduled jobs for token cleanup, exports and backups.</li></ul></dd>
+    <dt>Acceptance</dt><dd>No business event can be lost without an alert; every audit entry since Phase 6 is present in the Audit service</dd>
+    <dt>Rollback</dt><dd>Audit search route back to today's app in the BFF routing table</dd>
+  </dl></div></details>
+
+  <details class="phase"><summary><span class="pno">Phase 8</span><span class="ptitle">Extract the remaining services, one at a time<small>Same eight-step checklist for each; what remains becomes Grievance.</small></span></summary><div class="pbody">
+    <div class="tbl"><table>
+      <thead><tr><th>Step</th><th>What happens</th><th>Proof before moving on</th></tr></thead><tbody>
+      <tr><td>1 Contract</td><td>OpenAPI and events agreed; consumer tests written</td><td>Consumer tests pass against today's app</td></tr>
+      <tr><td>2 Scaffold</td><td>Service generated from the template; module code and tests moved in</td><td>Service tests pass on their own</td></tr>
+      <tr><td>3 Shadow</td><td>Service deployed; the BFF copies read traffic to it and compares answers</td><td>Under 0.1% mismatches over a week</td></tr>
+      <tr><td>4 Cut over</td><td>BFF routing switched; schema access moves to the service's role</td><td>Smoke and end-to-end tests pass; error rate unchanged</td></tr>
+      <tr><td>5 Events</td><td>Service publishes and consumes its events; today's app subscribes where it still needs the data</td><td>Event flow tests pass</td></tr>
+      <tr><td>6 Bake</td><td>One release with the old code path still deployable</td><td>No rollback needed</td></tr>
+      <tr><td>7 Contract</td><td>Old module deleted from today's app</td><td>Remaining tests pass</td></tr>
+      <tr><td>8 Document</td><td>Runbook, dashboards and alerts for the service</td><td>On-call can operate it from the runbook</td></tr>
+    </tbody></table></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Order</th><th>Service</th><th>Why here</th><th>Special steps</th></tr></thead><tbody>
+      <tr><td>8a</td><td>Media</td><td>Needed before production scale</td><td>Copy files to Blob with hash checks; Grievance (still today's app) issues attachment grants</td></tr>
+      <tr><td>8b</td><td>Reporting</td><td>Read-only, builds from events</td><td>Backfill read models once from the existing tables, then keep them current from events</td></tr>
+      <tr><td>8c</td><td>Triage</td><td>Stateless with a simple contract</td><td>Models to Blob with checksums; keyword rules into <code>triage.rules</code>; ML on or off by flag</td></tr>
+      <tr><td>8d</td><td>Feedback</td><td>Small, clear rules</td><td>Eligible complaints backfilled once, then from <code>complaint.resolved</code></td></tr>
+      <tr><td>8e</td><td>Department &amp; Routing</td><td>Many readers</td><td>Grievance switches to its local copy of the rules; category and SLA editors in the admin portal</td></tr>
+      <tr><td>8f</td><td>Identity</td><td>Highest risk: every request depends on it</td><td>Only after RS256 tokens are proven; password hashes move untouched; sign-in shadowed before cutover; profiles split from credentials</td></tr>
+      <tr><td>8g</td><td>Grievance</td><td>What remains of today's app</td><td>Renamed, leftovers removed, moved to <code>services/grievance</code></td></tr>
+    </tbody></table></div>
+    <dl>
+      <dt>Rollback</dt><dd>Before step 7, flip the BFF route back and return schema access to today's app's role</dd>
+    </dl>
+  </div></details>
+
+  <details class="phase"><summary><span class="pno">Phase 9</span><span class="ptitle">Observability and reliability<small>One request traceable through every service it touches.</small></span></summary><div class="pbody"><dl>
+    <dt>Changes</dt><dd><ul><li>Trace context carried through HTTP and Service Bus; service map in Application Insights.</li><li>Per-service objectives and alerts: 5xx over 2% for 5 min, p95 over 1 s for 10 min, any dead letter, outbox age over 5 min, sign-in failure spike, restarts, failed deploys.</li><li>Log filter masking passwords, tokens, emails and phone numbers.</li><li>Breaker and timeout tuning; graceful shutdown.</li></ul></dd>
+    <dt>Tests</dt><dd>Stop each service in turn and check the behaviour in F.4; run every scenario in F.5</dd>
+    <dt>Acceptance</dt><dd>A citizen's complaint can be followed from Front Door to the email it triggered</dd>
+  </dl></div></details>
+
+  <details class="phase"><summary><span class="pno">Phase 10</span><span class="ptitle">Security hardening<small>Zero-trust inside the platform and the remaining audit findings.</small></span></summary><div class="pbody"><dl>
+    <dt>Changes</dt><dd><ul><li>Mutual TLS on, managed-identity checks on every internal call, Service Bus rights per service, private endpoints for Key Vault, App Configuration and Blob.</li><li>Upload captcha and quotas, least-privilege user search, longer tracking codes, single-use captcha and lockout, TOTP for staff, trusted client IP, schema docs restricted.</li><li>Front Door WAF custom rules and rate limits; threat model and checklist in <code>docs/security/</code>.</li></ul></dd>
+    <dt>Tests</dt><dd>Permission matrix per service, OWASP ZAP baseline on staging, a call between services without a valid identity is refused</dd>
+    <dt>Acceptance</dt><dd>No open critical or high findings</dd>
+  </dl></div></details>
+
+  <details class="phase"><summary><span class="pno">Phase 11</span><span class="ptitle">Continuous delivery and infrastructure as code<small>Each service ships alone, the same way every time.</small></span></summary><div class="pbody"><dl>
+    <dt>Pipeline per service</dt><dd>Checkout → install → lint → unit tests → integration tests → contract tests against its consumers → pip-audit, gitleaks, CodeQL → image build → Trivy scan → push to ACR → migration check on a throwaway database → deploy to staging → smoke tests → manual approval → production at 0% → verify → shift traffic → automatic rollback on failed checks</dd>
+    <dt>Files</dt><dd><code>.github/workflows/service.yml</code> (reusable), one small caller workflow per service; <code>infra/bicep/platform.bicep</code>, <code>infra/bicep/services/*.bicep</code>, <code>infra/bicep/env/{staging,prod}.bicepparam</code></dd>
+    <dt>Commands</dt><dd><code>az deployment group what-if -g rg-civicsetu-stg -f infra/bicep/platform.bicep -p infra/bicep/env/staging.bicepparam</code>, <code>gh workflow run service.yml -f service=grievance -f environment=staging</code></dd>
+    <dt>Acceptance</dt><dd>Changing one service deploys only that service; production needs your approval; rollback restores the previous revision of that service only</dd>
+  </dl></div></details>
+
+  <details class="phase"><summary><span class="pno">Phase 12</span><span class="ptitle">Load testing against agreed targets<small>No capacity claim until this passes.</small></span></summary><div class="pbody"><dl>
+    <dt>Workload model</dt><dd>1,000 concurrent sessions, each acting every 15–30 s with 3–5 API calls per action: about 100–330 requests per second steady, 2× peak for 10 minutes, 2-hour soak. Mix: 45% reads, 20% notification polls, 10% public tracking, 10% sign-in and refresh, 8% complaint creation, 3% with a 1–3 MB photo, 4% officer updates. These are assumptions to check against real analytics</dd>
+    <dt>Acceptance criteria</dt><dd><ul><li>Reads: p50 under 150 ms, p95 under 400 ms, p99 under 1 s, measured at the BFF</li><li>Writes: p95 under 800 ms, excluding file transfer</li><li>Errors under 0.5%, excluding intended 429s</li><li>CPU under 70% per replica at steady load; memory growth under 10% over the soak</li><li>Pooler client connections under 70% of the limit; no query over 100 ms at p95</li><li>Event to notification under 30 s at p95; every outbox count equals delivered plus dead-lettered</li><li>No request makes more than one synchronous hop between domain services (checked in traces)</li></ul></dd>
+    <dt>Files</dt><dd><code>loadtest/k6/main.js</code> with thresholds, <code>loadtest/k6/scenarios/{citizen,officer,guest,auth}.js</code>, <code>docs/reports/performance.md</code></dd>
+    <dt>Commands</dt><dd><code>k6 run --out json=results.json loadtest/k6/main.js</code></dd>
+  </dl></div></details>
+
+  <details class="phase"><summary><span class="pno">Phase 13</span><span class="ptitle">Azure staging<small>All eleven apps end to end, with a restore drill.</small></span></summary><div class="pbody"><dl>
+    <dt>Changes</dt><dd>Provision with Bicep; anonymized data; both frontends and the app pointed at staging BFFs</dd>
+    <dt>Tests</dt><dd>End-to-end flows for every role on web and mobile; F.4 and F.5 drills; restore one schema and the whole database, timed</dd>
+    <dt>Acceptance</dt><dd>All flows pass; restore within the 4-hour target</dd>
+    <dt>Rollback</dt><dd>Staging is rebuilt from code</dd>
+  </dl></div></details>
+
+  <details class="phase"><summary><span class="pno">Phase 14</span><span class="ptitle">Production rollout<small>Only with your explicit approval.</small></span></summary><div class="pbody"><dl>
+    <dt>Steps</dt><dd>Announce a window; verified backup; maintenance page; move data and media; parity check; deploy all services at 0%; smoke tests; DNS through Front Door; traffic 10% → 50% → 100%</dd>
+    <dt>Acceptance</dt><dd>Error rate and latency within Phase 12 limits for 24 hours</dd>
+    <dt>Rollback</dt><dd>Shift traffic back, restore previous connection secrets, and if data changed, restore to the pre-cutover point</dd>
+  </dl></div></details>
+
+  <details class="phase"><summary><span class="pno">Phase 15</span><span class="ptitle">Final architecture and operations documentation<small>Drawn from what is deployed.</small></span></summary><div class="pbody"><dl>
+    <dt>Deliverables</dt><dd>Existing architecture report, target architecture, ADRs, updated ER diagram per service, migration notes, API reference per service, service dependency map, event catalogue, configuration catalogue, Azure architecture, deployment guide, environment variables, security checklist, test report, performance report, monitoring guide, backup and recovery guide, rollback guide, runbook per service, final folder structure</dd>
+    <dt>Acceptance</dt><dd>A new engineer can add a service from the template, deploy it to staging and roll it back using only the docs</dd>
+  </dl></div></details>
+</section>
+
+<section id="risks">
+  <h2><span class="letter">I</span>Risks and rollback strategy</h2>
+  <div class="tbl wide"><table>
+    <thead><tr><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th><th>Rollback</th></tr></thead><tbody>
+    <tr><td>Services drift into a distributed monolith (chatty calls, shared tables)</td><td><span class="chip med">Medium</span></td><td><span class="chip high">High</span></td><td>C.2 rules enforced by database roles, import-linter and the synchronous-hop check in traces; review for any pull request that changes a contract</td><td>Merge two over-chatty services back into one</td></tr>
+    <tr><td>A configuration change breaks behaviour (for example a wrong routing rule)</td><td><span class="chip med">Medium</span></td><td><span class="chip high">High</span></td><td>Validation, versioning, audit, staging bundles first</td><td>Return to the previous version in one step</td></tr>
+    <tr><td>Identity extraction breaks sign-in</td><td><span class="chip low">Low</span></td><td><span class="chip high">High</span></td><td>Done last, after RS256 is proven; shadow sign-ins; both token types accepted during the switch</td><td>Flip the BFF route back</td></tr>
+    <tr><td>Debugging across services is harder</td><td><span class="chip high">High</span></td><td><span class="chip med">Medium</span></td><td>Tracing and request IDs from Phase 4, runbooks per service</td><td>—</td></tr>
+    <tr><td>Dashboards lag behind live data</td><td><span class="chip med">Medium</span></td><td><span class="chip low">Low</span></td><td>Show “updated N seconds ago”; screens that need live state read from the owning service</td><td>—</td></tr>
+    <tr><td>The branch merge breaks a UI or flow</td><td><span class="chip med">Medium</span></td><td><span class="chip med">Medium</span></td><td>Pull request, full test run, walkthrough of each portal</td><td>Revert the merge; redeploy the tag</td></tr>
+    <tr><td>CIVIC source can't be recovered</td><td><span class="chip low">Low</span></td><td><span class="chip high">High</span></td><td>Push it now; if lost, rebuild native screens against the Mobile BFF from the docs</td><td>—</td></tr>
+    <tr><td>PostgreSQL 18 dump won't restore into 17</td><td><span class="chip med">Medium</span></td><td><span class="chip med">Medium</span></td><td>Rehearsal in Phase 3; Django dumpdata fallback</td><td>Local database stays authoritative until Phase 14</td></tr>
+    <tr><td>Database outside Azure: latency or outage</td><td><span class="chip low">Low</span></td><td><span class="chip high">High</span></td><td>Same metro pair; measure query p95 in Phase 4; documented restore into Azure PostgreSQL</td><td>Restore the latest dump into Azure PostgreSQL and swap secrets</td></tr>
+    <tr><td>Supabase Data API left open</td><td><span class="chip med">Medium</span></td><td><span class="chip high">High</span></td><td>Disable it or enable RLS at project creation; advisor check in CI</td><td>—</td></tr>
+    <tr><td>Cookie sign-in signs every website user out once</td><td><span class="chip high">Expected</span></td><td><span class="chip low">Low</span></td><td>Announce it; keep the old path for one release</td><td>Website flag off</td></tr>
+    <tr><td>Monthly cost above estimate</td><td><span class="chip med">Medium</span></td><td><span class="chip med">Medium</span></td><td>Budgets and alerts; staging scales to zero; small sizes for quiet services</td><td>Lower minimum replicas and log retention</td></tr>
+    <tr><td>Error during the production data move</td><td><span class="chip low">Low</span></td><td><span class="chip high">High</span></td><td>Verified backup, parity script, maintenance window</td><td>Point back to the old database; restore if needed</td></tr>
+  </tbody></table></div>
+  <h3>Rollback rules for every phase</h3>
+  <ul>
+    <li>Changes are additive or behind a flag; each phase ends with a tag such as <code>phase-6-done</code>.</li>
+    <li>Until a module is deleted from today's app, moving a route back in the BFF routing table undoes its extraction.</li>
+    <li>Database changes follow expand, migrate, contract. Nothing is dropped or renamed in the release that stops using it.</li>
+    <li>No destructive database operation without your explicit approval and a verified backup.</li>
+    <li>Each service keeps its previous revision for 24 hours, so a rollback is a traffic switch for that service alone.</li>
+    <li>No production deployment without your explicit approval.</li>
+  </ul>
+</section>
+
+<section id="adr">
+  <h2>Decision records to write in Phase 3</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>ADR</th><th>Decision</th><th>Status</th></tr></thead><tbody>
+    <tr><td>001</td><td>Nine domain microservices and two BFFs, extracted one at a time behind the BFFs</td><td><span class="chip ok">Your direction</span></td></tr>
+    <tr><td>002</td><td>Azure Container Apps, one environment per stage, mutual TLS between apps</td><td><span class="chip new">Proposed</span></td></tr>
+    <tr><td>003</td><td>Service Bus topic per producing service; outbox and inbox in every service</td><td><span class="chip new">Proposed</span></td></tr>
+    <tr><td>004</td><td>Front Door Standard as the only public entry; BFFs as application gateways; no API Management yet</td><td><span class="chip new">Proposed</span></td></tr>
+    <tr><td>005</td><td>One PostgreSQL cluster, schema and role per service, no foreign keys between services</td><td><span class="chip new">Proposed</span></td></tr>
+    <tr><td>006</td><td>RS256 tokens from Identity checked locally through JWKS; httpOnly cookies on the web</td><td><span class="chip new">Proposed</span></td></tr>
+    <tr><td>007</td><td>Customization model: rule tables per service, App Configuration for settings and flags, theme tokens, provider adapters</td><td><span class="chip ok">Your direction</span></td></tr>
+    <tr><td>008</td><td>One repository with a pipeline per service and a service template</td><td><span class="chip new">Proposed</span></td></tr>
+    <tr><td>009</td><td>GitHub Actions and Bicep</td><td><span class="chip new">Proposed</span></td></tr>
+    <tr><td>010</td><td>Database host: Supabase Pro in Mumbai</td><td><span class="chip new">Proposed</span></td></tr>
+    <tr><td>011</td><td>AI triage as a setting: on by default, rule-based fallback</td><td><span class="chip new">Proposed</span></td></tr>
+  </tbody></table></div>
+</section>
+
+<footer>
+  <p>Not covered by this audit: the live database contents, the CIVIC web and mobile source (missing from git), production hosting (none defined), and any load measurement. The backend test run used SQLite in memory; PostgreSQL behaviour is checked in Phase 3.</p>
+</footer>
+</main>
+</div>
+</div>
