@@ -1,10 +1,12 @@
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import NativeApp from './NativeApp';
-import WebsiteShell from './src/screens/WebsiteShell';
 
-const APP_MODE = process.env.EXPO_PUBLIC_CIVICSETU_APP_MODE?.trim().toLowerCase() || 'website';
-
+// The citizen app is native. (The old "website in a WebView" mode was removed: the real website is
+// served by the backend and the app now talks to the API directly.)
 export default function App() {
-  if (APP_MODE === 'native') return <NativeApp />;
-  return <SafeAreaProvider><WebsiteShell /></SafeAreaProvider>;
+  return (
+    <SafeAreaProvider>
+      <NativeApp />
+    </SafeAreaProvider>
+  );
 }

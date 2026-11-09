@@ -42,7 +42,7 @@ The platform is **rule-based and deterministic**. It contains no machine-learnin
 | `apps/`, `config/`, `manage.py` | Django REST backend (a modular monolith of 11 apps) |
 | `frontend/` | The CivicSetu website: React 19 + TypeScript + Vite single-page app for citizens, officers and super admins |
 | `static/react/`, `templates/index.html` | The built website bundle that Django serves on the same origin |
-| `civic-app/` | The CIVIC citizen app: a web/PWA prototype (`dist/`, `server.js`) and an Expo (React Native) mobile app (`mobile/`). See section 15 |
+| `civic-app/` | The CIVIC citizen app: an Expo (React Native) mobile app (`mobile/`), a side-by-side demo page (`showcase/`) and an older web/PWA prototype. See section 15 |
 | `docs/` | Technical documentation, the Azure migration audit (`architecture-audit.html`) and reports |
 | `schema.yml` | Exported OpenAPI 3 schema of the backend |
 | `seed_civic_data.py` | Creates demonstration departments, users and complaints |
@@ -406,11 +406,34 @@ Base path `/api/v1/`. Interactive documentation: `/api/docs/`; raw schema: `/api
 
 `civic-app/` comes from the repository `sujitsahu461/CIVIC--Powered-by-CivicSetu`.
 
-- **CIVIC web app (PWA):** a citizen-only prototype. Only the built files are committed (`civic-app/dist`); its source is **not in git**. It currently keeps complaints, tracking codes and sign-ins in browser `localStorage` and does not call the backend. `server.js` serves the build with `/healthz`, plus mock geo endpoints.
-- **Mobile app (`civic-app/mobile`):** Expo SDK 54. `EXPO_PUBLIC_CIVICSETU_APP_MODE=website` (default) shows the CIVIC web app in a WebView; `native` mode uses native screens (home, report, complaints, notifications, profile, drafts, track) with a typed client for the Django API, tokens in SecureStore, and offline drafts in SQLite that are never marked as sent without server confirmation. The source for `mobile/src` is **not in git**; only the compiled bundle in `mobile/dist` is.
-- **Docs:** `civic-app/docs/` has the BRD, PRD, HLD, LLD, database design, API contract, offline-sync design and Android build notes.
+- **Mobile app (`civic-app/mobile`)**: an Expo (React Native, SDK 54) citizen app that talks to this backend's REST API. Its source is now in git (`mobile/src`). It runs on Android, iOS and in a browser (Expo web) from the same code.
+  - Screens: sign in and create account (with the server captcha), home with counts and recent complaints, report a problem (title, details, type, urgency, address, current location, up to 5 photos), my complaints (filters, paging), complaint details with timeline, photos and rating, track by code (no sign-in needed), notifications, profile, and saved drafts.
+  - Officers and admins cannot sign in to the app; they use the website.
+  - **Session:** tokens kept in SecureStore on a phone (browser storage in the web preview). One shared refresh request handles expired tokens; a rejected refresh signs the user out.
+  - **Offline drafts:** if sending fails because the server cannot be reached, the report is saved as a draft marked "not confirmed". Because the backend has no duplicate-request protection yet, such a draft is never resent automatically and asks for confirmation first.
+  - **Tests:** `npm run typecheck` and `npm test` (7 tests for the API client: refresh, timeout, errors).
+  - **Not yet verified:** a real phone or emulator (camera, SecureStore, file-based drafts and location were only checked in the browser preview), and an installable APK.
+- **CIVIC web app / PWA (root of `civic-app/`)**: an older citizen-only prototype. Only built files are in git (`dist/`); its source is **not** in git. It keeps data in browser `localStorage` and does not call the backend. The mobile app above replaces it.
+- **Docs:** `civic-app/docs/` has the BRD, PRD, HLD, LLD, database design, API contract, offline-sync design and Android build notes (some describe the older prototype).
 
-To make the app production-ready, its source must be committed and its data layer pointed at the backend (through the mobile BFF in section 17).
+### Run the website and the app together
+
+Three terminals (the backend must be running first):
+
+```bash
+# 1. backend + website  -> http://127.0.0.1:8000
+DB_ENGINE=django.db.backends.sqlite3 DB_NAME=db.sqlite3 SECRET_KEY=any-local-key python manage.py runserver 127.0.0.1:8000
+
+# 2. app in the browser -> http://127.0.0.1:8081
+cd civic-app/mobile && npm ci && npm run web
+
+# 3. side-by-side page   -> http://127.0.0.1:8090
+cd civic-app/showcase && python -m http.server 8090 --bind 127.0.0.1
+```
+
+Open http://127.0.0.1:8090/ to see the website and the app next to each other, both using the same backend and database. The `dev` settings allow that page to frame the website; production never does.
+
+Phone or emulator: set `EXPO_PUBLIC_CIVICSETU_API_URL` in `civic-app/mobile/.env` (`http://10.0.2.2:8000` for the Android emulator, or `http://<computer LAN IP>:8000` for a phone), run `npm start`, and scan the QR code with Expo Go. To build an APK: `npx eas login` once, then `npx eas build --platform android --profile preview`.
 
 ---
 
@@ -501,7 +524,7 @@ The 1,000-concurrent-user target has **not been measured**. No capacity claim is
 - Officers can search all users and read any user's profile.
 - Complaint routing matches department **names** against category words, so renaming a department can change who sees complaints; the plan replaces this with explicit routing rules.
 - Tracking codes have 4 random characters per day, which is guessable at scale.
-- CIVIC app source code is not in git (section 15).
+- The CIVIC web/PWA prototype source is not in git; the mobile app has not been tested on a real device and has no APK yet (section 15).
 - No Dockerfile, CI pipeline or infrastructure code exists yet.
 
 ---

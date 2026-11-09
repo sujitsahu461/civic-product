@@ -38,6 +38,10 @@
     },
     "ios": {
       "bundleIdentifier": "com.civicsetu.mobile"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
     }
   }
 }

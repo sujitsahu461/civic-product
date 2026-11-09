@@ -23,3 +23,12 @@ PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.PBKDF2PasswordHasher",
     "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
 ]
+
+
+# Development only: let the side-by-side showcase page (civic-app/showcase, port 8090) frame the website.
+# Production keeps frame-ancestors 'none' and X-Frame-Options DENY.
+MIDDLEWARE = [m for m in MIDDLEWARE if "XFrameOptionsMiddleware" not in m]  # noqa: F405
+for _name in ("SECURE_CSP", "SECURE_CSP_REPORT_ONLY"):
+    _policy = globals().get(_name)
+    if _policy:
+        globals()[_name] = {**_policy, "frame-ancestors": ["'self'", "http://127.0.0.1:8090", "http://localhost:8090"]}
