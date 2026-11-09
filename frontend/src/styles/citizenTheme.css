@@ -1,0 +1,49 @@
+/* ============================================================
+   CivicSetu Citizen Portal — typography, radius and shadows.
+   Colors come from the brand palette in global.css (--cs-*).
+   ============================================================ */
+
+:root {
+  /* Typography & Radius */
+  --cz-font:                     'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --cz-radius-sm:                6px;
+  --cz-radius-md:                10px;
+  --cz-radius-lg:                14px;
+  --cz-radius-xl:                16px;
+  --cz-radius-2xl:               20px;
+  --cz-radius-pill:              9999px;
+
+  /* Subtle Professional Shadows */
+  --cz-shadow-sm:                0 1px 3px rgba(var(--cs-shadow-rgb), 0.05), 0 1px 2px rgba(var(--cs-shadow-rgb), 0.03);
+  --cz-shadow-md:                0 4px 16px rgba(var(--cs-shadow-rgb), 0.06), 0 1px 3px rgba(var(--cs-shadow-rgb), 0.04);
+  --cz-shadow-lg:                0 8px 24px rgba(var(--cs-shadow-rgb), 0.08), 0 2px 6px rgba(var(--cs-shadow-rgb), 0.05);
+  --cz-shadow-kesari:            0 4px 14px rgba(255, 119, 34, 0.22);
+  --cz-shadow-maroon:            0 4px 14px rgba(122, 31, 43, 0.18);
+}
+
+/* Scoped Citizen Portal Root Container */
+.citizenPortalScope {
+  font-family: var(--cz-font);
+  background-color: var(--cs-ivory);
+  color: var(--cs-text-strong);
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Override dark global resets for citizen portal form inputs & select elements */
+.citizenPortalScope input,
+.citizenPortalScope textarea,
+.citizenPortalScope select {
+  font-family: var(--cz-font);
+  color: var(--cs-text-strong);
+  background-color: var(--cs-white);
+}
+
+.citizenPortalScope input::placeholder,
+.citizenPortalScope textarea::placeholder {
+  color: var(--cs-text-faint);
+}

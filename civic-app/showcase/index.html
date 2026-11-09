@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CivicSetu: website and app together</title>
+<style>
+  :root { --bg:#FBF9F5; --ink:#1B2533; --muted:#667085; --line:#E7E1D6; --kesari:#D9650B; --maroon:#7A1F2B; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { padding:18px 24px 6px; }
+  h1 { margin:0; font-size:22px; color:var(--maroon); }
+  header p { margin:4px 0 0; color:var(--muted); max-width:70ch; }
+  .stage { display:grid; grid-template-columns:minmax(0,1fr) 410px; gap:24px; padding:16px 24px 28px; align-items:start; }
+  .panel { min-width:0; }
+  .panel h2 { margin:0 0 8px; font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+  .browser { border:1px solid var(--line); border-radius:12px; overflow:hidden; background:#fff; box-shadow:0 6px 24px rgba(27,37,51,.08); }
+  .bar { display:flex; align-items:center; gap:8px; padding:8px 12px; background:#F2EEE6; border-bottom:1px solid var(--line); font-size:12px; color:var(--muted); }
+  .dots span { display:inline-block; width:9px; height:9px; border-radius:50%; background:#D6CFC0; margin-right:4px; }
+  .browser iframe { display:block; width:100%; height:760px; border:0; background:#fff; }
+  .phone { width:390px; border:10px solid #1B2533; border-radius:38px; overflow:hidden; background:#fff; box-shadow:0 10px 30px rgba(27,37,51,.25); }
+  .phone iframe { display:block; width:100%; height:780px; border:0; }
+  .links { display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; font-size:13px; }
+  a { color:var(--maroon); }
+  .note { margin:0 24px 24px; padding:12px 14px; background:#fff; border:1px solid var(--line); border-radius:10px; color:var(--muted); font-size:13px; max-width:90ch; }
+  @media (max-width: 980px) { .stage { grid-template-columns:minmax(0,1fr); } .phone { margin:0 auto; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>CivicSetu: website and app together</h1>
+  <p>Both talk to the same backend and the same database. File a complaint in the app, then see it appear on the website, and the other way round.</p>
+</header>
+<div class="stage">
+  <section class="panel">
+    <h2>Website (citizen, officer, admin)</h2>
+    <div class="browser">
+      <div class="bar"><span class="dots"><span></span><span></span><span></span></span> http://127.0.0.1:8000/</div>
+      <iframe id="site" src="http://127.0.0.1:8000/" title="CivicSetu website"></iframe>
+    </div>
+    <div class="links"><a href="http://127.0.0.1:8000/" target="_blank" rel="noopener">Open website in a tab</a><a href="http://127.0.0.1:8000/api/docs/" target="_blank" rel="noopener">API docs</a></div>
+  </section>
+  <section class="panel">
+    <h2>Mobile app (citizen)</h2>
+    <div class="phone"><iframe id="app" src="http://127.0.0.1:8081/" title="CivicSetu app"></iframe></div>
+    <div class="links"><a href="http://127.0.0.1:8081/" target="_blank" rel="noopener">Open app in a tab</a></div>
+  </section>
+</div>
+<p class="note">Demo logins: citizen <code>citizen@civicsetu.gov.in</code> / <code>Citizen@12345</code> (works in both). Officer <code>officer@civicsetu.gov.in</code> / <code>Officer@12345</code> (website only; the app is for citizens). This page runs on your computer only; it needs the backend on port 8000 and the app on port 8081.</p>
+</body>
+</html>

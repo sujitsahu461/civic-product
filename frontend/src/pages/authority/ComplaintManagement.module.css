@@ -1,0 +1,596 @@
+/* ComplaintManagement — Unified Light Theme */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 8px 0 40px 0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--cs-text-strong);
+  margin: 0 0 6px 0;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--cs-text-muted);
+  margin: 0;
+}
+
+.queueCountBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--cs-kesari-wash);
+  border: 1px solid var(--cs-kesari-light);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--cs-maroon);
+}
+
+/* Filter Bar */
+.filterBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
+  padding: 14px 18px;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(var(--cs-shadow-rgb), 0.04);
+}
+
+.searchForm {
+  flex: 1;
+  min-width: 260px;
+}
+
+.filtersRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.selectWrapper {
+  min-width: 170px;
+}
+
+/* Table Card */
+.tableCard {
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
+  border-radius: 16px;
+  overflow-x: auto;
+  box-shadow: 0 1px 3px rgba(var(--cs-shadow-rgb), 0.04);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+
+.table th {
+  padding: 14px 18px;
+  background: var(--cs-ivory);
+  border-bottom: 1px solid var(--cs-border);
+  color: var(--cs-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--cs-sand);
+  color: var(--cs-text);
+  vertical-align: middle;
+}
+
+.table tr:hover td {
+  background: var(--cs-ivory);
+}
+
+.codeCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.code {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-weight: 700;
+  color: var(--cs-maroon);
+}
+
+.timeAgo {
+  font-size: 11px;
+  color: var(--cs-text-faint);
+}
+
+.titleCell {
+  max-width: 280px;
+}
+
+.itemTitle {
+  font-weight: 600;
+  color: var(--cs-text-strong);
+  margin-bottom: 2px;
+}
+
+.itemAddr {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--cs-text-faint);
+}
+
+.categoryBadge {
+  font-size: 11px;
+  background: var(--cs-sand);
+  padding: 3px 8px;
+  border-radius: 6px;
+  color: var(--cs-text);
+  font-weight: 500;
+}
+
+.priorityTag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.citizenName {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cs-text);
+}
+
+/* Action Group */
+.actionBtnGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.actionBtnInspect,
+.actionBtnStatus,
+.actionBtnPriority,
+.actionBtnResolve {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.actionBtnInspect {
+  background: var(--cs-sand);
+  color: var(--cs-text-muted);
+  border-color: var(--cs-border);
+}
+.actionBtnInspect:hover {
+  background: var(--cs-border);
+  color: var(--cs-text);
+}
+
+.actionBtnStatus {
+  background: var(--cs-kesari-wash);
+  color: var(--cs-maroon);
+  border-color: var(--cs-kesari-light);
+}
+.actionBtnStatus:hover {
+  background: var(--cs-kesari-hover);
+  color: var(--cs-text-strong);
+}
+
+.actionBtnPriority {
+  background: var(--cs-haldi-tint);
+  color: var(--cs-haldi-text);
+  border-color: var(--cs-haldi-light);
+}
+.actionBtnPriority:hover {
+  background: var(--cs-haldi);
+  color: var(--cs-text-strong);
+}
+
+.actionBtnResolve {
+  background: var(--cs-success-tint);
+  color: var(--cs-success-text);
+  border-color: var(--cs-success-light);
+}
+.actionBtnResolve:hover {
+  background: var(--cs-success-text);
+  color: var(--cs-white);
+}
+
+/* Modal Inner */
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.modalHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  border-bottom: 1px solid var(--cs-sand);
+  padding-bottom: 14px;
+}
+
+.modalTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--cs-text-strong);
+  margin: 0 0 4px 0;
+}
+
+.modalSubtitle {
+  font-size: 12px;
+  color: var(--cs-text-faint);
+  margin: 0;
+}
+
+.modalMetaGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  background: var(--cs-ivory);
+  border: 1px solid var(--cs-border);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.metaBox {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metaLabel {
+  font-size: 10px;
+  color: var(--cs-text-faint);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.metaVal {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cs-text);
+}
+
+.modalSection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--cs-text-muted);
+  font-weight: 600;
+  margin: 0;
+}
+
+.descBox {
+  font-size: 13px;
+  color: var(--cs-text);
+  line-height: 1.5;
+  background: var(--cs-ivory);
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--cs-border);
+  margin: 0;
+}
+
+.photosGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 10px;
+}
+
+.photoLink {
+  height: 90px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--cs-border);
+  display: block;
+}
+
+.modalThumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.resolutionBanner {
+  background: var(--cs-success-tint);
+  border: 1px solid var(--cs-success-light);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--cs-success-text);
+}
+
+.resolutionBanner p {
+  margin: 2px 0 0 0;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid var(--cs-sand);
+  padding-top: 14px;
+}
+
+/* Modal Form */
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modalPrompt {
+  font-size: 13px;
+  color: var(--cs-text);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--cs-text);
+}
+
+.textarea {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
+  border-radius: 10px;
+  color: var(--cs-text-strong);
+  font-size: 13px;
+  font-family: inherit;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.textarea:focus {
+  border-color: var(--cs-kesari);
+  box-shadow: 0 0 0 3px rgba(255, 119, 34, 0.12);
+  outline: none;
+}
+
+.fileInput {
+  font-size: 13px;
+  color: var(--cs-text-muted);
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+/* Loading & Empty */
+.loadingBox, .emptyBox {
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
+  border-radius: 16px;
+  padding: 60px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--cs-text-faint);
+  box-shadow: 0 1px 3px rgba(var(--cs-shadow-rgb), 0.04);
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--cs-border);
+  border-top-color: var(--cs-kesari);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .filterBar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .filtersRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* Feedback in Table */
+.tableFeedbackBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--cs-haldi-tint);
+  border: 1px solid var(--cs-haldi-light);
+  padding: 2px 7px;
+  border-radius: 6px;
+  margin-top: 4px;
+}
+
+.starIconGold {
+  color: var(--cs-haldi-text);
+  font-size: 13px;
+}
+
+.ratingNum {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cs-text-strong);
+}
+
+.noFeedbackPill {
+  display: inline-block;
+  font-size: 10px;
+  color: var(--cs-text-faint);
+  margin-top: 3px;
+}
+
+/* Citizen Feedback in Grievance Dossier Modal */
+.citizenFeedbackDossierCard {
+  background: var(--cs-haldi-tint);
+  border: 1px solid var(--cs-haldi-light);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.citizenFeedbackHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.citizenFeedbackRatingBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.starsRow {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.starGold {
+  color: var(--cs-haldi-text);
+  font-size: 18px;
+}
+
+.starGray {
+  color: var(--cs-border-strong);
+  font-size: 18px;
+}
+
+.ratingScoreLabel {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--cs-text-strong);
+}
+
+.citizenFeedbackComment {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--cs-text);
+  font-style: italic;
+  background: var(--cs-white);
+  padding: 12px 14px;
+  border-radius: 8px;
+  border-left: 3px solid var(--cs-haldi);
+}
+
+.citizenFeedbackMeta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--cs-text-faint);
+}
+
+.metaTag {
+  background: var(--cs-sand);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--cs-text);
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.audioBlock {
+  background: var(--cs-ivory);
+  border: 1px solid var(--cs-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-top: 8px;
+}
+
+.audioHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--cs-text);
+  margin-bottom: 8px;
+}
+
+.audioPlayer {
+  width: 100%;
+  height: 36px;
+}
+
+.videoBlock {
+  background: var(--cs-text-strong);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.videoPlayer {
+  width: 100%;
+  max-height: 260px;
+  display: block;
+}

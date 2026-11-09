@@ -1,0 +1,57 @@
+{
+  "expo": {
+    "name": "CivicSetu",
+    "slug": "civicsetu",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "scheme": "civicsetu",
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "CivicSetu uses your photos as evidence for a civic report.",
+          "cameraPermission": "CivicSetu uses your camera to capture evidence for a civic report."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "CivicSetu uses your location to place a civic report."
+        }
+      ],
+      "expo-status-bar",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/seal.png",
+          "imageWidth": 140,
+          "resizeMode": "contain",
+          "backgroundColor": "#7A1F2B"
+        }
+      ]
+    ],
+    "android": {
+      "package": "com.civicsetu.mobile",
+      "versionCode": 1,
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "CAMERA",
+        "RECORD_AUDIO"
+      ]
+    },
+    "ios": {
+      "bundleIdentifier": "com.civicsetu.mobile",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "CivicSetu uses your microphone to record an optional audio note for a civic report."
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    }
+  }
+}

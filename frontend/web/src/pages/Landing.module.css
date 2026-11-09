@@ -1,0 +1,1971 @@
+/* ============================================================
+   CIVICSETU PUBLIC LANDING PAGE
+   Design Direction: Dribbble Keyvo Video Inspired
+   - Framed Editorial Canvas (var(--cs-border) outer, var(--cs-white) inner)
+   - Pill Badges with Pulsing Indicator
+   - Bold Tight Editorial Typography (Inter / System Sans)
+   - 3-Card Hero Composite (Incident Card + Green Metric Card + Best Route Overview)
+   - 3-Column Civic Dilemma Grid
+   - "One Platform" Administrative Grievance Registry Window with Hover Popover
+   - 4 Benefit Columns with Divider
+   - 3-Step Horizontal Workflow Cards
+   - 4-Card Civic-Grade Integrity Cards
+   - Vibrant Green Hero CTA Banner
+   - Deep Forest Dark Footer with Giant "CivicSetu" Wordmark
+   ============================================================ */
+
+:root {
+  --keyvo-canvas: var(--cs-sand);
+  --keyvo-bg: var(--cs-white);
+  --keyvo-text: var(--cs-text-strong);
+  --keyvo-muted: var(--cs-text-muted);
+  --keyvo-subtle: var(--cs-text-faint);
+  --keyvo-green: var(--cs-maroon);
+  --keyvo-green-bright: var(--cs-success);
+  --keyvo-green-vibrant: var(--cs-success);
+  --keyvo-green-cta: var(--cs-kesari);
+  --keyvo-green-light: var(--cs-kesari-tint);
+  --keyvo-green-border: var(--cs-kesari-light);
+  --keyvo-border: var(--cs-border);
+  --keyvo-border-light: var(--cs-sand);
+  --keyvo-card-bg: var(--cs-white);
+  --keyvo-dark: var(--cs-text-strong);
+  --keyvo-dark-surface: var(--cs-maroon-dark);
+}
+
+/* Base Canvas & Framed Container */
+.pageCanvas {
+  background-color: rgba(247, 239, 225, 0.72);
+  min-height: 100vh;
+  width: 100%;
+  padding: 20px 24px 32px 24px;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: var(--keyvo-text);
+  /* `clip` (not `hidden`) so the sticky header keeps working */
+  overflow-x: hidden;
+  overflow-x: clip;
+  position: relative;
+  z-index: 1;
+}
+
+/* Buttons and fields don't inherit the page font by default (they fell back
+   to Arial), which made the menu look misaligned next to links. */
+.pageCanvas button,
+.pageCanvas input,
+.pageCanvas select,
+.pageCanvas textarea {
+  font-family: inherit;
+}
+
+/* Menu jumps land just below the pinned header */
+.pageCanvas section[id] {
+  scroll-margin-top: 84px;
+}
+
+@media (max-width: 900px) {
+  .pageCanvas {
+    padding: 8px;
+  }
+}
+
+.framedContainer {
+  max-width: 1420px;
+  margin: 0 auto;
+  background-color: var(--keyvo-bg);
+  border-radius: 28px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 12px 48px rgba(var(--cs-shadow-rgb), 0.06);
+  overflow: hidden;
+  overflow: clip; /* keeps rounded corners without breaking the sticky header */
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .framedContainer {
+    border-radius: 16px;
+  }
+}
+
+/* ============================================================
+   1. NAVIGATION BAR
+   ============================================================ */
+/* Three columns (brand | menu | actions) so the menu is truly centered */
+.navbar {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 76px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--keyvo-border-light);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: 24px;
+  padding: 0 40px;
+  z-index: 100;
+  transition: height 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+/* After the page starts moving: a little shorter, a soft shadow */
+.navbarScrolled {
+  height: 64px;
+  background: rgba(255, 255, 255, 0.97);
+  border-bottom-color: var(--cs-border);
+  box-shadow: 0 6px 24px rgba(var(--cs-shadow-rgb), 0.08);
+}
+
+/* Narrower screens: no room to center on the page, so center the menu
+   in the space between the brand and the buttons instead. */
+@media (max-width: 1280px) {
+  .navbar {
+    grid-template-columns: auto 1fr auto;
+    padding: 0 28px;
+  }
+  .navCenter {
+    justify-self: center;
+  }
+}
+
+@media (max-width: 900px) {
+  .navbar {
+    padding: 0 20px;
+    height: 68px;
+  }
+  .navbarScrolled {
+    height: 60px;
+  }
+}
+
+.navLeft {
+  grid-column: 1;
+  justify-self: start;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.brandLogoWrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--cs-white);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  padding: 3px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.brandLogoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.mobileNavBrand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  margin-bottom: 8px;
+}
+
+.brandName {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--keyvo-text);
+  white-space: nowrap;
+}
+
+.navCenter {
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+@media (max-width: 1240px) {
+  .navCenter {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .navCenter {
+    gap: 16px;
+  }
+  .navCenter .navLink {
+    font-size: 13.5px;
+  }
+}
+
+@media (max-width: 990px) {
+  .navCenter {
+    display: none;
+  }
+}
+
+/* Menu links: one font, one height, one baseline. The underline grows in
+   for the section currently on screen. */
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 2px;
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  color: var(--keyvo-muted);
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.navLink::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--cs-kesari);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.navLink:hover {
+  color: var(--cs-maroon);
+}
+
+.navLink:hover::after {
+  transform: scaleX(0.35);
+}
+
+.navLink:focus-visible {
+  outline: 2px solid var(--cs-kesari);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.navLinkActive,
+.navLinkActive:hover {
+  color: var(--cs-maroon);
+}
+
+.navLinkActive::after,
+.navLinkActive:hover::after {
+  transform: scaleX(1);
+}
+
+/* "Live Map": green means live, so it keeps green with a soft pulse */
+.navLinkLive,
+.navLinkLive:hover {
+  color: var(--cs-success-text);
+}
+
+.navLinkLive::after {
+  display: none;
+}
+
+.liveDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cs-success);
+  flex-shrink: 0;
+  animation: livePulse 2s ease-out infinite;
+}
+
+@keyframes livePulse {
+  0% { box-shadow: 0 0 0 0 rgba(46, 125, 79, 0.45); }
+  70% { box-shadow: 0 0 0 6px rgba(46, 125, 79, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(46, 125, 79, 0); }
+}
+
+.navRight {
+  grid-column: 3;
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Language picker trigger: same height as the buttons beside it */
+.navLang > button {
+  height: 36px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.navBtnGhost {
+  background: transparent;
+  border: 1px solid var(--keyvo-border);
+  color: var(--keyvo-text);
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1;
+  height: 36px;
+  padding: 0 18px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.navBtnGhost:hover {
+  background: var(--cs-sand);
+  border-color: var(--cs-border);
+}
+
+.navBtnPrimary {
+  background: var(--cs-kesari);
+  color: var(--cs-text-strong);
+  border: 1px solid var(--cs-kesari);
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1;
+  height: 36px;
+  padding: 0 18px 0 20px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.navBtnPrimary:hover {
+  background: var(--cs-kesari-hover);
+  border-color: var(--cs-kesari-hover);
+}
+
+.mobileMenuBtn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--keyvo-text);
+  cursor: pointer;
+}
+
+@media (max-width: 990px) {
+  .mobileMenuBtn {
+    display: block;
+  }
+  .navRight .navBtnGhost {
+    display: none;
+  }
+}
+
+/* Small phones: Sign Up lives in the menu panel, so the bar doesn't overflow */
+@media (max-width: 600px) {
+  .navRight > .navBtnPrimary {
+    display: none;
+  }
+}
+
+/* Mobile Dropdown: hangs from the bottom of the pinned header */
+.mobileNavPanel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--cs-white);
+  border-bottom: 1px solid var(--keyvo-border);
+  padding: 12px 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 20px 30px rgba(var(--cs-shadow-rgb), 0.08);
+  z-index: 99;
+  animation: panelIn 0.2s ease-out;
+}
+
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.mobileNavPanel .navLink {
+  font-size: 16px;
+  height: 44px;
+  justify-content: flex-start;
+  align-self: flex-start;
+}
+
+.mobileNavPanel .navBtnGhost,
+.mobileNavPanel .navBtnPrimary {
+  height: 44px;
+  margin-top: 8px;
+}
+
+.mobileNavPanel .navBtnGhost {
+  margin-top: 12px;
+}
+
+/* ============================================================
+   PILL BADGES (Keyvo Signature)
+   ============================================================ */
+.pillBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--keyvo-green);
+  background: var(--keyvo-green-light);
+  border: 1px solid var(--keyvo-green-border);
+  padding: 4px 12px;
+  border-radius: 9999px;
+  margin-bottom: 20px;
+}
+
+.pillDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--cs-kesari);
+  display: inline-block;
+  box-shadow: 0 0 6px rgba(255, 119, 34, 0.6);
+}
+
+.pillBadgeDilemma {
+  color: var(--cs-danger-dark);
+  background: var(--cs-danger-tint);
+  border-color: var(--cs-danger-tint);
+}
+
+.pillBadgeDilemma .pillDot {
+  background: var(--cs-danger);
+  box-shadow: 0 0 6px rgba(180, 35, 24, 0.6);
+}
+
+.pillBadgeDark {
+  color: var(--cs-kesari-light);
+  background: rgba(255, 119, 34, 0.12);
+  border-color: rgba(255, 119, 34, 0.3);
+}
+
+.pillBadgeWhite {
+  color: var(--cs-text-strong);
+  background: var(--cs-white);
+  border-color: var(--cs-white);
+}
+
+.pillBadgeWhite .pillDot {
+  background: var(--cs-kesari);
+}
+
+/* ============================================================
+   2. HERO SECTION
+   ============================================================ */
+.heroSection {
+  padding: 56px 48px 64px 48px;
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 56px;
+  align-items: center;
+  background: var(--cs-white);
+}
+
+@media (max-width: 1080px) {
+  .heroSection {
+    grid-template-columns: 1fr;
+    padding: 40px 24px 50px 24px;
+    gap: 40px;
+  }
+}
+
+.heroLeft {
+  max-width: 580px;
+}
+
+.heroHeading {
+  font-size: 60px;
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  color: var(--keyvo-text);
+  margin: 0 0 24px 0;
+}
+
+@media (max-width: 768px) {
+  .heroHeading {
+    font-size: 38px;
+    letter-spacing: -0.025em;
+  }
+}
+
+.heroParagraph {
+  font-size: 16.5px;
+  line-height: 1.55;
+  color: var(--keyvo-muted);
+  margin: 0 0 32px 0;
+  font-weight: 400;
+}
+
+.heroActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.primaryCtaBtn {
+  background: var(--cs-kesari);
+  color: var(--cs-text-strong);
+  border: 1px solid var(--cs-kesari);
+  font-size: 14.5px;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 9999px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.18s ease;
+}
+
+.primaryCtaBtn:hover {
+  background: var(--cs-kesari-hover);
+  border-color: var(--cs-kesari-hover);
+  transform: translateY(-1px);
+}
+
+.secondaryCtaBtn {
+  background: transparent;
+  color: var(--keyvo-text);
+  border: 1px solid var(--keyvo-border);
+  font-size: 14.5px;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 9999px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.18s ease;
+}
+
+.secondaryCtaBtn:hover {
+  background: var(--cs-sand);
+  border-color: var(--cs-border);
+}
+
+/* HERO COMPOSITE MOCKUP (Right Column) */
+.heroRight {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.heroTopRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 580px) {
+  .heroTopRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Top Left Card: Incident preview */
+.incidentCard {
+  background: var(--cs-white);
+  border: 1px solid var(--keyvo-border);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.incidentImageWrap {
+  width: 100%;
+  height: 120px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--cs-sand);
+  position: relative;
+  margin-bottom: 14px;
+}
+
+.incidentImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.incidentMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.incidentTitle {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--keyvo-text);
+  margin: 0;
+}
+
+.incidentSubtitle {
+  font-size: 11.5px;
+  color: var(--keyvo-subtle);
+  font-family: monospace;
+}
+
+.incidentLink {
+  margin-top: 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--keyvo-green);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.incidentLink:hover {
+  text-decoration: underline;
+}
+
+/* Top Right Card: Metric Card (Vibrant Green) */
+.metricCard {
+  background: var(--cs-maroon);
+  color: var(--cs-white);
+  border-radius: 18px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 8px 24px rgba(122, 31, 43, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.metricTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.metricPills {
+  display: flex;
+  gap: 8px;
+}
+
+.metricMiniTag {
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.18);
+  padding: 3px 8px;
+  border-radius: 6px;
+  color: var(--cs-white);
+}
+
+.metricValue {
+  font-size: 46px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  margin: 8px 0 4px 0;
+}
+
+.metricLabel {
+  font-size: 13px;
+  color: var(--cs-kesari-light);
+  font-weight: 500;
+  margin: 0;
+}
+
+.metricFooter {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: var(--cs-kesari-wash);
+}
+
+/* Bottom Card: Overview & Best Option */
+.overviewCard {
+  background: var(--cs-white);
+  border: 1px solid var(--keyvo-border);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.overviewHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.overviewTitle {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--keyvo-muted);
+}
+
+.bestOptionBox {
+  background: var(--cs-ivory);
+  border: 1px solid var(--cs-kesari-light);
+  border-radius: 14px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.bestOptionDept {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bestOptionDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--cs-success);
+}
+
+.bestOptionName {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--keyvo-text);
+}
+
+.bestOptionWard {
+  font-size: 12px;
+  color: var(--keyvo-muted);
+}
+
+.bestOptionBadge {
+  background: var(--cs-kesari-wash);
+  color: var(--cs-success-text);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  border: 1px solid var(--cs-kesari-light);
+}
+
+.scoreRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--keyvo-border-light);
+}
+
+.scoreItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.scoreValue {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--keyvo-text);
+  letter-spacing: -0.02em;
+}
+
+.scoreDesc {
+  font-size: 11px;
+  color: var(--keyvo-subtle);
+  margin-top: 2px;
+}
+
+.otherOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.otherOptionsLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--keyvo-subtle);
+}
+
+.otherOptionItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12.5px;
+  color: var(--keyvo-muted);
+  padding: 4px 0;
+}
+
+.otherOptionBadge {
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--cs-sand);
+  color: var(--keyvo-muted);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* ============================================================
+   3. PROBLEM SECTION ("Civic Dilemma")
+   ============================================================ */
+.dilemmaSection {
+  padding: 80px 48px;
+  background: var(--cs-ivory);
+  border-top: 1px solid var(--keyvo-border-light);
+  border-bottom: 1px solid var(--keyvo-border-light);
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .dilemmaSection {
+    padding: 50px 20px;
+  }
+}
+
+.dilemmaHeader {
+  max-width: 680px;
+  margin: 0 auto 56px auto;
+}
+
+.sectionHeadline {
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.18;
+  color: var(--keyvo-text);
+  margin: 0 0 16px 0;
+}
+
+@media (max-width: 768px) {
+  .sectionHeadline {
+    font-size: 28px;
+  }
+}
+
+.sectionSubtext {
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--keyvo-muted);
+  margin: 0;
+}
+
+.dilemmaGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+@media (max-width: 900px) {
+  .dilemmaGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dilemmaCard {
+  background: var(--cs-white);
+  border: 1px solid var(--keyvo-border);
+  border-radius: 20px;
+  padding: 32px 28px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.dilemmaCard:hover {
+  border-color: var(--cs-border);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+}
+
+.dilemmaIconWrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--cs-sand);
+  border: 1px solid var(--cs-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--keyvo-green);
+  font-size: 24px;
+  margin-bottom: 22px;
+}
+
+.dilemmaCardTitle {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--keyvo-text);
+  letter-spacing: -0.02em;
+  margin: 0 0 10px 0;
+}
+
+.dilemmaCardText {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--keyvo-muted);
+  margin: 0;
+}
+
+/* ============================================================
+   4. ONE PLATFORM SHOWCASE (The Grievance Registry Window)
+   ============================================================ */
+.platformSection {
+  padding: 88px 48px;
+  background: var(--cs-white);
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .platformSection {
+    padding: 50px 20px;
+  }
+}
+
+.platformHeader {
+  max-width: 700px;
+  margin: 0 auto 48px auto;
+}
+
+/* Master Registry Window Mockup */
+.registryWindow {
+  max-width: 1220px;
+  margin: 0 auto;
+  background: var(--cs-white);
+  border: 1px solid var(--keyvo-border);
+  border-radius: 20px;
+  box-shadow: 0 16px 48px rgba(var(--cs-shadow-rgb), 0.07);
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: 480px;
+  overflow: hidden;
+  text-align: left;
+  position: relative;
+}
+
+@media (max-width: 900px) {
+  .registryWindow {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Dark Left Sidebar */
+.registrySidebar {
+  background: var(--cs-maroon-dark);
+  color: var(--cs-white);
+  padding: 24px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+@media (max-width: 900px) {
+  .registrySidebar {
+    display: none;
+  }
+}
+
+.sidebarBrand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 16px;
+}
+
+.sidebarBrandText {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.sidebarBrandLogoWrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--cs-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5px;
+  flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.sidebarNav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sidebarItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(247, 239, 225, 0.72);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sidebarItem:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--cs-white);
+}
+
+.sidebarItemActive {
+  background: rgba(255, 119, 34, 0.22);
+  color: var(--cs-kesari-light);
+  font-weight: 600;
+  border: 1px solid rgba(255, 119, 34, 0.45);
+}
+
+.sidebarItemCount {
+  margin-left: auto;
+  font-size: 10.5px;
+  background: rgba(255, 255, 255, 0.12);
+  padding: 2px 7px;
+  border-radius: 9999px;
+  color: var(--cs-white);
+}
+
+.sidebarUser {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebarAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--cs-kesari);
+  color: var(--cs-text-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sidebarUserInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebarUserName {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cs-white);
+}
+
+.sidebarUserRole {
+  font-size: 10.5px;
+  color: rgba(247, 239, 225, 0.6);
+}
+
+/* Registry Content Area */
+.registryContent {
+  background: var(--cs-white);
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-x: auto;
+}
+
+.registryTopBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.registryHeadingGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.registryTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--keyvo-text);
+  margin: 0;
+}
+
+.registrySub {
+  font-size: 12px;
+  color: var(--keyvo-subtle);
+}
+
+.registryControls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.registrySearch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--cs-sand);
+  border: 1px solid var(--keyvo-border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  color: var(--keyvo-text);
+  width: 220px;
+}
+
+.registrySearch input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 12.5px;
+  color: var(--keyvo-text);
+  width: 100%;
+}
+
+.registryBtnAdd {
+  background: var(--cs-text-strong);
+  color: var(--cs-white);
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+}
+
+/* Registry Table */
+.registryTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.registryTable th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--keyvo-subtle);
+  border-bottom: 1px solid var(--keyvo-border-light);
+}
+
+.registryTable td {
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--keyvo-border-light);
+  color: var(--keyvo-text);
+  vertical-align: middle;
+}
+
+.registryTableRow:hover {
+  background: var(--cs-ivory);
+}
+
+.itemMain {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.itemIconThumb {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--cs-kesari-wash);
+  color: var(--keyvo-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+.itemTitleBold {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--keyvo-text);
+}
+
+.itemSubLoc {
+  font-size: 11px;
+  color: var(--keyvo-subtle);
+}
+
+.matchPill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--cs-kesari-wash);
+  color: var(--cs-maroon);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.priorityHigh {
+  color: var(--cs-danger);
+  font-weight: 700;
+  font-size: 11.5px;
+}
+
+.priorityCritical {
+  color: var(--cs-danger-dark);
+  font-weight: 800;
+  font-size: 11.5px;
+}
+
+.priorityMedium {
+  color: var(--cs-haldi-text);
+  font-weight: 600;
+  font-size: 11.5px;
+}
+
+.tierPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--cs-sand);
+  border: 1px solid var(--cs-border);
+  color: var(--cs-text-strong);
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tierPill:hover, .tierPillActive {
+  background: var(--cs-text-strong);
+  color: var(--cs-white);
+  border-color: var(--cs-text-strong);
+}
+
+/* Hover / Active Detail Popover (Keyvo 00:13) */
+.registryPopover {
+  position: absolute;
+  top: 140px;
+  right: 50px;
+  width: 280px;
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border-strong);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 16px 36px rgba(var(--cs-shadow-rgb), 0.12);
+  z-index: 10;
+  animation: fadeIn 0.2s ease;
+}
+
+@media (max-width: 900px) {
+  .registryPopover {
+    position: static;
+    width: 100%;
+    margin-top: 16px;
+    box-sizing: border-box;
+  }
+}
+
+.popoverTier {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--keyvo-text);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.popoverText {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--keyvo-muted);
+  margin-bottom: 10px;
+}
+
+.popoverDetails {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--keyvo-green);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.popoverDetails:hover {
+  text-decoration: underline;
+}
+
+/* 4 Feature Columns below Registry (Keyvo 00:14) */
+.platformFeatureRow {
+  max-width: 1220px;
+  margin: 48px auto 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  text-align: left;
+  padding-top: 40px;
+  border-top: 1px solid var(--keyvo-border-light);
+}
+
+@media (max-width: 990px) {
+  .platformFeatureRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .platformFeatureRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.featCol {
+  display: flex;
+  flex-direction: column;
+}
+
+.featColIcon {
+  font-size: 22px;
+  color: var(--keyvo-green);
+  margin-bottom: 12px;
+}
+
+.featColTitle {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--keyvo-text);
+  margin: 0 0 8px 0;
+}
+
+.featColDesc {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--keyvo-muted);
+  margin: 0;
+}
+
+/* ============================================================
+   5. WORKFLOW SECTION ("How CivicSetu Fits into your Workflow" 00:16)
+   ============================================================ */
+.workflowSection {
+  padding: 88px 48px;
+  background: var(--cs-ivory);
+  border-top: 1px solid var(--keyvo-border-light);
+}
+
+@media (max-width: 768px) {
+  .workflowSection {
+    padding: 50px 20px;
+  }
+}
+
+.workflowGrid {
+  max-width: 1220px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 56px;
+  align-items: start;
+}
+
+@media (max-width: 990px) {
+  .workflowGrid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}
+
+.workflowLeft {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.workflowLeftHeading {
+  font-size: 42px;
+  line-height: 1.12;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--keyvo-text);
+  margin: 0 0 20px 0;
+}
+
+@media (max-width: 768px) {
+  .workflowLeftHeading {
+    font-size: 30px;
+  }
+}
+
+.workflowLeftDesc {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--keyvo-muted);
+  margin: 0 0 28px 0;
+}
+
+/* 3-Step Horizontal Cards */
+.workflowSteps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .workflowSteps {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stepCard {
+  background: var(--cs-white);
+  border: 1px solid var(--keyvo-border);
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.02);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
+}
+
+.stepCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--cs-border);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+}
+
+.stepPreviewBox {
+  background: var(--cs-sand);
+  border: 1px solid var(--cs-border);
+  border-radius: 12px;
+  padding: 16px;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.stepNumber {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--keyvo-green);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.stepCardText {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--keyvo-muted);
+  margin: 0;
+}
+
+/* ============================================================
+   6. ENTERPRISE / TRUST SECURITY ("Trust engineered into every resolution" 00:22)
+   ============================================================ */
+.trustSection {
+  padding: 88px 48px;
+  background: var(--cs-white);
+  border-top: 1px solid var(--keyvo-border-light);
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .trustSection {
+    padding: 50px 20px;
+  }
+}
+
+.trustHeader {
+  max-width: 700px;
+  margin: 0 auto 56px auto;
+}
+
+.trustGrid {
+  max-width: 1220px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  text-align: left;
+}
+
+@media (max-width: 990px) {
+  .trustGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .trustGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.trustCard {
+  background: var(--cs-ivory);
+  border: 1px solid var(--keyvo-border);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.trustCardIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--cs-white);
+  border: 1px solid var(--keyvo-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--keyvo-green);
+  font-size: 22px;
+  margin-bottom: 16px;
+}
+
+.trustCardTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--keyvo-text);
+  margin: 0 0 8px 0;
+}
+
+.trustCardDesc {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--keyvo-muted);
+  margin: 0;
+}
+
+/* ============================================================
+   7. BIG GREEN HERO CTA BANNER (Keyvo 00:24 - 00:27)
+   ============================================================ */
+.ctaBannerWrapper {
+  padding: 0 48px 64px 48px;
+  background: var(--cs-white);
+}
+
+@media (max-width: 768px) {
+  .ctaBannerWrapper {
+    padding: 0 16px 40px 16px;
+  }
+}
+
+.ctaGreenBanner {
+  background: var(--cs-maroon);
+  background: var(--cs-maroon);
+  border-radius: 24px;
+  padding: 56px 48px;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 40px;
+  align-items: center;
+  color: var(--cs-white);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(122, 31, 43, 0.22);
+}
+
+@media (max-width: 900px) {
+  .ctaGreenBanner {
+    grid-template-columns: 1fr;
+    padding: 36px 24px;
+    gap: 28px;
+  }
+}
+
+.ctaLeft {
+  max-width: 520px;
+}
+
+.ctaHeading {
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  margin: 16px 0 0 0;
+  color: var(--cs-white);
+}
+
+@media (max-width: 768px) {
+  .ctaHeading {
+    font-size: 32px;
+  }
+}
+
+.ctaRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.ctaSubtext {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--cs-success-tint);
+  margin: 0;
+}
+
+.ctaTabletCard {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  padding: 16px 20px;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ctaTabletLogoWrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--cs-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.ctaTabletIcon {
+  font-size: 32px;
+  color: var(--cs-white);
+}
+
+.ctaTabletInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.ctaTabletTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cs-white);
+}
+
+.ctaTabletDesc {
+  font-size: 12px;
+  color: var(--cs-kesari-wash);
+}
+
+.ctaButtonRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.ctaBtnBlack {
+  background: var(--cs-kesari);
+  color: var(--cs-text-strong);
+  border: 1px solid var(--cs-kesari);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 9999px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ctaBtnBlack:hover {
+  background: var(--cs-kesari-hover);
+  transform: translateY(-1px);
+}
+
+.ctaBtnWhite {
+  background: var(--cs-white);
+  color: var(--cs-text-strong);
+  border: 1px solid var(--cs-white);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 9999px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ctaBtnWhite:hover {
+  background: var(--cs-kesari-wash);
+}
+
+/* ============================================================
+   8. FOOTER WITH GIANT WORDMARK (Keyvo 00:28 - 00:29)
+   ============================================================ */
+.footerSection {
+  background: var(--cs-text-strong);
+  color: var(--cs-white);
+  padding: 48px 48px 24px 48px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 768px) {
+  .footerSection {
+    padding: 36px 20px 20px 20px;
+  }
+}
+
+.footerTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 40px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.footerBrandLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.footerLogoWrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--cs-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.footerCopyright {
+  font-size: 13px;
+  color: rgba(247, 239, 225, 0.6);
+}
+
+.footerLinks {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.footerLink {
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: var(--cs-border-strong);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.15s ease;
+  padding: 0;
+}
+
+.footerLink:hover {
+  color: var(--cs-white);
+}
+
+/* Giant Typographic Wordmark */
+.giantWordmarkRow {
+  padding-top: 36px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  user-select: none;
+}
+
+.giantLogoBridge {
+  width: 96px;
+  height: 96px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 24px;
+  background: var(--cs-white);
+  padding: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .giantLogoBridge {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    padding: 6px;
+  }
+}
+
+.giantLogoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.giantWordmarkText {
+  font-size: 136px;
+  font-weight: 900;
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+  color: var(--cs-kesari-light);
+  margin: 0;
+  text-transform: none;
+}
+
+@media (max-width: 1080px) {
+  .giantWordmarkText {
+    font-size: 88px;
+  }
+}
+
+@media (max-width: 768px) {
+  .giantWordmarkText {
+    font-size: 48px;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Hindi and Odia letters carry marks above and below the line, so the tight
+   English heading spacing makes lines collide and joined letters break apart. */
+:global(html:lang(hi)) .heroHeading,
+:global(html:lang(or)) .heroHeading,
+:global(html:lang(hi)) .sectionHeadline,
+:global(html:lang(or)) .sectionHeadline,
+:global(html:lang(hi)) .workflowLeftHeading,
+:global(html:lang(or)) .workflowLeftHeading,
+:global(html:lang(hi)) .ctaHeading,
+:global(html:lang(or)) .ctaHeading {
+  line-height: 1.35;
+  letter-spacing: normal;
+}
+
+/* ============================================================
+   SCROLL REVEAL
+   Blocks fade up as they enter the screen (classes added by Landing.jsx).
+   Uses `translate`, not `transform`, so it never fights a card's own transform.
+   ============================================================ */
+.reveal {
+  opacity: 0;
+  translate: 0 28px;
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    translate 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.revealVisible {
+  opacity: 1;
+  translate: 0 0;
+}
+
+@media print {
+  .reveal {
+    opacity: 1;
+    translate: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    translate: none;
+    transition: none;
+  }
+  .liveDot {
+    animation: none;
+  }
+  .navLink::after,
+  .navbar {
+    transition: none;
+  }
+}

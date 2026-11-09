@@ -1,0 +1,371 @@
+/* DepartmentManagement — Unified Light Theme */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 8px 0 40px 0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--cs-text-strong);
+  margin: 0 0 6px 0;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--cs-text-muted);
+  margin: 0;
+}
+
+.searchBar {
+  width: 100%;
+}
+
+/* Table Card */
+.tableCard {
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+
+.table th {
+  padding: 14px 18px;
+  background: var(--cs-ivory);
+  border-bottom: 1px solid var(--cs-border);
+  color: var(--cs-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--cs-sand);
+  color: var(--cs-text);
+  vertical-align: middle;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.table tr:hover td {
+  background: var(--cs-ivory);
+}
+
+.nameCell {
+  max-width: 260px;
+}
+
+.deptName {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cs-text-strong);
+  margin-bottom: 2px;
+}
+
+.deptDesc {
+  font-size: 12px;
+  color: var(--cs-text-muted);
+  line-height: 1.4;
+}
+
+.contactItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--cs-text);
+  margin-bottom: 2px;
+}
+
+.officersCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--cs-kesari-wash);
+  border: 1px solid var(--cs-kesari-light);
+  color: var(--cs-maroon);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.dateText {
+  font-size: 12px;
+  color: var(--cs-text-faint);
+}
+
+.actionsRow {
+  display: flex;
+  gap: 8px;
+}
+
+.btnIcon, .btnIconDanger {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--cs-border);
+  background: var(--cs-white);
+  color: var(--cs-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btnIcon:hover {
+  background: var(--cs-kesari-wash);
+  color: var(--cs-maroon);
+  border-color: var(--cs-kesari-light);
+}
+
+.btnIconDanger:hover {
+  background: var(--cs-danger-tint);
+  color: var(--cs-danger);
+  border-color: var(--cs-danger-light);
+}
+
+/* Modal Form */
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cs-text);
+}
+
+.textarea {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--cs-white);
+  border: 1.5px solid var(--cs-border);
+  border-radius: 8px;
+  color: var(--cs-text-strong);
+  font-size: 13px;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.textarea:focus {
+  border-color: var(--cs-kesari);
+  box-shadow: 0 0 0 3px rgba(255, 119, 34, 0.12);
+  outline: none;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+/* Officers Roster Modal */
+.officersModalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.assignForm {
+  background: var(--cs-ivory);
+  border: 1px solid var(--cs-border);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.assignHeading {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cs-text-strong);
+  margin: 0;
+}
+
+.assignGrid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 12px;
+}
+
+.selectBox {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.selectInput {
+  padding: 10px 12px;
+  background: var(--cs-white);
+  border: 1.5px solid var(--cs-border);
+  border-radius: 8px;
+  color: var(--cs-text-strong);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.selectInput:focus {
+  border-color: var(--cs-kesari);
+  box-shadow: 0 0 0 3px rgba(255, 119, 34, 0.12);
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkLabel {
+  font-size: 12px;
+  color: var(--cs-text);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.officersList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.officerCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
+  border-radius: 8px;
+  transition: border-color 0.15s ease;
+}
+
+.officerCard:hover {
+  border-color: var(--cs-border-strong);
+}
+
+.officerLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.officerAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--cs-kesari-wash);
+  color: var(--cs-maroon);
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.officerName {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cs-text-strong);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.headBadge {
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--cs-haldi-tint);
+  color: var(--cs-haldi-text);
+  border: 1px solid var(--cs-haldi-light);
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.officerMeta {
+  font-size: 11px;
+  color: var(--cs-text-muted);
+}
+
+.btnRemove {
+  background: transparent;
+  border: none;
+  color: var(--cs-text-faint);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.btnRemove:hover {
+  background: var(--cs-danger-tint);
+  color: var(--cs-danger);
+}
+
+.loadingBox, .emptyBox, .noOfficers {
+  padding: 36px;
+  text-align: center;
+  color: var(--cs-text-muted);
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--cs-border);
+  border-top-color: var(--cs-kesari);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

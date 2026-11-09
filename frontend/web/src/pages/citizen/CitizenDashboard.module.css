@@ -1,0 +1,850 @@
+/* ============================================================
+   Citizen Dashboard — Pixel-Perfect Light Theme
+   Matches the Primary Source of Truth screenshots with 100% precision.
+   ============================================================ */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  box-sizing: border-box;
+  animation: pageEnter 0.3s ease-out both;
+}
+
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ================= HERO WELCOME BANNER (WARM KESARI WASH) ================= */
+.heroBanner {
+  background: linear-gradient(135deg, var(--cs-kesari-wash) 0%, var(--cs-ivory) 45%, var(--cs-kesari-tint) 100%);
+  border: 1.5px solid var(--cs-kesari-light);
+  border-radius: 24px;
+  padding: 32px 38px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  min-height: 230px;
+  gap: 28px;
+  box-shadow: 0 4px 20px rgba(255, 119, 34, 0.08), 0 1px 3px rgba(0, 0, 0, 0.03);
+  box-sizing: border-box;
+}
+
+/* Merged Full-Width Greenery Background Illustration */
+.heroBgWrapper {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Street-scene illustration: starts right after the text column and runs to
+   the right edge, so the story (citizen -> report -> repair) sits in the
+   open space between the greeting and the info card. */
+.heroBgImg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 500px;
+  height: 100%;
+  width: auto;
+  max-width: none;
+  object-fit: contain;
+  object-position: left bottom;
+}
+
+/* Keeps the text column clean; fades out just before the illustration */
+.heroBgOverlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 251, 242, 0.9) 0,
+    rgba(255, 251, 242, 0.9) 470px,
+    rgba(255, 251, 242, 0) 560px
+  );
+}
+
+/* Namaste hands next to the greeting */
+.heroWave {
+  display: inline-block;
+  font-size: 0.9em;
+  vertical-align: 0.04em;
+}
+
+.heroLeft {
+  flex: 1;
+  max-width: 500px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+}
+
+
+
+.heroTitle {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--cs-maroon);
+  margin: 0 0 10px 0;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.85);
+}
+
+.heroSubtitle {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--cs-maroon);
+  margin: 0 0 24px 0;
+  font-weight: 500;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7);
+}
+
+.heroActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--cs-kesari);
+  color: var(--cs-text-strong);
+  padding: 11px 22px;
+  border-radius: 9999px;
+  font-size: 13.5px;
+  font-weight: 700;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(255, 119, 34, 0.35);
+  transition: all 0.2s ease;
+}
+
+.btnPrimary:hover {
+  background: var(--cs-kesari-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 16px rgba(255, 119, 34, 0.45);
+}
+
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1.5px solid var(--cs-maroon-light);
+  color: var(--cs-maroon);
+  padding: 10px 22px;
+  border-radius: 9999px;
+  font-size: 13.5px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.btnSecondary:hover {
+  background: var(--cs-white);
+  border-color: var(--cs-maroon);
+  color: var(--cs-maroon-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(122, 31, 43, 0.15);
+}
+
+/* Hero Info Card (right side) - Glassmorphism */
+.heroInfoCard {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1.5px solid rgba(255, 255, 255, 0.95);
+  border-radius: 18px;
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 280px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 20px rgba(var(--cs-shadow-rgb), 0.08), 0 1px 3px rgba(0, 0, 0, 0.03);
+  z-index: 2;
+  box-sizing: border-box;
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.infoDivider {
+  height: 1px;
+  background: var(--cs-sand);
+}
+
+.infoIconGreen {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--cs-kesari-tint);
+  color: var(--cs-kesari-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.infoIconBlue {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--cs-kesari-wash);
+  color: var(--cs-maroon);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.infoContent {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.infoLabel {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--cs-text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.infoValue {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--cs-text-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.editBtn {
+  background: none;
+  border: none;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--cs-maroon);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.editBtn:hover {
+  background: var(--cs-kesari-wash);
+  color: var(--cs-maroon);
+}
+
+.copyBtn {
+  background: var(--cs-ivory);
+  border: 1px solid var(--cs-border);
+  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cs-text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.copyBtn:hover {
+  background: var(--cs-kesari-wash);
+  color: var(--cs-maroon);
+  border-color: var(--cs-kesari-light);
+}
+
+/* ================= MAIN CONTENT GRID ================= */
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 24px;
+  align-items: start;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ========= LEFT: Recent Grievances Section ========= */
+.recentSection {
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
+  border-radius: 18px;
+  padding: 24px 28px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--cs-sand);
+}
+
+.sectionTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sectionIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--cs-kesari-wash);
+  color: var(--cs-maroon);
+  border: 1px solid var(--cs-kesari-tint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sectionTitle {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--cs-text-strong);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.sectionSub {
+  font-size: 12px;
+  color: var(--cs-text-muted);
+  margin: 3px 0 0 0;
+}
+
+.viewAllBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--cs-maroon);
+  background: var(--cs-kesari-wash);
+  border: 1px solid var(--cs-kesari-light);
+  padding: 7px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.viewAllBtn:hover {
+  background: var(--cs-kesari-hover);
+  color: var(--cs-text-strong);
+}
+
+/* Grievance Cards List */
+.grievanceList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.grievanceCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  background: var(--cs-ivory);
+  border: 1px solid var(--cs-border);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.18s ease;
+}
+
+.grievanceCard:hover {
+  background: var(--cs-white);
+  border-color: var(--cs-kesari-light);
+  box-shadow: 0 4px 14px rgba(255, 119, 34, 0.08);
+  transform: translateY(-1px);
+}
+
+.cardThumb {
+  width: 54px;
+  height: 54px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid var(--cs-border);
+  background: var(--cs-white);
+}
+
+.thumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cs-text-faint);
+  background: var(--cs-sand);
+}
+
+.cardBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cardTopRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.trackingCode {
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--cs-maroon);
+  letter-spacing: 0.02em;
+}
+
+.deptBadge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cs-text);
+  background: var(--cs-border);
+  padding: 1px 7px;
+  border-radius: 4px;
+}
+
+.cardTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cs-text-strong);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.35;
+}
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--cs-text-muted);
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cardRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* Status Badges */
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.statusPending {
+  background: var(--cs-haldi-tint);
+  color: var(--cs-haldi-text);
+  border: 1px solid var(--cs-haldi-light);
+}
+
+.statusProgress {
+  background: var(--cs-kesari-wash);
+  color: var(--cs-maroon);
+  border: 1px solid var(--cs-kesari-light);
+}
+
+.statusResolved {
+  background: var(--cs-success-tint);
+  color: var(--cs-success-text);
+  border: 1px solid var(--cs-success-light);
+}
+
+.statusRejected {
+  background: var(--cs-danger-tint);
+  color: var(--cs-danger-dark);
+  border: 1px solid var(--cs-danger-light);
+}
+
+.chevronCircle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cs-text-faint);
+  transition: all 0.15s ease;
+}
+
+.grievanceCard:hover .chevronCircle {
+  background: var(--cs-kesari-hover);
+  color: var(--cs-text-strong);
+  border-color: var(--cs-kesari);
+}
+
+/* Empty & Loading States */
+.loadingState, .emptyState {
+  padding: 48px;
+  text-align: center;
+  color: var(--cs-text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.emptyIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--cs-sand);
+  color: var(--cs-text-faint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emptyTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--cs-text-strong);
+  margin: 0;
+}
+
+.emptySub {
+  font-size: 13px;
+  color: var(--cs-text-muted);
+  margin: 0 0 8px 0;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--cs-border);
+  border-top-color: var(--cs-kesari);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ========= RIGHT COLUMN ========= */
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Quick Actions Panel */
+.quickActionsPanel {
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
+}
+
+.quickActionsHeader {
+  margin-bottom: 16px;
+}
+
+.quickActionsTitle {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--cs-text-strong);
+  margin: 0 0 2px 0;
+}
+
+.quickActionsSub {
+  font-size: 12px;
+  color: var(--cs-text-muted);
+  margin: 0;
+}
+
+.actionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.actionItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.actionItem:hover {
+  background: var(--cs-ivory);
+  border-color: var(--cs-border-strong);
+  transform: translateX(2px);
+}
+
+.actionIconGreen {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--cs-kesari-tint);
+  color: var(--cs-kesari-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.actionIconBlue {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--cs-kesari-wash);
+  color: var(--cs-maroon);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.actionIconTeal {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--cs-maroon-tint);
+  color: var(--cs-maroon);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.actionContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.actionName {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--cs-text-strong);
+  margin: 0 0 2px 0;
+}
+
+.actionDesc {
+  font-size: 11.5px;
+  color: var(--cs-text-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.actionArrow {
+  color: var(--cs-text-faint);
+  display: flex;
+  align-items: center;
+}
+
+/* SLA Commitments Card (Screenshot 2 Match) */
+.slaCard {
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+.slaHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.slaIcon {
+  color: var(--cs-maroon);
+}
+
+.slaTitle {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--cs-text-strong);
+  margin: 0;
+}
+
+.slaDesc {
+  font-size: 12px;
+  color: var(--cs-text-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.slaList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.slaItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--cs-ivory);
+  border: 1px solid var(--cs-sand);
+  border-radius: 8px;
+}
+
+.slaItemLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--cs-text);
+}
+
+.slaIconSmall {
+  font-size: 14px;
+}
+
+.slaBadge {
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--cs-haldi-tint);
+  color: var(--cs-haldi-text);
+  border: 1px solid var(--cs-haldi-light);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+/* Community Banner */
+.communityBanner {
+  background: var(--cs-maroon-wash);
+  border: 1px solid var(--cs-maroon-light);
+  border-radius: 18px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+.communityContent {
+  flex: 1;
+}
+
+.communityTitle {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--cs-maroon);
+  margin: 0 0 4px 0;
+  line-height: 1.35;
+}
+
+.communityDesc {
+  font-size: 12px;
+  color: var(--cs-text);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.communityLeaf {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.communityLeaf img {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .heroBanner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 28px 24px;
+    gap: 20px;
+  }
+  /* Stacked layout: no room beside the text, so the illustration steps aside
+     and the greeting stays easy to read */
+  .heroBgImg,
+  .heroBgOverlay {
+    display: none;
+  }
+  .heroInfoCard {
+    width: 100%;
+  }
+  .mainGrid {
+    grid-template-columns: 1fr;
+  }
+}

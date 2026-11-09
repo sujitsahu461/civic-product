@@ -1,0 +1,1468 @@
+/* ============================================================
+   Report a civic issue — guided, step-by-step layout
+   ============================================================ */
+
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.container button {
+  font-family: inherit;
+}
+
+/* ---------- Page header ---------- */
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  color: var(--cs-maroon);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--cs-text-muted);
+}
+
+.anonNotice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--cs-maroon-wash);
+  border: 1px solid var(--cs-maroon-light);
+  color: var(--cs-maroon);
+}
+
+.anonNotice p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--cs-text);
+}
+
+.anonNotice strong {
+  color: var(--cs-maroon);
+}
+
+/* ---------- Layout: form + slim sidebar ---------- */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* ---------- Wizard card ---------- */
+.wizardCard {
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
+  border-radius: 20px;
+  box-shadow: 0 1px 2px rgba(var(--cs-shadow-rgb), 0.04), 0 8px 28px rgba(var(--cs-shadow-rgb), 0.05);
+  scroll-margin-top: 84px;
+}
+
+/* Stepper */
+.stepperWrap {
+  padding: 20px 28px 0;
+}
+
+.stepper {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.stepItem {
+  min-width: 0;
+}
+
+.stepBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 4px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  border-radius: 10px;
+}
+
+.stepBtn:disabled {
+  cursor: default;
+}
+
+.stepBtn:focus-visible {
+  outline: 2px solid var(--cs-kesari);
+  outline-offset: 2px;
+}
+
+.stepDot {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cs-text-muted);
+  background: var(--cs-sand);
+  border: 1.5px solid var(--cs-border);
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+.stepLabel {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--cs-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stepCurrent .stepDot {
+  background: var(--cs-kesari);
+  border-color: var(--cs-kesari);
+  color: var(--cs-text-strong);
+  box-shadow: 0 0 0 4px var(--cs-kesari-tint);
+}
+
+.stepCurrent .stepLabel {
+  color: var(--cs-maroon);
+  font-weight: 700;
+}
+
+.stepDone .stepDot {
+  background: var(--cs-success-tint);
+  border-color: var(--cs-success-light);
+  color: var(--cs-success-text);
+}
+
+.stepDone .stepLabel {
+  color: var(--cs-text-strong);
+}
+
+.stepDone .stepBtn:hover .stepLabel {
+  color: var(--cs-maroon);
+}
+
+.progressTrack {
+  height: 4px;
+  margin-top: 14px;
+  border-radius: 4px;
+  background: var(--cs-sand-dark);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--cs-kesari), var(--cs-kesari-hover));
+  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- Panels (one per step) ---------- */
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 26px 28px 8px;
+  animation: panelIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* author `display` beats the browser's own [hidden] rule, so restate it */
+.panel[hidden] {
+  display: none !important;
+}
+
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+.panelHead {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.panelTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--cs-text-strong);
+  outline: none;
+}
+
+.panelHint {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--cs-text-muted);
+}
+
+.optionalPill {
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cs-text-muted);
+  background: var(--cs-sand);
+  border: 1px solid var(--cs-border);
+}
+
+/* ---------- Step 1: category tiles ---------- */
+.categoryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.catTile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px;
+  min-height: 92px;
+  box-sizing: border-box;
+  border: 1.5px solid var(--cs-border);
+  border-radius: 14px;
+  background: var(--cs-white);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.catTile:hover {
+  border-color: var(--cs-border-strong);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(var(--cs-shadow-rgb), 0.06);
+}
+
+.catTile:focus-visible {
+  outline: 2px solid var(--cs-kesari);
+  outline-offset: 2px;
+}
+
+.catTileOn,
+.catTileOn:hover {
+  border-color: var(--cs-kesari);
+  background: var(--cs-kesari-wash);
+  box-shadow: 0 0 0 3px var(--cs-kesari-tint);
+}
+
+.catIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.catLabel {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--cs-text-strong);
+}
+
+.catCheck {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cs-kesari);
+  color: var(--cs-text-strong);
+}
+
+.routeLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -8px 0 0;
+  font-size: 13px;
+  color: var(--cs-text);
+}
+
+.routeLine :first-child {
+  color: var(--cs-kesari-deep);
+}
+
+/* ---------- Fields ---------- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.label {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--cs-text-strong);
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 46px;
+  padding: 0 14px;
+  border: 1.5px solid var(--cs-border-strong);
+  border-radius: 12px;
+  background: var(--cs-white);
+  font: inherit;
+  font-size: 14.5px;
+  color: var(--cs-text-strong);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input::placeholder {
+  color: var(--cs-text-faint);
+}
+
+.input:hover {
+  border-color: var(--cs-text-faint);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--cs-kesari);
+  box-shadow: 0 0 0 3px var(--cs-kesari-tint);
+}
+
+.textarea {
+  height: auto;
+  min-height: 112px;
+  padding: 12px 14px;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.inputError,
+.inputError:hover {
+  border-color: var(--cs-danger);
+}
+
+.inputError:focus {
+  border-color: var(--cs-danger);
+  box-shadow: 0 0 0 3px var(--cs-danger-tint);
+}
+
+.fieldHint,
+.fieldError {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.fieldHint {
+  color: var(--cs-text-muted);
+}
+
+.fieldError {
+  color: var(--cs-danger);
+  font-weight: 600;
+}
+
+.fieldFoot {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.counter {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--cs-text-faint);
+}
+
+/* Urgency: one-line segmented switch */
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--cs-sand);
+  border: 1px solid var(--cs-border);
+}
+
+.segment {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 10px;
+  border: 1.5px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--cs-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.segment:hover {
+  color: var(--cs-text-strong);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.segment:focus-visible {
+  outline: 2px solid var(--cs-kesari);
+  outline-offset: 2px;
+}
+
+.segmentOn {
+  box-shadow: 0 1px 3px rgba(var(--cs-shadow-rgb), 0.08);
+}
+
+.segDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ---------- Step 2: manual coordinates (tucked away) ---------- */
+.disclosure {
+  border-top: 1px dashed var(--cs-border);
+  padding-top: 14px;
+}
+
+.disclosure summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cs-text-muted);
+  cursor: pointer;
+  list-style: none;
+}
+
+.disclosure summary::-webkit-details-marker {
+  display: none;
+}
+
+.disclosure summary:hover {
+  color: var(--cs-maroon);
+}
+
+.disclosureIcon {
+  transition: transform 0.2s ease;
+}
+
+.disclosure[open] .disclosureIcon {
+  transform: rotate(180deg);
+}
+
+.coordsRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+/* ---------- Step 3: proof tiles ---------- */
+.proofGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.proofTile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 184px;
+  padding: 20px 16px;
+  box-sizing: border-box;
+  border: 1.5px dashed var(--cs-border-strong);
+  border-radius: 16px;
+  background: var(--cs-ivory);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+.proofTile:hover:not(:disabled) {
+  border-color: var(--cs-kesari);
+  background: var(--cs-kesari-wash);
+  transform: translateY(-1px);
+}
+
+.proofTile:focus-visible {
+  outline: 2px solid var(--cs-kesari);
+  outline-offset: 2px;
+}
+
+.proofTile:disabled {
+  cursor: default;
+  opacity: 0.75;
+}
+
+.proofTileOn {
+  border-style: solid;
+  border-color: var(--cs-kesari-light);
+  background: var(--cs-kesari-wash);
+}
+
+.proofIcon {
+  width: 44px;
+  height: 44px;
+  margin-bottom: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cs-maroon);
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
+}
+
+.proofLabel {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cs-text-strong);
+}
+
+.proofSub {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--cs-text-muted);
+}
+
+.proofAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 10px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cs-kesari-deep);
+  background: var(--cs-white);
+  border: 1px solid var(--cs-kesari-light);
+}
+
+.thumbs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 10px;
+}
+
+.thumb {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--cs-border);
+  background: var(--cs-sand);
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.thumbRemove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(59, 36, 24, 0.75);
+  color: var(--cs-white);
+  cursor: pointer;
+}
+
+.thumbRemove:hover {
+  background: var(--cs-danger);
+}
+
+.videoBox {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--cs-border);
+  background: var(--cs-text-strong);
+}
+
+.videoBox video {
+  display: block;
+  width: 100%;
+  max-height: 280px;
+  background: #000;
+}
+
+.videoBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--cs-white);
+}
+
+.videoName {
+  min-width: 0;
+  font-size: 13px;
+  color: var(--cs-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.removeLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: none;
+  padding: 4px 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cs-danger);
+  cursor: pointer;
+}
+
+/* ---------- Step 4: review ---------- */
+.reviewList {
+  margin: 0;
+  border: 1px solid var(--cs-border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.reviewRow {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: start;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--cs-border);
+}
+
+.reviewRow:last-child {
+  border-bottom: none;
+}
+
+.reviewRow dt {
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--cs-text-muted);
+  padding-top: 2px;
+}
+
+.reviewRow dd {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--cs-text-strong);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.reviewCat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.reviewUrgency {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.reviewTitle {
+  font-weight: 700;
+}
+
+.reviewDesc {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--cs-text);
+}
+
+.reviewMuted {
+  font-size: 12.5px;
+  color: var(--cs-text-muted);
+}
+
+.reviewChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.reviewChip {
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--cs-maroon);
+  background: var(--cs-kesari-tint);
+}
+
+.editBtn {
+  border: none;
+  background: none;
+  padding: 2px 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cs-maroon);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.editBtn:hover {
+  color: var(--cs-kesari-deep);
+}
+
+.editBtn:focus-visible {
+  outline: 2px solid var(--cs-kesari);
+  outline-offset: 2px;
+}
+
+.errorBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--cs-danger);
+  background: var(--cs-danger-tint);
+  border: 1px solid var(--cs-danger-light);
+}
+
+/* ---------- Bottom bar: Back / step / Continue ---------- */
+.footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+  padding: 14px 28px;
+  border-top: 1px solid var(--cs-border);
+  border-radius: 0 0 20px 20px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.footer > :first-child {
+  justify-self: start;
+}
+
+.footer > :last-child {
+  justify-self: end;
+}
+
+.stepCount {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--cs-text-muted);
+  white-space: nowrap;
+}
+
+.backBtn,
+.nextBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.backBtn {
+  padding: 0 16px 0 12px;
+  border: 1px solid var(--cs-border);
+  background: var(--cs-white);
+  color: var(--cs-text);
+}
+
+.backBtn:hover {
+  border-color: var(--cs-border-strong);
+  color: var(--cs-text-strong);
+}
+
+.nextBtn {
+  padding: 0 20px 0 22px;
+  border: 1px solid var(--cs-kesari);
+  background: var(--cs-kesari);
+  color: var(--cs-text-strong);
+  box-shadow: 0 4px 14px rgba(255, 119, 34, 0.28);
+}
+
+.nextBtn:hover:not(:disabled) {
+  background: var(--cs-kesari-hover);
+  border-color: var(--cs-kesari-hover);
+  transform: translateY(-1px);
+}
+
+.nextBtn:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+.backBtn:focus-visible,
+.nextBtn:focus-visible {
+  outline: 2px solid var(--cs-maroon);
+  outline-offset: 2px;
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  position: sticky;
+  top: 84px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.summaryCard,
+.helpCard {
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.summaryHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.summaryTitle,
+.helpTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--cs-text-strong);
+}
+
+.summaryPct {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cs-kesari-deep);
+  font-variant-numeric: tabular-nums;
+}
+
+.summaryTrack {
+  height: 6px;
+  margin: 10px 0 14px;
+  border-radius: 6px;
+  background: var(--cs-sand-dark);
+  overflow: hidden;
+}
+
+.summaryFill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--cs-kesari), var(--cs-success));
+  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.summaryList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.summaryList li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--cs-border-strong);
+}
+
+.summaryList li > div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sumDone {
+  color: var(--cs-success) !important;
+}
+
+.sumLabel {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--cs-text-muted);
+}
+
+.sumValue {
+  font-size: 13px;
+  color: var(--cs-text-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tipCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--cs-haldi-tint);
+  border: 1px solid var(--cs-haldi-light);
+  color: var(--cs-haldi-text);
+}
+
+.tipCard p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--cs-text);
+}
+
+.tipCard strong {
+  color: var(--cs-haldi-text);
+}
+
+.helpTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.helpTitle :first-child {
+  color: var(--cs-danger);
+}
+
+.helpList {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.helpList li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--cs-text);
+}
+
+.helpList a {
+  font-weight: 700;
+  color: var(--cs-maroon);
+  text-decoration: none;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.helpList a:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Success modal status badge ---------- */
+.badgePriorityMedium {
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--cs-haldi-text);
+  background: var(--cs-haldi-tint);
+  border: 1px solid var(--cs-haldi-light);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1080px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sidebar {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  /* The review step already shows the summary on smaller screens */
+  .summaryCard {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .categoryGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .proofGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .reviewRow {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .reviewRow dt {
+    grid-column: 1 / -1;
+  }
+  .sidebar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .title {
+    font-size: 23px;
+  }
+  .stepperWrap {
+    padding: 16px 16px 0;
+  }
+  .stepLabel {
+    display: none;
+  }
+  .stepCurrent .stepLabel {
+    display: inline;
+  }
+  .stepper {
+    grid-template-columns: auto auto auto auto;
+    justify-content: space-between;
+  }
+  .panel {
+    padding: 20px 16px 4px;
+  }
+  .panelTitle {
+    font-size: 19px;
+  }
+  .segmented {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .footer {
+    padding: 12px 16px;
+  }
+  .stepCount {
+    display: none;
+  }
+  .footer {
+    grid-template-columns: auto 1fr;
+  }
+  .coordsRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+  .progressFill,
+  .summaryFill {
+    transition: none;
+  }
+}
+
+/* ============================================================
+   Success modal (unchanged)
+   ============================================================ */
+.successOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(var(--cs-shadow-rgb), 0.45);
+  backdrop-filter: blur(4px);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.successCard {
+  background: var(--cs-white);
+  border: 1px solid var(--cs-maroon-light);
+  border-radius: var(--cz-radius-2xl, 20px);
+  max-width: 480px;
+  width: 100%;
+  padding: 36px 30px;
+  box-shadow: 0 20px 50px rgba(var(--cs-shadow-rgb), 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 18px;
+  animation: zoomIn 0.2s ease-out;
+}
+
+@keyframes zoomIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.successCheckIcon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--cs-success-tint);
+  color: var(--cs-success-text);
+  border: 2px solid var(--cs-success-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.successTitle {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--cs-text-strong);
+  margin: 0;
+}
+
+.successMsg {
+  font-size: 13.5px;
+  color: var(--cs-text-muted);
+  margin: 0;
+}
+
+.trackingBox {
+  width: 100%;
+  background: var(--cs-maroon-wash);
+  border: 1px solid var(--cs-maroon-light);
+  border-radius: var(--cz-radius-lg, 14px);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.trackingBoxLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cs-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.trackingBoxCode {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--cs-maroon);
+}
+
+.successDetailsRow {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  padding-top: 8px;
+  border-top: 1px solid var(--cs-sand-dark);
+  font-size: 12.5px;
+}
+
+.successActions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.successBtnTrack {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 16px;
+  border-radius: var(--cz-radius-md, 10px);
+  background: var(--cs-kesari);
+  border: 1px solid var(--cs-kesari-light);
+  color: var(--cs-text-strong);
+  font-size: 13.5px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.18s ease;
+}
+
+.successBtnTrack:hover {
+  background: var(--cs-kesari-deep);
+}
+
+.successBtnList {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 16px;
+  border-radius: var(--cz-radius-md, 10px);
+  background: var(--cs-maroon-wash);
+  border: 1px solid var(--cs-maroon-light);
+  color: var(--cs-maroon);
+  font-size: 13.5px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.18s ease;
+}
+
+.successBtnList:hover {
+  background: var(--cs-maroon-light);
+}
+
+/* ============================================================
+   Success pop-up extras: close button, copy, auto-close bar
+   ============================================================ */
+.successCard {
+  position: relative;
+  overflow: hidden;
+}
+
+.successClose {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--cs-text-muted);
+  cursor: pointer;
+}
+
+.successClose:hover {
+  background: var(--cs-sand);
+  color: var(--cs-text-strong);
+}
+
+.successClose:focus-visible,
+.copyBtn:focus-visible,
+.filedBtn:focus-visible,
+.filedClose:focus-visible {
+  outline: 2px solid var(--cs-kesari);
+  outline-offset: 2px;
+}
+
+.trackingCodeRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.copyBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--cs-maroon-light);
+  border-radius: 9999px;
+  background: var(--cs-white);
+  color: var(--cs-maroon);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.copyBtn:hover {
+  border-color: var(--cs-maroon);
+}
+
+.autoCloseHint {
+  margin: -4px 0 6px;
+  font-size: 12px;
+  color: var(--cs-text-muted);
+}
+
+/* Countdown bar along the bottom edge of the card */
+.autoCloseTrack {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  background: var(--cs-sand-dark);
+}
+
+.autoCloseBar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cs-kesari), var(--cs-maroon));
+  transform-origin: left center;
+  animation-name: autoCloseCountdown;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+/* Keep it open while the pointer is over it or a button inside has focus */
+.successCard:hover .autoCloseBar,
+.successCard:focus-within .autoCloseBar {
+  animation-play-state: paused;
+}
+
+@keyframes autoCloseCountdown {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+/* ============================================================
+   "Report filed" banner (after the pop-up closes)
+   ============================================================ */
+.filedBanner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 14px 12px 16px;
+  border-radius: 14px;
+  background: var(--cs-success-tint);
+  border: 1px solid var(--cs-success-light);
+  animation: panelIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.filedIcon {
+  color: var(--cs-success);
+  flex-shrink: 0;
+}
+
+.filedText {
+  flex: 1;
+  min-width: 200px;
+  margin: 0;
+  font-size: 14px;
+  color: var(--cs-success-text);
+}
+
+.filedCode {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  color: var(--cs-text-strong);
+}
+
+.filedActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filedBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--cs-success-light);
+  border-radius: 9999px;
+  background: var(--cs-white);
+  color: var(--cs-success-text);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.filedBtn:hover {
+  border-color: var(--cs-success);
+}
+
+.filedClose {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--cs-success-text);
+  cursor: pointer;
+}
+
+.filedClose:hover {
+  background: rgba(255, 255, 255, 0.7);
+}

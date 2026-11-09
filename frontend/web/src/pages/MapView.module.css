@@ -1,0 +1,390 @@
+/* MapView — Unified Light Theme */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 8px 0 40px 0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.radarIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--cs-kesari);
+  color: var(--cs-text-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(255, 119, 34, 0.25);
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--cs-text-strong);
+  margin: 0 0 4px 0;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: var(--cs-text-muted);
+  margin: 0;
+}
+
+.reportBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--cs-kesari);
+  color: var(--cs-text-strong);
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(255, 119, 34, 0.25);
+  transition: all 0.2s ease;
+}
+
+.reportBtn:hover {
+  background: var(--cs-kesari-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 119, 34, 0.35);
+}
+
+/* GIS Insights Stat Strip */
+.insightsBar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+
+.insightCard {
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+
+.insightCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  border-color: var(--cs-border-strong);
+}
+
+.insightIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.insightInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.insightValue {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--cs-text-strong);
+  line-height: 1.2;
+}
+
+.insightLabel {
+  font-size: 11.5px;
+  color: var(--cs-text-muted);
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* Filter Ribbon */
+.filterRibbon {
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
+  padding: 14px 18px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.searchBox {
+  flex: 1;
+  min-width: 260px;
+}
+
+.selectsRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.selectWrap {
+  min-width: 180px;
+}
+
+.urgentToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--cs-white);
+  border: 1.5px solid var(--cs-border);
+  color: var(--cs-text-muted);
+  padding: 9px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.urgentToggle:hover {
+  background: var(--cs-danger-tint);
+  color: var(--cs-danger);
+  border-color: var(--cs-danger-light);
+}
+
+.urgentActive {
+  background: var(--cs-danger-tint) !important;
+  color: var(--cs-danger) !important;
+  border-color: var(--cs-danger) !important;
+  box-shadow: 0 0 0 2px rgba(180, 35, 24, 0.2);
+}
+
+/* Map Layout */
+.mapLayout {
+  display: grid;
+  grid-template-columns: 1fr;
+  position: relative;
+  gap: 20px;
+}
+
+.mapWrapper {
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--cs-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* Inspector Drawer */
+.inspectorCard {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 1000;
+  width: 360px;
+  max-width: calc(100% - 32px);
+  background: var(--cs-white);
+  border: 1px solid var(--cs-border);
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideIn 0.25s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.inspectorHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--cs-border);
+  background: var(--cs-ivory);
+}
+
+.trackingCode {
+  font-family: monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cs-maroon);
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: var(--cs-text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.closeBtn:hover {
+  background: var(--cs-border);
+  color: var(--cs-text-strong);
+}
+
+.inspectorBody {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.badgeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.priorityPill {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.incidentTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--cs-text-strong);
+  margin: 0;
+}
+
+.incidentDesc {
+  font-size: 13px;
+  color: var(--cs-text);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.metaList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid var(--cs-sand);
+  padding-top: 12px;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--cs-text);
+}
+
+.photosSection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-top: 1px solid var(--cs-sand);
+  padding-top: 10px;
+}
+
+.sectionLabel {
+  font-size: 11px;
+  color: var(--cs-text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.photosGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.photoLink {
+  height: 64px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--cs-border);
+  display: block;
+}
+
+.photoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.inspectorFooter {
+  border-top: 1px solid var(--cs-sand);
+  padding-top: 14px;
+  margin-top: 4px;
+}
+
+.trackBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--cs-kesari-wash);
+  border: 1px solid var(--cs-kesari-light);
+  color: var(--cs-maroon);
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.trackBtn:hover {
+  background: var(--cs-kesari-hover);
+  color: var(--cs-text-strong);
+  border-color: var(--cs-kesari);
+}
+
+@media (max-width: 768px) {
+  .filterRibbon {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .selectsRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .inspectorCard {
+    position: static;
+    width: 100%;
+    max-width: 100%;
+  }
+}

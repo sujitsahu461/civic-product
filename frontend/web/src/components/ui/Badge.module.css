@@ -1,0 +1,62 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  width: fit-content;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Roles */
+.citizen {
+  background: var(--cs-kesari-tint);
+  color: var(--cs-maroon);
+  border-color: var(--cs-kesari-light);
+}
+
+.authority {
+  background: var(--cs-maroon-tint);
+  color: var(--cs-maroon);
+  border-color: var(--cs-maroon-light);
+}
+
+.superadmin {
+  background: var(--cs-haldi-tint);
+  color: var(--cs-haldi-text);
+  border-color: var(--cs-haldi);
+}
+
+/* Status */
+.success {
+  background: var(--cs-success-tint);
+  color: var(--cs-success-text);
+  border-color: var(--cs-success-light);
+}
+
+.warning {
+  background: var(--cs-haldi-tint);
+  color: var(--cs-haldi-text);
+  border-color: var(--cs-haldi);
+}
+
+.danger {
+  background: var(--cs-danger-tint);
+  color: var(--cs-danger);
+  border-color: var(--cs-danger-light);
+}
+
+.neutral {
+  background: var(--cs-neutral-tint);
+  color: var(--cs-text);
+  border-color: var(--cs-neutral-light);
+}

@@ -1,0 +1,147 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  position: relative;
+  text-decoration: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Sizes */
+.sm {
+  height: 34px;
+  padding: 0 12px;
+  font-size: 13px;
+  gap: 6px;
+}
+
+.md {
+  height: 42px;
+  padding: 0 18px;
+  font-size: 14px;
+  gap: 8px;
+}
+
+.lg {
+  height: 48px;
+  padding: 0 24px;
+  font-size: 15px;
+  gap: 10px;
+}
+
+/* Variants */
+
+/* Kesari with dark text: white text on kesari is too hard to read */
+.primary {
+  background: var(--cs-kesari);
+  color: var(--cs-text-strong);
+  border-color: var(--cs-kesari);
+  box-shadow: 0 2px 8px rgba(255, 119, 34, 0.25);
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--cs-kesari-hover);
+  border-color: var(--cs-kesari-hover);
+  box-shadow: 0 4px 12px rgba(255, 119, 34, 0.35);
+  transform: translateY(-1px);
+}
+
+.primary:active:not(:disabled) {
+  background: var(--cs-kesari-deep);
+  border-color: var(--cs-kesari-deep);
+  color: var(--cs-white);
+  transform: translateY(0);
+}
+
+.secondary {
+  background: var(--cs-white);
+  color: var(--cs-maroon);
+  border-color: var(--cs-maroon);
+}
+
+.secondary:hover:not(:disabled) {
+  background: var(--cs-maroon-tint);
+  color: var(--cs-maroon-dark);
+  border-color: var(--cs-maroon-dark);
+  transform: translateY(-1px);
+}
+
+.outline {
+  background: var(--cs-white);
+  color: var(--cs-text);
+  border: 1.5px solid var(--cs-border);
+}
+
+.outline:hover:not(:disabled) {
+  background: var(--cs-ivory);
+  border-color: var(--cs-border-strong);
+  color: var(--cs-text-strong);
+}
+
+.danger {
+  background: var(--cs-danger);
+  color: var(--cs-white);
+  border-color: var(--cs-danger);
+  box-shadow: 0 2px 8px rgba(180, 35, 24, 0.25);
+}
+
+.danger:hover:not(:disabled) {
+  background: var(--cs-danger-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(180, 35, 24, 0.35);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--cs-text);
+}
+
+.ghost:hover:not(:disabled) {
+  background: var(--cs-sand);
+  color: var(--cs-text-strong);
+}
+
+.button:focus-visible {
+  box-shadow: 0 0 0 3px var(--cs-kesari-tint), 0 0 0 4.5px var(--cs-kesari);
+}
+
+.spinnerWrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  opacity: 0.85;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.iconLeft, .iconRight {
+  display: inline-flex;
+  align-items: center;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

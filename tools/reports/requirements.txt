@@ -1,0 +1,2 @@
+# Only for the PDF report generators in this folder; the backend does not need these.
+reportlab==5.1.0
