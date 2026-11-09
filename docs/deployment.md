@@ -23,8 +23,13 @@ In a production environment, CivicSetu runs with a decoupled or unified architec
 
 ## 2. Environment Configuration
 
+<<<<<<< HEAD
 ### Backend Environment (`.env`):
 Create a production `.env` file on your backend server:
+=======
+### Backend Environment (`backend/.env`):
+Create a production `.env` file in the `backend/` folder on your server:
+>>>>>>> 4d28cea (Updated CivicSetu project)
 
 ```ini
 DJANGO_ENV=production
@@ -69,6 +74,7 @@ VITE_API_BASE_URL=https://api.yourdomain.com/api/v1
 
 ## 3. Build & Static Collection
 
+<<<<<<< HEAD
 1. Build the React frontend:
    ```bash
    cd frontend
@@ -78,6 +84,17 @@ VITE_API_BASE_URL=https://api.yourdomain.com/api/v1
    ```
 
 2. Collect static files for WhiteNoise/NGINX:
+=======
+1. Build the React website (writes into `backend/static/react` and `backend/templates`):
+   ```bash
+   cd frontend/web
+   npm ci
+   npm run deploy
+   cd ../../backend
+   ```
+
+2. Collect static files for WhiteNoise/NGINX (inside `backend/`):
+>>>>>>> 4d28cea (Updated CivicSetu project)
    ```bash
    python manage.py collectstatic --noinput
    ```
@@ -91,6 +108,11 @@ VITE_API_BASE_URL=https://api.yourdomain.com/api/v1
 
 ## 4. Running with Gunicorn
 
+<<<<<<< HEAD
+=======
+Run from `backend/` (or add `--chdir backend` when starting from the repository root):
+
+>>>>>>> 4d28cea (Updated CivicSetu project)
 ```bash
 gunicorn config.wsgi:application \
   --bind 127.0.0.1:8000 \

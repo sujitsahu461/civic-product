@@ -1,6 +1,10 @@
 # CivicSetu — Civic Engagement & Grievance Redressal Platform
 
+<<<<<<< HEAD
 ![CivicSetu Logo](CivicSetu%20Civic%20Tech%20Logo.png)
+=======
+![CivicSetu Logo](docs/images/civicsetu-logo.png)
+>>>>>>> 4d28cea (Updated CivicSetu project)
 
 CivicSetu connects citizens with their urban local body (municipality). Citizens report civic problems (potholes, water leaks, broken streetlights, garbage, drainage), follow progress with a tracking code, and rate the outcome. Officers work department-scoped queues and must record a resolution note and proof to close a case. Super admins manage users, departments and audit logs.
 
@@ -37,6 +41,7 @@ The platform is **rule-based and deterministic**. It contains no machine-learnin
 
 ## 1. What is in this repository
 
+<<<<<<< HEAD
 | Path | What it is |
 | :--- | :--- |
 | `apps/`, `config/`, `manage.py` | Django REST backend (a modular monolith of 11 apps) |
@@ -47,6 +52,22 @@ The platform is **rule-based and deterministic**. It contains no machine-learnin
 | `schema.yml` | Exported OpenAPI 3 schema of the backend |
 | `seed_civic_data.py` | Creates demonstration departments, users and complaints |
 | `requirements.in`, `requirements.txt` | Python dependencies (`.in` is what you edit, `.txt` is the pinned, compiled list) |
+=======
+One backend, two frontends. Both frontends call the same REST API (`/api/v1/`) and share one database.
+
+| Path | What it is |
+| :--- | :--- |
+| `backend/` | Django REST backend (a modular monolith of 11 apps): `apps/`, `config/`, `manage.py` |
+| `backend/static/react/`, `backend/templates/index.html` | The built website bundle that Django serves on the same origin (written by `npm run deploy` in `frontend/web`) |
+| `backend/schema.yml` | Exported OpenAPI 3 schema: the API contract both frontends use |
+| `backend/seed_civic_data.py` | Creates demonstration departments, users and complaints |
+| `backend/requirements.in`, `backend/requirements.txt` | Python dependencies (`.in` is what you edit, `.txt` is the pinned, compiled list) |
+| `frontend/web/` | The CivicSetu website: React 19 + TypeScript + Vite single-page app for citizens, officers and super admins |
+| `frontend/mobile/` | The CIVIC citizen app: Expo (React Native) for Android, iOS and the browser. See section 15 |
+| `docs/` | Technical documentation, the Azure migration audit (`architecture-audit.html`), CIVIC app design docs (`docs/mobile/`) and PDF reports (`docs/reports/`) |
+| `tools/` | Helpers: side-by-side showcase page, PDF report generators, review-mode toggle |
+| `archive/civic-web-prototype/` | Leftovers of the old CIVIC web/PWA prototype (no source, does not run); kept for reference only |
+>>>>>>> 4d28cea (Updated CivicSetu project)
 
 ---
 
@@ -89,7 +110,11 @@ The platform is **rule-based and deterministic**. It contains no machine-learnin
                                            └──►  SMTP (password-reset email)
 ```
 
+<<<<<<< HEAD
 - One Django process serves the REST API under `/api/v1/`, the admin site under `/admin/`, and the built React website (catch-all route to `templates/index.html`, assets through WhiteNoise).
+=======
+- One Django process (`backend/`) serves the REST API under `/api/v1/`, the admin site under `/admin/`, and the built React website (catch-all route to `backend/templates/index.html`, assets through WhiteNoise). The mobile app calls the same API directly.
+>>>>>>> 4d28cea (Updated CivicSetu project)
 - Business rules sit in service classes (`apps/<app>/services.py`); views are thin. Which complaints a user may see or change is decided in one module, `apps/complaints/scoping.py`.
 - Uploads are saved to the local `media/` folder. Notifications and email are sent inside the request. These two points are the main reasons the app cannot yet run on several servers; the Azure plan in section 17 addresses them.
 
@@ -99,6 +124,7 @@ The platform is **rule-based and deterministic**. It contains no machine-learnin
 
 | Layer | Technology |
 | :--- | :--- |
+<<<<<<< HEAD
 | Backend | Django 6.0.5, Django REST Framework 3.17.1 |
 | Authentication | djangorestframework-simplejwt 5.5.1 (token blacklist app enabled) |
 | Database | PostgreSQL (driver `psycopg2-binary`); SQLite is supported for tests and quick starts |
@@ -107,6 +133,15 @@ The platform is **rule-based and deterministic**. It contains no machine-learnin
 | Website | React 19, TypeScript and JSX, Vite 8, Zustand (state), axios, react-router-dom 7, i18next / react-i18next, Leaflet and react-leaflet, Font Awesome |
 | CIVIC web app | React 19, Vite, Tailwind CSS 4, PWA service worker, Express `server.js` |
 | CIVIC mobile app | Expo SDK 54, React Native 0.81, React Navigation, SecureStore, SQLite (drafts), NetInfo, camera, location |
+=======
+| Backend | Django 6.0.10, Django REST Framework 3.18.3 |
+| Authentication | djangorestframework-simplejwt 5.5.1 (token blacklist app enabled) |
+| Database | PostgreSQL (driver `psycopg2-binary`); SQLite is supported for tests and quick starts |
+| API docs | drf-spectacular 0.30.0 (OpenAPI 3, Swagger UI) |
+| Other backend libraries | django-cors-headers, django-environ, Pillow (image validation), WhiteNoise (static files), Gunicorn (server). reportlab is only needed by the PDF report generators in `tools/reports/` and has its own `requirements.txt` there |
+| Website | React 19, TypeScript and JSX, Vite 8, Zustand (state), axios, react-router-dom 7, i18next / react-i18next, Leaflet and react-leaflet, Material Symbols (icon font) |
+| CIVIC mobile app | Expo SDK 58, React Native 0.88, React 19.3, React Navigation 7, SecureStore, file-based offline drafts, NetInfo, image picker (camera and gallery), location |
+>>>>>>> 4d28cea (Updated CivicSetu project)
 | Planned cloud | Microsoft Azure (Container Apps, Azure Database for PostgreSQL, Service Bus, Blob Storage, Front Door); see section 17 |
 
 ---
@@ -184,6 +219,7 @@ Statuses: `PENDING`, `ASSIGNED`, `IN_PROGRESS`, `RESOLVED`, `REJECTED`, `CLOSED`
 
 ```
 .
+<<<<<<< HEAD
 ├── apps/
 │   ├── accounts/            sign-in, register, JWT, captcha, password reset (User model)
 │   ├── users/               profiles, user administration and search
@@ -210,6 +246,41 @@ Statuses: `PENDING`, `ASSIGNED`, `IN_PROGRESS`, `RESOLVED`, `REJECTED`, `CLOSED`
 └── manage.py
 ```
 
+=======
+├── backend/                     Django REST API — the one backend both frontends use
+│   ├── apps/
+│   │   ├── accounts/            sign-in, register, JWT, captcha, password reset (User model)
+│   │   ├── users/               profiles, user administration and search
+│   │   ├── departments/         departments and officer assignments
+│   │   ├── complaints/          complaint model, workflow service, scoping rules, tracking
+│   │   ├── complaint_images/    image / audio / video attachments
+│   │   ├── complaint_history/   timeline of every change
+│   │   ├── authority/           officer dashboard, queue, analytics, notifications
+│   │   ├── feedback/            ratings after resolution
+│   │   ├── notifications/       in-app notifications
+│   │   ├── audit_logs/          audit trail
+│   │   └── core/                shared base
+│   ├── config/
+│   │   ├── settings/            base.py, dev.py, prod.py, test.py, test_postgres.py
+│   │   ├── urls.py              API routes, Swagger, React catch-all
+│   │   └── wsgi.py / asgi.py
+│   ├── static/, templates/      built website served by Django
+│   ├── schema.yml               OpenAPI schema (the API contract for both frontends)
+│   ├── seed_civic_data.py       demo data
+│   ├── requirements.in / .txt   Python dependencies
+│   ├── .env.example             copy to backend/.env
+│   └── manage.py
+├── frontend/
+│   ├── web/                     CivicSetu website (React + Vite): citizens, officers, super admins
+│   └── mobile/                  CIVIC citizen app (Expo / React Native): Android, iOS, browser
+├── docs/                        documentation (section 19); mobile/ = CIVIC app docs, reports/ = PDFs
+├── tools/                       showcase page, PDF report generators, review-mode toggle
+└── archive/                     old CIVIC web prototype (does not run; reference only)
+```
+
+Each part installs and runs on its own: Python packages live in `backend/`, and each frontend has its own `package.json` and lockfile, so the website and the app can be released separately.
+
+>>>>>>> 4d28cea (Updated CivicSetu project)
 ---
 
 ## 10. Setup and running
@@ -218,7 +289,14 @@ Statuses: `PENDING`, `ASSIGNED`, `IN_PROGRESS`, `RESOLVED`, `REJECTED`, `CLOSED`
 
 ### Backend
 
+<<<<<<< HEAD
 ```bash
+=======
+All backend commands run inside `backend/`.
+
+```bash
+cd backend
+>>>>>>> 4d28cea (Updated CivicSetu project)
 python -m venv .venv
 # Windows:  .venv\Scripts\activate        Linux/macOS:  source .venv/bin/activate
 pip install -r requirements.txt
@@ -242,6 +320,7 @@ python manage.py runserver 127.0.0.1:8000
 - Swagger UI: http://127.0.0.1:8000/api/docs/
 - Admin site: http://127.0.0.1:8000/admin/
 
+<<<<<<< HEAD
 ### Website (frontend)
 
 ```bash
@@ -252,10 +331,36 @@ npm run deploy       # production build, copies into ../static/react and ../temp
 ```
 
 Run `npm run deploy` after changing the frontend, so the Django-served copy is current. For production, run `python manage.py collectstatic --noinput`.
+=======
+### Website (`frontend/web`)
+
+```bash
+cd frontend/web
+npm ci
+npm run dev          # Vite dev server on http://127.0.0.1:5173, proxies /api and /media to port 8000
+npm run deploy       # production build, copies into backend/static/react and backend/templates/index.html
+```
+
+Run `npm run deploy` after changing the website, so the Django-served copy is current. For production, run `python manage.py collectstatic --noinput` in `backend/`.
+
+### Mobile app (`frontend/mobile`)
+
+```bash
+cd frontend/mobile
+npm ci
+npm run web          # browser preview on http://127.0.0.1:8081, using the backend on port 8000
+```
+
+See section 15 for phones and emulators.
+>>>>>>> 4d28cea (Updated CivicSetu project)
 
 ### Production server
 
 ```bash
+<<<<<<< HEAD
+=======
+cd backend
+>>>>>>> 4d28cea (Updated CivicSetu project)
 gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 4 --timeout 120
 ```
 
@@ -265,7 +370,11 @@ Use `DJANGO_SETTINGS_MODULE=config.settings.prod` (HTTPS redirect, secure cookie
 
 ## 11. Environment variables
 
+<<<<<<< HEAD
 Copy `.env.example` to `.env`. Never commit `.env`.
+=======
+Copy `backend/.env.example` to `backend/.env`. Never commit `.env`.
+>>>>>>> 4d28cea (Updated CivicSetu project)
 
 | Variable | Meaning | Example / default |
 | :--- | :--- | :--- |
@@ -287,17 +396,30 @@ Copy `.env.example` to `.env`. Never commit `.env`.
 | `FRONTEND_URL` | Base URL used in reset-password links | `http://localhost:5173` |
 | `REVIEW_PHASE` | Legacy academic-review toggle; no effect on the backend | `2` |
 
+<<<<<<< HEAD
 The CIVIC mobile app uses `EXPO_PUBLIC_CIVICSETU_API_URL`, `EXPO_PUBLIC_CIVICSETU_WEB_URL` and `EXPO_PUBLIC_CIVICSETU_APP_MODE` (`website` or `native`) in `civic-app/mobile/.env`.
+=======
+The CIVIC mobile app reads one variable, `EXPO_PUBLIC_CIVICSETU_API_URL` (the backend address), from `frontend/mobile/.env`.
+>>>>>>> 4d28cea (Updated CivicSetu project)
 
 ---
 
 ## 12. Running tests
 
 ```bash
+<<<<<<< HEAD
+=======
+cd backend
+>>>>>>> 4d28cea (Updated CivicSetu project)
 python manage.py test        # 199 tests, in-memory SQLite (config.settings.test)
 python manage.py makemigrations --check --dry-run
 ```
 
+<<<<<<< HEAD
+=======
+Frontends: `npm run lint && npm run typecheck && npm run build` in `frontend/web`; `npm run typecheck && npm test` in `frontend/mobile`.
+
+>>>>>>> 4d28cea (Updated CivicSetu project)
 To run against a real PostgreSQL test database (it refuses to use the application database name):
 
 ```bash
@@ -310,7 +432,11 @@ Coverage: authentication and captcha, password reset, role permissions, complain
 
 ## 13. API reference
 
+<<<<<<< HEAD
 Base path `/api/v1/`. Interactive documentation: `/api/docs/`; raw schema: `/api/schema/` or `schema.yml`. Lists are paginated (page size 20). "Scoped" means the access rule in section 5.
+=======
+Base path `/api/v1/`. Interactive documentation: `/api/docs/`; raw schema: `/api/schema/` or `backend/schema.yml`. Lists are paginated (page size 20). "Scoped" means the access rule in section 5.
+>>>>>>> 4d28cea (Updated CivicSetu project)
 
 ### Authentication — `/auth/`
 | Method | Path | Access |
@@ -404,17 +530,29 @@ Base path `/api/v1/`. Interactive documentation: `/api/docs/`; raw schema: `/api
 
 ## 15. CIVIC web and mobile app
 
+<<<<<<< HEAD
 `civic-app/` comes from the repository `sujitsahu461/CIVIC--Powered-by-CivicSetu`.
 
 - **Mobile app (`civic-app/mobile`)**: an Expo (React Native, SDK 54) citizen app that talks to this backend's REST API. Its source is now in git (`mobile/src`). It runs on Android, iOS and in a browser (Expo web) from the same code.
   - Screens: sign in and create account (with the server captcha), home with counts and recent complaints, report a problem (title, details, type, urgency, address, current location, up to 5 photos), my complaints (filters, paging), complaint details with timeline, photos and rating, track by code (no sign-in needed), notifications, profile, and saved drafts.
+=======
+The CIVIC app comes from the repository `sujitsahu461/CIVIC--Powered-by-CivicSetu` (it used to sit in `civic-app/`).
+
+- **Mobile app (`frontend/mobile`)**: an Expo (React Native, SDK 58) citizen app that talks to the same backend REST API as the website. It runs on Android, iOS and in a browser (Expo web) from the same code.
+  - Screens: a short animated logo on launch (skipped when the phone's "reduce motion" setting is on), a welcome screen for signed-out users, and sign in / create account (with the server captcha). After sign-in the layout follows the CIVIC prototype, in the CivicSetu maroon and saffron colours: a bottom bar with Home, My reports, a raised "+" to report, Track and Profile. Home has quick Report and Track tiles, exact counts, recent complaints and category shortcuts; My reports has search, type filters and status tiles; Report an issue has quick-start presets, a category grid, photos and location; Track, complaint details (timeline, photos, rating), notifications, profile (edit details, change password) and saved drafts.
+>>>>>>> 4d28cea (Updated CivicSetu project)
   - Officers and admins cannot sign in to the app; they use the website.
   - **Session:** tokens kept in SecureStore on a phone (browser storage in the web preview). One shared refresh request handles expired tokens; a rejected refresh signs the user out.
   - **Offline drafts:** if sending fails because the server cannot be reached, the report is saved as a draft marked "not confirmed". Because the backend has no duplicate-request protection yet, such a draft is never resent automatically and asks for confirmation first.
   - **Tests:** `npm run typecheck` and `npm test` (7 tests for the API client: refresh, timeout, errors).
   - **Not yet verified:** a real phone or emulator (camera, SecureStore, file-based drafts and location were only checked in the browser preview), and an installable APK.
+<<<<<<< HEAD
 - **CIVIC web app / PWA (root of `civic-app/`)**: an older citizen-only prototype. Only built files are in git (`dist/`); its source is **not** in git. It keeps data in browser `localStorage` and does not call the backend. The mobile app above replaces it.
 - **Docs:** `civic-app/docs/` has the BRD, PRD, HLD, LLD, database design, API contract, offline-sync design and Android build notes (some describe the older prototype).
+=======
+- **Old CIVIC web app / PWA (`archive/civic-web-prototype`)**: an older citizen-only prototype. Neither its source nor a build is in this repository, so it does not run. It kept data in browser `localStorage` and never called the backend. The mobile app above replaces it.
+- **Docs:** `docs/mobile/` has the BRD, PRD, HLD, LLD, database design, API contract, offline-sync design and Android build notes (some describe the older prototype; their `mobile/` paths now mean `frontend/mobile/`).
+>>>>>>> 4d28cea (Updated CivicSetu project)
 
 ### Run the website and the app together
 
@@ -422,6 +560,7 @@ Three terminals (the backend must be running first):
 
 ```bash
 # 1. backend + website  -> http://127.0.0.1:8000
+<<<<<<< HEAD
 DB_ENGINE=django.db.backends.sqlite3 DB_NAME=db.sqlite3 SECRET_KEY=any-local-key python manage.py runserver 127.0.0.1:8000
 
 # 2. app in the browser -> http://127.0.0.1:8081
@@ -429,11 +568,24 @@ cd civic-app/mobile && npm ci && npm run web
 
 # 3. side-by-side page   -> http://127.0.0.1:8090
 cd civic-app/showcase && python -m http.server 8090 --bind 127.0.0.1
+=======
+cd backend && DB_ENGINE=django.db.backends.sqlite3 DB_NAME=db.sqlite3 SECRET_KEY=any-local-key python manage.py runserver 127.0.0.1:8000
+
+# 2. app in the browser -> http://127.0.0.1:8081
+cd frontend/mobile && npm ci && npm run web
+
+# 3. side-by-side page   -> http://127.0.0.1:8090
+cd tools/showcase && python -m http.server 8090 --bind 127.0.0.1
+>>>>>>> 4d28cea (Updated CivicSetu project)
 ```
 
 Open http://127.0.0.1:8090/ to see the website and the app next to each other, both using the same backend and database. The `dev` settings allow that page to frame the website; production never does.
 
+<<<<<<< HEAD
 Phone or emulator: set `EXPO_PUBLIC_CIVICSETU_API_URL` in `civic-app/mobile/.env` (`http://10.0.2.2:8000` for the Android emulator, or `http://<computer LAN IP>:8000` for a phone), run `npm start`, and scan the QR code with Expo Go. To build an APK: `npx eas login` once, then `npx eas build --platform android --profile preview`.
+=======
+Phone or emulator: set `EXPO_PUBLIC_CIVICSETU_API_URL` in `frontend/mobile/.env` (`http://10.0.2.2:8000` for the Android emulator, or `http://<computer LAN IP>:8000` for a phone), run `npm start`, and scan the QR code with Expo Go. To build an APK: `npx eas login` once, then `npx eas build --platform android --profile preview`.
+>>>>>>> 4d28cea (Updated CivicSetu project)
 
 ---
 
@@ -511,7 +663,12 @@ The 1,000-concurrent-user target has **not been measured**. No capacity claim is
 | `docs/I18N_IMPLEMENTATION.md`, `docs/MULTIMEDIA_EVIDENCE.md` | Languages and evidence upload |
 | `docs/POSTGRES_MIGRATION_REPORT.md`, `docs/MOBILE_SYNC_HANDOFF.md` | PostgreSQL move and mobile-sync guide (dated records) |
 | `docs/V1_AUDIT.md`, `docs/REVIEW_SUMMARY.md`, `docs/TEST_REPORT.md` | Earlier V1 reports (dated records; they describe the AI/ML code that has since been removed) |
+<<<<<<< HEAD
 | `civic-app/docs/` | CIVIC app design documents |
+=======
+| `docs/mobile/` | CIVIC app design documents and Android build notes |
+| `docs/reports/` | PDF reports (generated by `tools/reports/`) |
+>>>>>>> 4d28cea (Updated CivicSetu project)
 
 ---
 
@@ -524,7 +681,11 @@ The 1,000-concurrent-user target has **not been measured**. No capacity claim is
 - Officers can search all users and read any user's profile.
 - Complaint routing matches department **names** against category words, so renaming a department can change who sees complaints; the plan replaces this with explicit routing rules.
 - Tracking codes have 4 random characters per day, which is guessable at scale.
+<<<<<<< HEAD
 - The CIVIC web/PWA prototype source is not in git; the mobile app has not been tested on a real device and has no APK yet (section 15).
+=======
+- The old CIVIC web/PWA prototype source is not in the repository (only leftovers in `archive/`); the mobile app has not been tested on a real device and has no APK yet (section 15).
+>>>>>>> 4d28cea (Updated CivicSetu project)
 - No Dockerfile, CI pipeline or infrastructure code exists yet.
 
 ---

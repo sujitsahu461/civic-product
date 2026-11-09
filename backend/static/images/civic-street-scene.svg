@@ -1,0 +1,198 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 300" width="760" height="300" role="img" aria-labelledby="scene-title scene-desc">
+  <title id="scene-title">CivicSetu street scene</title>
+  <desc id="scene-desc">A citizen reports a road problem on her phone. A pin marks the spot, and a municipal worker repairs the road near the town hall, beside a streetlight, waste bins, trees and an auto-rickshaw.</desc>
+  <defs>
+    <radialGradient id="lampGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#F6DC85" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#F6DC85" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="road" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#E9DBC6"/>
+      <stop offset="1" stop-color="#E1CFB6"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sun and birds -->
+  <circle cx="640" cy="70" r="40" fill="#F6DC85" opacity="0.45"/>
+  <g fill="none" stroke="#9C8778" stroke-width="1.6" stroke-linecap="round">
+    <path d="M586 56 q5 -5 10 0 q5 -5 10 0"/>
+    <path d="M612 40 q4 -4 8 0 q4 -4 8 0"/>
+  </g>
+
+  <!-- Far skyline -->
+  <g fill="#F3E2DA">
+    <rect x="0" y="122" width="32" height="110" rx="2"/>
+    <rect x="36" y="142" width="42" height="90" rx="2"/>
+    <rect x="236" y="130" width="36" height="102" rx="2"/>
+    <rect x="276" y="148" width="46" height="84" rx="2"/>
+    <rect x="618" y="118" width="40" height="114" rx="2"/>
+    <rect x="662" y="138" width="50" height="94" rx="2"/>
+    <rect x="716" y="124" width="44" height="108" rx="2"/>
+  </g>
+
+  <!-- Shop behind the citizen (maroon awning) -->
+  <rect x="0" y="160" width="118" height="72" fill="#FFF1E4"/>
+  <rect x="12" y="184" width="34" height="26" rx="3" fill="#F6E3E5"/>
+  <rect x="-4" y="156" width="126" height="12" rx="3" fill="#7A1F2B"/>
+  <g fill="#7A1F2B">
+    <circle cx="4" cy="168" r="6"/><circle cx="18" cy="168" r="6"/><circle cx="32" cy="168" r="6"/>
+    <circle cx="46" cy="168" r="6"/><circle cx="60" cy="168" r="6"/><circle cx="74" cy="168" r="6"/>
+    <circle cx="88" cy="168" r="6"/><circle cx="102" cy="168" r="6"/><circle cx="116" cy="168" r="6"/>
+  </g>
+
+  <!-- Shop near the town hall (haldi awning) -->
+  <rect x="330" y="166" width="80" height="66" fill="#FDF0C4"/>
+  <rect x="342" y="186" width="26" height="22" rx="3" fill="#FFFBF2"/>
+  <rect x="380" y="190" width="20" height="42" rx="2" fill="#F6DC85"/>
+  <rect x="326" y="162" width="88" height="11" rx="3" fill="#F4C430"/>
+  <g fill="#F4C430">
+    <circle cx="332" cy="173" r="5.5"/><circle cx="345" cy="173" r="5.5"/><circle cx="358" cy="173" r="5.5"/>
+    <circle cx="371" cy="173" r="5.5"/><circle cx="384" cy="173" r="5.5"/><circle cx="397" cy="173" r="5.5"/>
+    <circle cx="410" cy="173" r="5.5"/>
+  </g>
+
+  <!-- Town hall -->
+  <g>
+    <rect x="523.5" y="68" width="3" height="16" fill="#7A1F2B"/>
+    <polygon points="526.5,68 543,73 526.5,78" fill="#FF7722"/>
+    <path d="M497 110 A28 28 0 0 1 553 110 Z" fill="#FFC9A3"/>
+    <rect x="497" y="110" width="56" height="16" fill="#F8DCCB"/>
+    <rect x="507" y="114" width="6" height="8" rx="3" fill="#FFFBF2"/>
+    <rect x="522" y="114" width="6" height="8" rx="3" fill="#FFFBF2"/>
+    <rect x="537" y="114" width="6" height="8" rx="3" fill="#FFFBF2"/>
+    <polygon points="445,150 525,124 605,150" fill="#F2C9B6"/>
+    <circle cx="525" cy="140" r="5" fill="#FF7722" opacity="0.7"/>
+    <rect x="439" y="150" width="172" height="10" rx="2" fill="#E4BCC1"/>
+    <rect x="445" y="160" width="160" height="57" fill="#F8DCCB"/>
+    <g fill="#FFFBF2">
+      <rect x="459" y="162" width="8" height="55"/>
+      <rect x="481" y="162" width="8" height="55"/>
+      <rect x="561" y="162" width="8" height="55"/>
+      <rect x="583" y="162" width="8" height="55"/>
+      <rect x="495" y="172" width="10" height="16" rx="5"/>
+      <rect x="545" y="172" width="10" height="16" rx="5"/>
+    </g>
+    <rect x="513" y="184" width="24" height="33" rx="12" fill="#7A1F2B" opacity="0.8"/>
+    <rect x="437" y="217" width="176" height="7" fill="#F3E9D8"/>
+    <rect x="429" y="224" width="192" height="8" fill="#EADFCB"/>
+  </g>
+
+  <!-- Trees -->
+  <g>
+    <rect x="637" y="196" width="6" height="36" fill="#8A5A3C"/>
+    <circle cx="640" cy="182" r="20" fill="#4E9E6E"/>
+    <circle cx="626" cy="192" r="13" fill="#6FA77F"/>
+    <circle cx="654" cy="192" r="13" fill="#6FA77F"/>
+    <circle cx="635" cy="176" r="7" fill="#8CC29C" opacity="0.6"/>
+  </g>
+  <g>
+    <rect x="17" y="196" width="6" height="36" fill="#8A5A3C"/>
+    <circle cx="20" cy="182" r="20" fill="#4E9E6E"/>
+    <circle cx="6" cy="192" r="13" fill="#6FA77F"/>
+    <circle cx="34" cy="192" r="13" fill="#6FA77F"/>
+  </g>
+
+  <!-- Footpath and road -->
+  <rect x="0" y="232" width="760" height="16" fill="#EADFCB"/>
+  <rect x="0" y="246" width="760" height="4" fill="#DCCDB5"/>
+  <rect x="0" y="250" width="760" height="50" fill="url(#road)"/>
+  <g fill="#FFFBF2">
+    <rect x="20" y="272" width="30" height="4" rx="2"/>
+    <rect x="90" y="272" width="30" height="4" rx="2"/>
+    <rect x="160" y="272" width="30" height="4" rx="2"/>
+    <rect x="560" y="272" width="30" height="4" rx="2"/>
+    <rect x="630" y="272" width="30" height="4" rx="2"/>
+    <rect x="700" y="272" width="30" height="4" rx="2"/>
+  </g>
+
+  <!-- Streetlight (working, glowing) -->
+  <circle cx="387" cy="114" r="32" fill="url(#lampGlow)"/>
+  <rect x="414" y="104" width="5" height="126" rx="2" fill="#5A4033"/>
+  <path d="M416.5 106 q0 -12 -14 -12 h-12" fill="none" stroke="#5A4033" stroke-width="4" stroke-linecap="round"/>
+  <rect x="376" y="90" width="22" height="8" rx="4" fill="#3B2418"/>
+  <rect x="410" y="228" width="13" height="5" rx="2" fill="#5A4033"/>
+
+  <!-- Waste bins: wet (green) and dry (haldi) -->
+  <rect x="148" y="210" width="20" height="5" rx="2" fill="#1F6B3F"/>
+  <rect x="150" y="214" width="16" height="19" rx="2" fill="#2E7D4F"/>
+  <rect x="168" y="210" width="20" height="5" rx="2" fill="#B8860B"/>
+  <rect x="170" y="214" width="16" height="19" rx="2" fill="#F4C430"/>
+
+  <!-- Pothole being repaired, with cones and a pin marking the reported spot -->
+  <ellipse cx="300" cy="278" rx="34" ry="10" fill="none" stroke="#FF7722" stroke-width="1.5" opacity="0.4"/>
+  <ellipse cx="300" cy="278" rx="24" ry="7" fill="#5A4033" opacity="0.5"/>
+  <ellipse cx="300" cy="278" rx="13" ry="3.6" fill="#3B2418" opacity="0.35"/>
+  <g>
+    <polygon points="260,292 276,292 271,266 265,266" fill="#FF7722"/>
+    <rect x="263" y="276" width="10" height="4" fill="#FFFBF2"/>
+    <rect x="257" y="290" width="22" height="4" rx="1.5" fill="#B93E0C"/>
+  </g>
+  <g>
+    <polygon points="326,292 342,292 337,266 331,266" fill="#FF7722"/>
+    <rect x="329" y="276" width="10" height="4" fill="#FFFBF2"/>
+    <rect x="323" y="290" width="22" height="4" rx="1.5" fill="#B93E0C"/>
+  </g>
+  <path d="M300 236 c-5 0 -8.5 3.6 -8.5 8.4 c0 6 8.5 14 8.5 14 s8.5 -8 8.5 -14 c0 -4.8 -3.5 -8.4 -8.5 -8.4z" fill="#FF7722"/>
+  <circle cx="300" cy="244.4" r="3" fill="#FFFFFF"/>
+
+  <!-- Municipal worker with shovel -->
+  <g>
+    <line x1="342" y1="250" x2="314" y2="284" stroke="#7D6657" stroke-width="3" stroke-linecap="round"/>
+    <polygon points="308,282 320,284 316,294 304,291" fill="#9C8778"/>
+    <rect x="355" y="266" width="6" height="26" fill="#5A4033"/>
+    <rect x="364" y="266" width="6" height="26" fill="#5A4033"/>
+    <rect x="353" y="290" width="9" height="4" rx="1.5" fill="#3B2418"/>
+    <rect x="363" y="290" width="9" height="4" rx="1.5" fill="#3B2418"/>
+    <rect x="351" y="236" width="22" height="32" rx="6" fill="#FF7722"/>
+    <rect x="351" y="251" width="22" height="3" fill="#F6DC85"/>
+    <line x1="353" y1="244" x2="340" y2="258" stroke="#A86B45" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="362" cy="227" r="8" fill="#A86B45"/>
+    <path d="M352.5 225 a9.5 9.5 0 0 1 19 0 z" fill="#F4C430"/>
+    <rect x="350" y="223.5" width="24" height="3" rx="1.5" fill="#E0A800"/>
+  </g>
+
+  <!-- Auto-rickshaw -->
+  <g>
+    <path d="M448 262 Q452 238 482 238 L508 238 Q516 238 516 248 L516 262 Z" fill="#F4C430"/>
+    <rect x="452" y="262" width="62" height="24" rx="6" fill="#2E7D4F"/>
+    <rect x="464" y="246" width="28" height="16" rx="3" fill="#3B2418" opacity="0.5"/>
+    <path d="M512 262 L530 266 Q535 279 528 286 L512 286 Z" fill="#2E7D4F"/>
+    <rect x="508" y="243" width="6" height="17" rx="1" fill="#FFFBF2" opacity="0.85"/>
+    <circle cx="531" cy="272" r="2.5" fill="#F6DC85"/>
+    <circle cx="466" cy="288" r="8" fill="#3B2418"/>
+    <circle cx="466" cy="288" r="3" fill="#9C8778"/>
+    <circle cx="524" cy="288" r="7" fill="#3B2418"/>
+    <circle cx="524" cy="288" r="2.5" fill="#9C8778"/>
+  </g>
+
+  <!-- Citizen reporting on her phone -->
+  <g>
+    <polygon points="58,206 82,206 90,246 50,246" fill="#7A1F2B"/>
+    <rect x="60" y="182" width="20" height="26" rx="7" fill="#7A1F2B"/>
+    <polygon points="60,184 72,184 88,236 78,240" fill="#FF7722"/>
+    <line x1="72" y1="184" x2="88" y2="236" stroke="#F4C430" stroke-width="1.5"/>
+    <circle cx="70" cy="171" r="10" fill="#3B2418"/>
+    <circle cx="61" cy="168" r="5" fill="#3B2418"/>
+    <circle cx="72.5" cy="174" r="8" fill="#B5774F"/>
+    <circle cx="75.5" cy="170.5" r="1.3" fill="#B42318"/>
+    <line x1="78" y1="192" x2="90" y2="182" stroke="#B5774F" stroke-width="5" stroke-linecap="round"/>
+    <rect x="88" y="168" width="10" height="17" rx="2" fill="#3B2418"/>
+    <rect x="89.5" y="170" width="7" height="12" rx="1" fill="#FFC9A3"/>
+  </g>
+
+  <!-- The report: phone -> report card -> pin on the road -->
+  <g fill="none" stroke="#FF7722" stroke-width="2" stroke-dasharray="5 5" stroke-linecap="round" opacity="0.85">
+    <path d="M96 166 C 94 146, 104 128, 116 112"/>
+    <path d="M246 88 C 290 98, 302 180, 300 233"/>
+  </g>
+  <rect x="102" y="34" width="146" height="80" rx="12" fill="#3B2418" opacity="0.07"/>
+  <rect x="100" y="30" width="146" height="80" rx="12" fill="#FFFFFF" stroke="#EADFCB"/>
+  <path d="M122 44 c-6.6 0 -11 4.6 -11 10.8 c0 8 11 18.2 11 18.2 s11 -10.2 11 -18.2 c0 -6.2 -4.4 -10.8 -11 -10.8z" fill="#FF7722"/>
+  <circle cx="122" cy="55" r="3.8" fill="#FFFFFF"/>
+  <rect x="142" y="47" width="86" height="7" rx="3.5" fill="#5A4033" opacity="0.8"/>
+  <rect x="142" y="60" width="60" height="6" rx="3" fill="#9C8778" opacity="0.55"/>
+  <rect x="112" y="82" width="90" height="18" rx="9" fill="#E6F4EA"/>
+  <circle cx="124" cy="91" r="6" fill="#2E7D4F"/>
+  <path d="M121 91 l2.2 2.2 l4 -4.4" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="134" y="88" width="56" height="6" rx="3" fill="#1F6B3F" opacity="0.65"/>
+</svg>

@@ -18,7 +18,11 @@ ENV/
 env.bak/
 venv.bak/
 
+<<<<<<< HEAD
 # Django & Local Database
+=======
+# Django & Local Database (created inside backend/)
+>>>>>>> 4d28cea (Updated CivicSetu project)
 civicsetu
 db.sqlite3
 db.sqlite3-journal
@@ -49,6 +53,7 @@ yarn-error.log*
 credentials.json
 service-account*.json
 
+<<<<<<< HEAD
 # Node & Frontend Build Artifacts
 node_modules/
 frontend/node_modules/
@@ -59,6 +64,16 @@ dist-ssr/
 frontend/.vite/
 .cache/
 frontend/.cache/
+=======
+# Node & Frontend Build Artifacts (frontend/web, frontend/mobile)
+node_modules/
+dist/
+dist-ssr/
+.vite/
+.cache/
+.expo/
+web-build/
+>>>>>>> 4d28cea (Updated CivicSetu project)
 
 # Testing and Code Quality
 .pytest_cache/

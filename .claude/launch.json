@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "backend",
+      "runtimeExecutable": "backend/.venv/Scripts/python.exe",
+      "runtimeArgs": ["backend/manage.py", "runserver", "127.0.0.1:8000"],
+      "port": 8000
+    },
+    {
+      "name": "website",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "frontend/web", "run", "dev"],
+      "port": 5173
+    },
+    {
+      "name": "app",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "frontend/mobile", "run", "web"],
+      "port": 8081
+    },
+    {
+      "name": "civic-prototype",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "3000", "--bind", "127.0.0.1", "--directory", "C:/Users/PRATYUSH/AppData/Local/Temp/claude/f46365054e24bc70/9212efa1-4f40-4e04-a272-b7f1e7cb2de5/scratchpad/civic-repo/src/dist"],
+      "port": 3000
+    }
+  ]
+}

@@ -1,0 +1,329 @@
+.mapContainer {
+  position: relative;
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(156, 135, 120, 0.15);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.leafletContainer {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 400px;
+  background: var(--cs-text-strong);
+  z-index: 1;
+}
+
+.mapContainer :global(.leaflet-container) {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 400px;
+  background: var(--cs-text-strong);
+  z-index: 1;
+  font-family: inherit;
+}
+
+:global(.leaflet-div-icon) {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Controls Overlay */
+.controlsOverlay {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.layerBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(var(--cs-shadow-rgb), 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(156, 135, 120, 0.25);
+  color: var(--cs-ivory);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  transition: all 0.2s ease;
+}
+
+.layerBtn:hover {
+  background: var(--cs-text-strong);
+  border-color: var(--cs-kesari);
+  color: var(--cs-maroon);
+  transform: translateY(-1px);
+}
+
+.geoBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(var(--cs-shadow-rgb), 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(156, 135, 120, 0.25);
+  color: var(--cs-ivory);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  transition: all 0.2s ease;
+}
+
+.geoBtn:hover {
+  background: var(--cs-text-strong);
+  border-color: var(--cs-kesari);
+  color: var(--cs-maroon);
+  transform: translateY(-1px);
+}
+
+.legendPill {
+  background: rgba(var(--cs-shadow-rgb), 0.9);
+  backdrop-blur: 8px;
+  border: 1px solid rgba(156, 135, 120, 0.25);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--cs-border-strong);
+}
+
+.legendCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Custom Marker Styles */
+.markerWrapper {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.markerPin {
+  width: 22px;
+  height: 22px;
+  border-radius: 50% 50% 50% 0;
+  background: var(--cs-maroon);
+  transform: rotate(-45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+  border: 2px solid var(--cs-white);
+  transition: transform 0.2s ease;
+}
+
+.markerDot {
+  width: 6px;
+  height: 6px;
+  background: var(--cs-white);
+  border-radius: 50%;
+  transform: rotate(45deg);
+}
+
+.markerWrapper:hover .markerPin {
+  transform: rotate(-45deg) scale(1.2);
+}
+
+/* Urgent Pulsing Animation */
+.urgentPulse .markerRing {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid var(--cs-danger);
+  animation: pulseRing 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+@keyframes pulseRing {
+  0% {
+    transform: scale(0.6);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.selectedMarker .markerPin {
+  border-color: var(--cs-haldi);
+  transform: rotate(-45deg) scale(1.3);
+  box-shadow: 0 0 16px rgba(244, 196, 48, 0.8);
+}
+
+/* User GPS Marker */
+.userGpsPin {
+  width: 16px;
+  height: 16px;
+  background: var(--cs-kesari);
+  border: 3px solid var(--cs-white);
+  border-radius: 50%;
+  box-shadow: 0 0 12px var(--cs-kesari);
+}
+
+/* Popup Styles */
+:global(.leaflet-popup-content-wrapper) {
+  background: var(--cs-text-strong) !important;
+  color: var(--cs-ivory) !important;
+  border: 1px solid rgba(156, 135, 120, 0.2) !important;
+  border-radius: 12px !important;
+  padding: 0 !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5) !important;
+}
+
+:global(.leaflet-popup-tip) {
+  background: var(--cs-text-strong) !important;
+  border: 1px solid rgba(156, 135, 120, 0.2) !important;
+}
+
+:global(.leaflet-popup-content) {
+  margin: 0 !important;
+  line-height: 1.4 !important;
+}
+
+.popupCard {
+  padding: 16px 18px;
+  min-width: 260px;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.popupHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.trackingCode {
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cs-success);
+}
+
+.popupTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cs-ivory);
+  margin: 2px 0 0 0;
+}
+
+.popupDesc {
+  font-size: 12px;
+  color: var(--cs-text-faint);
+  margin: 0;
+}
+
+.popupMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 1px solid rgba(156, 135, 120, 0.1);
+  padding-top: 8px;
+  margin-top: 2px;
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--cs-border-strong);
+}
+
+.popupFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(156, 135, 120, 0.1);
+  padding-top: 10px;
+  margin-top: 4px;
+}
+
+.priorityTag {
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.popupTrackBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cs-maroon);
+  text-decoration: none;
+}
+
+.popupTrackBtn:hover {
+  text-decoration: underline;
+}
+
+.userPopup {
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--cs-ivory);
+}
+
+.clusterNav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(var(--cs-shadow-rgb), 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(156, 135, 120, 0.25);
+  padding: 3px 6px;
+  border-radius: 8px;
+}
+
+.clusterBtn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: rgba(247, 239, 225, 0.78);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clusterBtn:hover {
+  background: rgba(255, 119, 34, 0.15);
+  color: var(--cs-kesari-light);
+  border-color: rgba(255, 119, 34, 0.3);
+}
+
+.clusterBtnActive {
+  background: rgba(255, 119, 34, 0.25) !important;
+  color: var(--cs-white) !important;
+  border-color: var(--cs-kesari) !important;
+  font-weight: 700 !important;
+  box-shadow: 0 0 10px rgba(255, 119, 34, 0.3) !important;
+}
+

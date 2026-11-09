@@ -12,7 +12,11 @@ The architecture is built on `i18next` and `react-i18next`, ensuring modular loc
 
 ## 2. Directory Structure & Key Namespaces
 ```
+<<<<<<< HEAD
 frontend/src/i18n/
+=======
+frontend/web/src/i18n/
+>>>>>>> 4d28cea (Updated CivicSetu project)
 ├── index.ts                # i18next initialization & config
 ├── locales/
 │   ├── en.json             # English translation strings

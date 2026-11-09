@@ -43,6 +43,7 @@ CivicSetu is an enterprise-grade civic grievance redressal and municipal engagem
 
 ```
 CivicSetu/
+<<<<<<< HEAD
 ├── apps/
 │   ├── accounts/          # Authentication, JWT issuance/refresh, password reset
 │   ├── audit_logs/        # Immutable system and security audit trails
@@ -64,6 +65,32 @@ CivicSetu/
 ├── static/                # Static assets and compiled SPA distribution files
 ├── templates/             # Django templates (serves compiled SPA index.html)
 └── docs/                  # Comprehensive technical documentation
+=======
+├── backend/                   # Django REST API, shared by both frontends
+│   ├── apps/
+│   │   ├── accounts/          # Authentication, JWT issuance/refresh, password reset
+│   │   ├── audit_logs/        # Immutable system and security audit trails
+│   │   ├── authority/         # Authority dashboard, resolution workflows, analytics
+│   │   ├── complaint_history/ # Lifecycle state machine history and transition events
+│   │   ├── complaint_images/  # Grievance and resolution proof attachments
+│   │   ├── complaints/        # Grievance CRUD, public tracking, filtering
+│   │   ├── core/              # Base models (UUID primary keys, timestamps), utilities
+│   │   ├── departments/       # Municipal department registry and authority assignments
+│   │   ├── feedback/          # Citizen post-resolution ratings and reviews
+│   │   ├── notifications/     # In-app notification engine and event delivery
+│   │   └── users/             # User profile management and administrative user directory
+│   ├── config/
+│   │   ├── settings/          # Environment-driven settings (base, dev, prod)
+│   │   ├── asgi.py            # ASGI entrypoint
+│   │   ├── wsgi.py            # WSGI production server entrypoint
+│   │   └── urls.py            # Platform URL routing and SPA catch-all
+│   ├── static/                # Static assets and compiled SPA distribution files
+│   └── templates/             # Django templates (serves compiled SPA index.html)
+├── frontend/
+│   ├── web/                   # Website: React 19 + TypeScript + Vite single-page app
+│   └── mobile/                # CIVIC citizen app: Expo (React Native)
+└── docs/                      # Comprehensive technical documentation
+>>>>>>> 4d28cea (Updated CivicSetu project)
 ```
 
 ---

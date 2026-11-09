@@ -1,0 +1,369 @@
+/* ============================================================
+   Location picker: search + my location, quick places, map, address
+   ============================================================ */
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.wrapper button {
+  font-family: inherit;
+}
+
+/* ---------- Search row ---------- */
+.searchRow {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.searchBox {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 6px 0 14px;
+  box-sizing: border-box;
+  background: var(--cs-white);
+  border: 1.5px solid var(--cs-border-strong);
+  border-radius: 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.searchBox:focus-within {
+  border-color: var(--cs-kesari);
+  box-shadow: 0 0 0 3px var(--cs-kesari-tint);
+}
+
+.searchIcon {
+  color: var(--cs-text-muted);
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  color: var(--cs-text-strong);
+}
+
+.searchInput::placeholder {
+  color: var(--cs-text-faint);
+}
+
+.clearBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--cs-text-muted);
+  cursor: pointer;
+}
+
+.clearBtn:hover {
+  background: var(--cs-sand);
+  color: var(--cs-text-strong);
+}
+
+.searchBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 9px;
+  background: var(--cs-maroon);
+  color: var(--cs-white);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.searchBtn:hover:not(:disabled) {
+  background: var(--cs-maroon-dark);
+}
+
+.searchBtn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.gpsBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  border: 1.5px solid var(--cs-kesari-light);
+  border-radius: 12px;
+  background: var(--cs-kesari-wash);
+  color: var(--cs-kesari-deep);
+  font-size: 13.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.gpsBtn:hover:not(:disabled) {
+  background: var(--cs-kesari-tint);
+  border-color: var(--cs-kesari);
+}
+
+.gpsBtn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.searchBtn:focus-visible,
+.gpsBtn:focus-visible,
+.clearBtn:focus-visible,
+.chip:focus-visible,
+.layerBtn:focus-visible {
+  outline: 2px solid var(--cs-kesari);
+  outline-offset: 2px;
+}
+
+/* ---------- Quick places (one scrolling row) ---------- */
+.chipsRow {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, #000 92%, transparent);
+}
+
+.chipsRow::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--cs-border);
+  border-radius: 9999px;
+  background: var(--cs-white);
+  color: var(--cs-text);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.chip:hover {
+  border-color: var(--cs-border-strong);
+  color: var(--cs-text-strong);
+}
+
+.chipWard {
+  color: var(--cs-maroon);
+  border-color: var(--cs-maroon-light);
+  background: var(--cs-maroon-wash);
+}
+
+.chipOn,
+.chipOn:hover {
+  color: var(--cs-maroon);
+  background: var(--cs-kesari-tint);
+  border-color: var(--cs-kesari);
+}
+
+/* ---------- Map ---------- */
+.mapFrame {
+  position: relative;
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--cs-border);
+  background: var(--cs-sand);
+}
+
+.map {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 240px;
+  z-index: 1;
+  background: var(--cs-sand);
+}
+
+.mapFrame :global(.leaflet-container) {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 240px;
+  background: var(--cs-ivory);
+  font-family: inherit;
+  z-index: 1;
+}
+
+:global(.leaflet-div-icon) {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Map style switch: small pill floating on the map */
+.layerBtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid rgba(234, 223, 203, 0.9);
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--cs-text-strong);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(var(--cs-shadow-rgb), 0.12);
+}
+
+.layerBtn:hover {
+  background: var(--cs-white);
+}
+
+/* Coordinates: quiet badge in the corner */
+.coordsBadge {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  z-index: 1000;
+  padding: 4px 9px;
+  border-radius: 8px;
+  background: rgba(59, 36, 24, 0.72);
+  color: var(--cs-white);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  pointer-events: none;
+}
+
+/* ---------- Resolved address ---------- */
+.addressLine {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--cs-text-strong);
+}
+
+.addressIcon {
+  color: var(--cs-maroon);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.resolving {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--cs-text-muted);
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- Draggable map pin (rendered by Leaflet) ---------- */
+.pickerPinWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.35));
+  cursor: grab;
+  transition: transform 0.15s ease;
+}
+
+.pickerPinWrapper:active {
+  cursor: grabbing;
+  transform: scale(1.1);
+}
+
+.pickerPin {
+  width: 32px;
+  height: 32px;
+  border-radius: 50% 50% 50% 0;
+  background: var(--cs-kesari);
+  transform: rotate(-45deg);
+  border: 2.5px solid var(--cs-white);
+  box-shadow: 0 3px 12px rgba(234, 88, 12, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pickerPin::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--cs-white);
+  transform: rotate(45deg);
+}
+
+.pickerShadow {
+  width: 14px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  margin-top: -2px;
+  filter: blur(1px);
+}
+
+/* ---------- Phones ---------- */
+@media (max-width: 600px) {
+  .searchRow {
+    flex-direction: column;
+  }
+  .gpsBtn {
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 2s;
+  }
+}
