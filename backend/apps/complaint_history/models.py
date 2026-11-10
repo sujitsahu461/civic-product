@@ -16,6 +16,7 @@ class HistoryAction(models.TextChoices):
     RESOLVED = "RESOLVED", _("Complaint Resolved")
     REJECTED = "REJECTED", _("Complaint Rejected")
     NOTE_ADDED = "NOTE_ADDED", _("Note Added")
+    PRIORITY_CHANGED = "PRIORITY_CHANGED", _("Priority Changed")
 
 
 class ComplaintHistory(models.Model):

@@ -51,13 +51,18 @@ class ComplaintImageSerializer(serializers.ModelSerializer):
 class ComplaintAttachmentSerializer(serializers.ModelSerializer):
     """Read-only multimedia attachment representation (image, audio, video)."""
 
+    attachment_url = serializers.FileField(source="file", read_only=True)
+    file_name = serializers.CharField(source="original_filename", read_only=True)
+
     class Meta:
         model = ComplaintAttachment
         fields = (
             "public_id",
             "file",
+            "attachment_url",
             "attachment_type",
             "original_filename",
+            "file_name",
             "content_type",
             "file_size",
             "caption",

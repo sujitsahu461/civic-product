@@ -314,6 +314,63 @@
   line-height: 1.45;
 }
 
+.activityTimeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-left: 2px solid var(--cs-border);
+  margin-left: 17px;
+  padding-left: 22px;
+}
+
+.activityItem {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  padding: 0 0 22px;
+}
+
+.activityItem:last-child {
+  padding-bottom: 0;
+}
+
+.activityMarker {
+  position: absolute;
+  left: -39px;
+  top: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cs-maroon-wash);
+  border: 1px solid var(--cs-maroon-light);
+  color: var(--cs-maroon);
+}
+
+.activityContent {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+
+.activityChange {
+  align-self: flex-start;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--cs-ivory);
+  border: 1px solid var(--cs-border);
+  color: var(--cs-text-strong);
+  font: 700 11px 'JetBrains Mono', monospace;
+}
+
+.activityActor {
+  font-size: 11px;
+  color: var(--cs-text-faint);
+}
+
 /* Feedback Section for Resolved Grievance */
 .feedbackCard {
   background: var(--cs-kesari-tint);

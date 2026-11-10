@@ -1,5 +1,6 @@
 import logging
 import os
+import uuid
 
 from PIL import Image
 from django.contrib.auth import get_user_model
@@ -12,6 +13,8 @@ from apps.complaint_history.models import ComplaintHistory, HistoryAction
 from apps.complaint_images.models import AttachmentType, ComplaintAttachment, ComplaintImage
 from apps.complaints.models import Complaint, ComplaintCategory, ComplaintPriority, ComplaintStatus
 from apps.complaints.scoping import categories_for_user, officers_for_category, scope_complaints
+from infrastructure.events.outbox import OutboxService
+from infrastructure.events.schema import build_event
 
 
 User = get_user_model()
@@ -160,6 +163,7 @@ class ComplaintService:
         audio_duration=None,
         attachments=None,
         department=None,
+        correlation_id=None,
         **kwargs,
     ):
         """Create a new complaint with initial status PENDING and log history event."""
@@ -246,6 +250,22 @@ class ComplaintService:
             new_status=ComplaintStatus.PENDING,
             remarks=f"Complaint filed under category: {complaint.get_category_display()}.",
         )
+        workflow_correlation_id = correlation_id or uuid.uuid4()
+        OutboxService.record(
+            build_event(
+                event_type="ComplaintCreated",
+                source="grievance",
+                aggregate_id=complaint.public_id,
+                correlation_id=workflow_correlation_id,
+                payload={
+                    "tracking_code": complaint.tracking_code,
+                    "category": complaint.category,
+                    "priority": complaint.priority,
+                    "status": complaint.status,
+                    "citizen_id": str(citizen.public_id),
+                },
+            )
+        )
 
         # Save any initially uploaded images
         if images:
@@ -271,8 +291,8 @@ class ComplaintService:
         # Notify the officers whose departments handle this category. If no
         # department covers it, alert the super admins so it is not missed.
         try:
-            from apps.authority.services import NotificationService
             from apps.notifications.models import NotificationType
+            from apps.notifications.services import NotificationService
 
             authorities = officers_for_category(complaint.category)
             if not authorities.exists():
@@ -286,6 +306,7 @@ class ComplaintService:
                     message=f"A new complaint \"{complaint.title}\" has been filed under {complaint.get_category_display()}.",
                     notification_type=NotificationType.NEW_COMPLAINT,
                     complaint=complaint,
+                    correlation_id=workflow_correlation_id,
                 )
         except Exception as exc:
             logger.error("Failed to notify authorities of new complaint: %s", exc)
@@ -300,7 +321,7 @@ class ComplaintService:
 
     @staticmethod
     @transaction.atomic
-    def update_status(complaint, actor, new_status, remarks=""):
+    def update_status(complaint, actor, new_status, remarks="", correlation_id=None):
         """Update complaint status and record history timeline."""
         old_status = complaint.status
         if old_status == new_status:
@@ -366,6 +387,32 @@ class ComplaintService:
             new_status=new_status,
             remarks=remarks or f"Status changed from {old_status} to {new_status}.",
         )
+        event_payload = {
+            "old_status": old_status,
+            "new_status": new_status,
+            "actor_id": str(actor.public_id) if actor else None,
+            "remarks": remarks[:500],
+        }
+        workflow_correlation_id = correlation_id or uuid.uuid4()
+        OutboxService.record(
+            build_event(
+                event_type="ComplaintStatusChanged",
+                source="grievance",
+                aggregate_id=complaint.public_id,
+                correlation_id=workflow_correlation_id,
+                payload=event_payload,
+            )
+        )
+        if new_status in (ComplaintStatus.RESOLVED, ComplaintStatus.REJECTED):
+            OutboxService.record(
+                build_event(
+                    event_type=f"Complaint{new_status.title().replace('_', '')}",
+                    source="grievance",
+                    aggregate_id=complaint.public_id,
+                    correlation_id=workflow_correlation_id,
+                    payload=event_payload,
+                )
+            )
 
         logger.info(
             "Complaint %s status updated: %s -> %s by %s",
@@ -378,7 +425,9 @@ class ComplaintService:
 
     @staticmethod
     @transaction.atomic
-    def assign_authority(complaint, actor, authority_user, remarks=""):
+    def assign_authority(
+        complaint, actor, authority_user, remarks="", correlation_id=None
+    ):
         """Assign an authority user to handle the complaint."""
         if authority_user.role != UserRole.AUTHORITY and authority_user.role != UserRole.SUPER_ADMIN:
             raise ValueError("Only an authority or super admin can be assigned to handle complaints.")
@@ -387,6 +436,7 @@ class ComplaintService:
             if complaint.category not in categories_for_user(authority_user):
                 raise ValueError("Authority does not belong to the department of this complaint.")
 
+        old_status = complaint.status
         complaint.assigned_authority = authority_user
         if complaint.status == ComplaintStatus.PENDING:
             complaint.status = ComplaintStatus.IN_PROGRESS
@@ -398,9 +448,23 @@ class ComplaintService:
             complaint=complaint,
             actor=actor,
             action=HistoryAction.ASSIGNED,
-            old_status=complaint.status,
+            old_status=old_status,
             new_status=complaint.status,
             remarks=remarks or f"Assigned to {authority_user.full_name}.",
+        )
+        OutboxService.record(
+            build_event(
+                event_type="ComplaintAssigned",
+                source="grievance",
+                aggregate_id=complaint.public_id,
+                correlation_id=correlation_id or uuid.uuid4(),
+                payload={
+                    "assigned_authority_id": str(authority_user.public_id),
+                    "actor_id": str(actor.public_id) if actor else None,
+                    "status": complaint.status,
+                    "remarks": remarks[:500],
+                },
+            )
         )
 
         logger.info(

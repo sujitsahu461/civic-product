@@ -1,4 +1,5 @@
 import logging
+import uuid
 from django.db import transaction
 from django.db.models import Avg, Count, Q
 from rest_framework.exceptions import PermissionDenied, ValidationError
@@ -6,7 +7,10 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 from apps.complaint_history.models import ComplaintHistory, HistoryAction
 from apps.complaints.models import Complaint, ComplaintStatus
 from apps.feedback.models import Feedback
-from apps.notifications.models import Notification, NotificationType
+from apps.notifications.models import NotificationType
+from apps.notifications.services import NotificationService
+from infrastructure.events.outbox import OutboxService
+from infrastructure.events.schema import build_event
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +22,7 @@ class FeedbackService:
     @transaction.atomic
     def submit_feedback(complaint: Complaint, citizen, validated_data: dict) -> Feedback:
         """Submit feedback for a resolved complaint."""
+        correlation_id = uuid.uuid4()
         from apps.accounts.models import UserRole
         if complaint.citizen_id != citizen.id and getattr(citizen, "role", None) != UserRole.SUPER_ADMIN:
             raise PermissionDenied("You can only submit feedback for your own complaints.")
@@ -55,6 +60,23 @@ class FeedbackService:
             new_status=complaint.status,
             remarks=f"Citizen submitted resolution feedback: {rating}/5 stars. Comments: \"{comments[:100]}\"",
         )
+        OutboxService.record(
+            build_event(
+                event_type="FeedbackSubmitted",
+                source="feedback",
+                aggregate_id=feedback.public_id,
+                correlation_id=correlation_id,
+                payload={
+                    "complaint_id": str(complaint.public_id),
+                    "citizen_id": str(citizen.public_id),
+                    "rating": rating,
+                    "satisfaction_level": satisfaction_level,
+                    "resolution_quality": resolution_quality,
+                    "timeliness": timeliness,
+                    "is_issue_resolved": is_issue_resolved,
+                },
+            )
+        )
 
         # Notify authority officers
         from django.contrib.auth import get_user_model
@@ -67,12 +89,13 @@ class FeedbackService:
                 recipients.add(auth_user)
 
         for recipient in recipients:
-            Notification.objects.create(
+            NotificationService.create_notification(
                 recipient=recipient,
                 title=f"Citizen Feedback Received: {complaint.tracking_code}",
                 message=f"Citizen rated resolution {rating}/5 stars ({satisfaction_level}): \"{comments[:100]}\"",
                 notification_type=NotificationType.RESOLUTION_UPDATE,
                 complaint=complaint,
+                correlation_id=correlation_id,
             )
 
         logger.info(

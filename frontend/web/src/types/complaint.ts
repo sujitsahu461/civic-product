@@ -17,7 +17,9 @@ export interface ComplaintAttachment {
   public_id: string;
   attachment_type: 'IMAGE' | 'AUDIO' | 'VIDEO';
   attachment_url: string;
-  file_name: string;
+  file?: string;
+  file_name?: string;
+  original_filename?: string;
   file_size: number;
   duration_seconds?: number | null;
   uploaded_at: string;

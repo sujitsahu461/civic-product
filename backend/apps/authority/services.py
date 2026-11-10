@@ -1,4 +1,5 @@
 import logging
+import uuid
 from datetime import timedelta
 
 from django.contrib.auth import get_user_model
@@ -10,62 +11,12 @@ from apps.accounts.models import UserRole
 from apps.complaint_history.models import ComplaintHistory, HistoryAction
 from apps.complaints.models import Complaint, ComplaintCategory, ComplaintPriority, ComplaintStatus
 from apps.complaints.services import ComplaintService
-from apps.notifications.models import Notification, NotificationType
+from apps.notifications.models import NotificationType
+from apps.notifications.services import NotificationService
 
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
-
-
-# ===========================================================================
-# Notification Service
-# ===========================================================================
-
-
-class NotificationService:
-    """Lifecycle management for in-app notifications."""
-
-    @staticmethod
-    def create_notification(recipient, title, message, notification_type, complaint=None):
-        """Create and persist a notification."""
-        notif = Notification.objects.create(
-            recipient=recipient,
-            title=title,
-            message=message,
-            notification_type=notification_type,
-            complaint=complaint,
-        )
-        logger.info("Notification sent to %s: %s", recipient.email, title)
-        return notif
-
-    @staticmethod
-    def get_notifications(user, is_read=None):
-        """Return user's notifications, optionally filtered by read status."""
-        qs = Notification.objects.filter(recipient=user).select_related("complaint")
-        if is_read is not None:
-            qs = qs.filter(is_read=is_read)
-        return qs.order_by("-created_at")
-
-    @staticmethod
-    def mark_as_read(notification_ids, user):
-        """Mark specific notifications as read for a user."""
-        updated = Notification.objects.filter(
-            public_id__in=notification_ids, recipient=user, is_read=False
-        ).update(is_read=True)
-        return updated
-
-    @staticmethod
-    def mark_all_read(user):
-        """Mark all unread notifications as read for a user."""
-        updated = Notification.objects.filter(
-            recipient=user, is_read=False
-        ).update(is_read=True)
-        return updated
-
-    @staticmethod
-    def get_unread_count(user):
-        """Return count of unread notifications."""
-        return Notification.objects.filter(recipient=user, is_read=False).count()
 
 
 # ===========================================================================
@@ -153,7 +104,14 @@ class AuthorityComplaintService:
     @transaction.atomic
     def update_complaint_status(complaint, authority, new_status, remarks=""):
         """Update status and notify the citizen."""
-        updated = ComplaintService.update_status(complaint, authority, new_status, remarks)
+        correlation_id = uuid.uuid4()
+        updated = ComplaintService.update_status(
+            complaint,
+            authority,
+            new_status,
+            remarks,
+            correlation_id=correlation_id,
+        )
 
         # Notify the citizen
         NotificationService.create_notification(
@@ -163,6 +121,7 @@ class AuthorityComplaintService:
                     + (f" Remarks: {remarks}" if remarks else ""),
             notification_type=NotificationType.STATUS_CHANGED,
             complaint=complaint,
+            correlation_id=correlation_id,
         )
         return updated
 
@@ -216,7 +175,7 @@ class AuthorityComplaintService:
         ComplaintHistory.objects.create(
             complaint=complaint,
             actor=authority,
-            action=HistoryAction.STATUS_CHANGED,
+            action=HistoryAction.PRIORITY_CHANGED,
             old_status=old_priority,
             new_status=new_priority,
             remarks=remarks or f"Priority changed from {old_priority} to {new_priority}.",

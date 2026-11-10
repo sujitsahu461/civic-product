@@ -31,11 +31,11 @@ from apps.authority.services import (
     AuthorityAnalyticsService,
     AuthorityComplaintService,
     AuthorityDashboardService,
-    NotificationService,
 )
 from apps.audit_logs.models import AuditAction
 from apps.audit_logs.services import AuditLogService
 from apps.complaints.scoping import scoped_complaint_or_none
+from apps.notifications.services import NotificationService
 from apps.users.permissions import IsActiveUser
 
 

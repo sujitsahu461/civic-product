@@ -159,17 +159,37 @@ export const TrackComplaint: React.FC = () => {
       public_id: img.public_id || String(img.id),
       attachment_type: 'IMAGE' as const,
       attachment_url: img.image,
+      file: undefined,
       file_name: 'Photo evidence',
       file_size: 0,
       uploaded_at: img.uploaded_at,
     })) || []),
-  ];
+  ].filter((item, index, items) => {
+    const url = item.attachment_url || item.file || '';
+    return url && items.findIndex((candidate) => (candidate.attachment_url || candidate.file || '') === url) === index;
+  });
 
   const audioAttachments =
-    selectedComplaint?.attachments?.filter((a) => a.attachment_type === 'AUDIO') || [];
+    selectedComplaint?.attachments?.filter((a) => a.attachment_type === 'AUDIO' && (a.attachment_url || a.file)) || [];
 
   const videoAttachments =
-    selectedComplaint?.attachments?.filter((a) => a.attachment_type === 'VIDEO') || [];
+    selectedComplaint?.attachments?.filter((a) => a.attachment_type === 'VIDEO' && (a.attachment_url || a.file)) || [];
+
+  const mediaUrl = (file?: string, fallback?: string) => file || fallback || '';
+  const actionLabel = (action?: string) => {
+    switch (action) {
+      case 'CREATED': return 'Complaint submitted';
+      case 'ASSIGNED': return 'Authority assignment';
+      case 'STATUS_CHANGED': return 'Status decision';
+      case 'RESOLVED': return 'Complaint resolved';
+      case 'REJECTED': return 'Complaint rejected';
+      case 'REOPENED': return 'Complaint reopened';
+      case 'PRIORITY_CHANGED': return 'Priority decision';
+      case 'NOTE_ADDED': return 'Authority note';
+      case 'IMAGE_ADDED': return 'Evidence added';
+      default: return action || 'Complaint update';
+    }
+  };
 
   return (
     <div className={s.container}>
@@ -287,13 +307,13 @@ export const TrackComplaint: React.FC = () => {
                     {imageAttachments.map((img, i) => (
                       <a
                         key={img.public_id || i}
-                        href={img.attachment_url}
+                        href={mediaUrl(img.attachment_url, img.file)}
                         target="_blank"
                         rel="noopener noreferrer"
                         title={t('track.viewPhoto')}
                       >
                         <img
-                          src={img.attachment_url}
+                          src={mediaUrl(img.attachment_url, img.file)}
                           alt={`Evidence ${i + 1}`}
                           className={s.photoThumb}
                         />
@@ -313,14 +333,14 @@ export const TrackComplaint: React.FC = () => {
                     <div key={audio.public_id || i} className={s.audioBlock}>
                       <div className={s.audioHeader}>
                         <Icon name="mic" size={16} />
-                        <span>{audio.file_name || t('media.audioPlayback')}</span>
+                        <span>{audio.file_name || audio.original_filename || t('media.audioPlayback')}</span>
                         {audio.duration_seconds && (
                           <span className="text-gray-400 font-mono text-xs ml-auto">
                             {audio.duration_seconds}s
                           </span>
                         )}
                       </div>
-                      <audio controls src={audio.attachment_url} className={s.audioPlayer} />
+                      <audio controls src={mediaUrl(audio.attachment_url, audio.file)} className={s.audioPlayer} />
                     </div>
                   ))}
                 </div>
@@ -334,7 +354,7 @@ export const TrackComplaint: React.FC = () => {
                   </div>
                   {videoAttachments.map((vid, i) => (
                     <div key={vid.public_id || i} className={s.videoBlock}>
-                      <video controls src={vid.attachment_url} className={s.videoPlayer} />
+                      <video controls src={mediaUrl(vid.attachment_url, vid.file)} className={s.videoPlayer} />
                     </div>
                   ))}
                 </div>
@@ -390,6 +410,39 @@ export const TrackComplaint: React.FC = () => {
               })}
             </div>
           </div>
+
+          {/* Complete authority decision history */}
+          {timeline.length > 0 && (
+            <div className={s.timelineSection}>
+              <h3 className={s.timelineTitle}>Complete activity timeline</h3>
+              <div className={s.activityTimeline}>
+                {timeline.map((entry, index) => (
+                  <div key={entry.public_id || `${entry.created_at}-${index}`} className={s.activityItem}>
+                    <div className={s.activityMarker}>
+                      <Icon name="history" size={16} />
+                    </div>
+                    <div className={s.activityContent}>
+                      <div className={s.stepTitleRow}>
+                        <span className={s.stepName}>{actionLabel(entry.action)}</span>
+                        <span className={s.stepTime}>{formatDate(entry.created_at, i18n.language)}</span>
+                      </div>
+                      <p className={s.stepDesc}>
+                        {entry.remarks || 'No additional remarks were recorded.'}
+                      </p>
+                      {(entry.old_status || entry.new_status) && (
+                        <div className={s.activityChange}>
+                          {entry.old_status || '—'} <span aria-hidden="true">→</span> {entry.new_status || '—'}
+                        </div>
+                      )}
+                      {entry.actor?.full_name && (
+                        <span className={s.activityActor}>Recorded by {entry.actor.full_name}</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Citizen Feedback Form (When Resolved) */}
           {selectedComplaint.status === 'RESOLVED' && !feedbackSubmitted && (

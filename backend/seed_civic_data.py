@@ -19,6 +19,59 @@ def seed():
     citizens = list(User.objects.filter(role=UserRole.CITIZEN))
     authorities = list(User.objects.filter(role=UserRole.AUTHORITY))
     superadmins = list(User.objects.filter(role=UserRole.SUPER_ADMIN))
+
+    demo_accounts = [
+        (
+            'citizen@civicsetu.gov.in',
+            'Citizen@12345',
+            'Aarav Sharma',
+            UserRole.CITIZEN,
+            '9876543210',
+            {},
+        ),
+        (
+            'officer@civicsetu.gov.in',
+            'Officer@12345',
+            'Er. Rajesh Verma',
+            UserRole.AUTHORITY,
+            '9876543211',
+            {'department': 'Road'},
+        ),
+        (
+            'admin@civicsetu.gov.in',
+            'Admin@12345',
+            'CivicSetu Administrator',
+            UserRole.SUPER_ADMIN,
+            '9876543212',
+            {},
+        ),
+    ]
+
+    for email, password, full_name, role, phone, extra_fields in demo_accounts:
+        user, created = User.objects.get_or_create(
+            email=email,
+            defaults={
+                'username': email,
+                'full_name': full_name,
+                'role': role,
+                'phone': phone,
+                **extra_fields,
+            },
+        )
+        if not created:
+            user.username = email
+            user.full_name = full_name
+            user.role = role
+            user.phone = phone
+            for field, value in extra_fields.items():
+                setattr(user, field, value)
+        user.is_active = True
+        user.set_password(password)
+        user.save()
+
+    citizens = list(User.objects.filter(role=UserRole.CITIZEN))
+    authorities = list(User.objects.filter(role=UserRole.AUTHORITY))
+    superadmins = list(User.objects.filter(role=UserRole.SUPER_ADMIN))
     
     if not citizens:
         print("Creating default citizen...")

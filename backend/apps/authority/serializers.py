@@ -3,7 +3,9 @@ from rest_framework import serializers
 
 from apps.complaints.models import ComplaintCategory, ComplaintPriority, ComplaintStatus
 from apps.complaints.serializers import ComplaintDetailSerializer, ComplaintListSerializer
-from apps.notifications.models import Notification, NotificationType
+from apps.notifications.serializers import (
+    AuthorityNotificationSerializer as NotificationSerializer,
+)
 
 
 User = get_user_model()
@@ -125,31 +127,6 @@ class PriorityBreakdownSerializer(serializers.Serializer):
 # ---------------------------------------------------------------------------
 # Notification Serializers
 # ---------------------------------------------------------------------------
-
-
-class NotificationSerializer(serializers.ModelSerializer):
-    """Read-only notification representation."""
-
-    complaint_tracking_code = serializers.CharField(
-        source="complaint.tracking_code", read_only=True, default=None
-    )
-    complaint_public_id = serializers.UUIDField(
-        source="complaint.public_id", read_only=True, default=None
-    )
-
-    class Meta:
-        model = Notification
-        fields = (
-            "public_id",
-            "title",
-            "message",
-            "notification_type",
-            "complaint_tracking_code",
-            "complaint_public_id",
-            "is_read",
-            "created_at",
-        )
-        read_only_fields = fields
 
 
 class MarkReadSerializer(serializers.Serializer):
